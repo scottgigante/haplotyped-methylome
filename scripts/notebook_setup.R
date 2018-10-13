@@ -2,6 +2,9 @@ library(GenomicRanges)
 library(tidyverse)
 library(data.table)
 
+if (!dir.exists("../plots")) dir.create("../plots")
+
+if (!dir.exists("../tables")) dir.create("../tables")
 
 if (!file.exists("../RData/bisulfite_df.RData")) {
   bisulfite_df <- read_tsv("../bisulfite/CpG_context_TB1_PlacentaE14.5_WT_R1_trimmed.fq_bismark_bt2_pe.summary.tsv", col_names=c("chr","pos","percentMeth", "meth", "coverage"), col_types='ciddd') %>%
