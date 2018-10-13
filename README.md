@@ -2,6 +2,8 @@
 
 Reproducibility instructions for Gigante et al., 2018.
 
+![Directed Acyclic Dependency Graph](dependency_graph.svg)
+
 ### System requirements
 
 * R
