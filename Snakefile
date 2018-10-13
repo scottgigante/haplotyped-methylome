@@ -11,7 +11,7 @@ include:
 
 """Inputs:
         "../nanopore/{sample}.sorted.bam"
-        "../nanopore/{sample}.phased.sorted.bam"
+        "../nanopore/{sample}.phased_sorted.bam"
         "../nanopore/{sample}.methylation.tsv"
         "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"
         "../genome_data/ensembl_GRCm38.98.chr.gtf"

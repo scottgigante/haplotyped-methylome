@@ -2,7 +2,7 @@
 
 Reproducibility instructions for Gigante et al., 2018.
 
-![Directed Acyclic Dependency Graph](dependency_graph.svg)
+[![Directed Acyclic Dependency Graph](dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/nanopore-allelic-methylation/blob/master/dependency_graph.svg)
 
 ### System requirements
 
@@ -37,16 +37,16 @@ For the standard workflow, we expect that you have the following directory struc
 |   └──???
 ├── nanopore
 |   ├──albacore_1.2.2.b6.sorted.bam
-|   ├──albacore_1.2.2.b6.phased.sorted.bam
+|   ├──albacore_1.2.2.b6.phased_sorted.bam
 |   ├──albacore_1.2.2.b6.methylation.tsv
 |   ├──albacore_1.2.2.cast.sorted.bam
-|   ├──albacore_1.2.2.cast.phased.sorted.bam
+|   ├──albacore_1.2.2.cast.phased_sorted.bam
 |   ├──albacore_1.2.2.cast.methylation.tsv
 |   ├──albacore_1.2.2.b6xcast.sorted.bam
-|   ├──albacore_1.2.2.b6xcast.phased.sorted.bam
+|   ├──albacore_1.2.2.b6xcast.phased_sorted.bam
 |   ├──albacore_1.2.2.b6xcast.methylation.tsv
 |   ├──albacore_2.7.7.castxb6.promethion.sorted.bam
-|   ├──albacore_2.7.7.castxb6.promethion.phased.sorted.bam
+|   ├──albacore_2.7.7.castxb6.promethion.phased_sorted.bam
 |   └──albacore_2.7.7.castxb6.promethion.methylation.tsv
 ├── rna_seq
 |   ├──???

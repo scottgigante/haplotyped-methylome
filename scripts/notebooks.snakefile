@@ -131,16 +131,9 @@ rule rnaseq_analysis_notebook:
 
 rule notebook_setup:
     input:
-        "../bisulfite/CpG_context_TB1_PlacentaE14.5_WT_R1_trimmed.fq_bismark_bt2_pe.summary.tsv",
-        "../nanopore/albacore_1.2.2.b6xcast.methylation.summary.tsv",
         "../genome_data/ensembl_GRCm38.98.chr.gtf",
-        "../genome_data/ensembl_GRCm38.98.chr.genes.tsv",
-        "../RData/paired_DSS.RData",
     output:
-        "../tables/dss_dmrlist.csv",
         "../RData/knownGene.RData",
-        "../RData/nanopolish_df.RData",
-        "../RData/bisulfite_df.RData",
         "../plots/",
     script:
         "notebook_setup.R"

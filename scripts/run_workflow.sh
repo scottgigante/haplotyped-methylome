@@ -7,7 +7,7 @@ VCF=$4
 TMP=$INFILE.tmp
 mkdir -p $TMP
 
-PHASED="${FASTQ}.phased.sorted.bam"
+PHASED="${FASTQ}.phased_sorted.bam"
 METH="${FASTQ}.methylation.tsv"
 
 samtools index $BAM &

@@ -1,8 +1,8 @@
 rule samtools_index_phased:
     input:
-        "../nanopore/{sample}.phased.sorted.bam"
+        "../nanopore/{sample}.phased_sorted.bam"
     output:
-        "../nanopore/{sample}.phased.sorted.bam.bai"
+        "../nanopore/{sample}.phased_sorted.bam.bai"
     shell:
         "samtools index {input}"
 
@@ -18,17 +18,18 @@ rule suppdb_bam:
 
 rule suppdb_phased:
     input:
-        bam = "../nanopore/{sample}.phased.sorted.bam",
-        bai = "../nanopore/{sample}.phased.sorted.bam.bai",
+        bam = "../nanopore/{sample}.phased_sorted.bam",
+        bai = "../nanopore/{sample}.phased_sorted.bam.bai",
     output:
-        "../nanopore/{sample}.phased.sorted.bam.suppdb",
+        "../nanopore/{sample}.phased_sorted.bam.suppdb",
     shell:
         "python build_supplementary_db.py {input.bam}"
 
 rule split_methylation_by_alignment:
     input:
         bam = "../nanopore/{sample}.sorted.bam",
-        meth = "../nanopore/{sample}.methylation.tsv"
+        meth = "../nanopore/{sample}.methylation.tsv",
+        suppdb = "../nanopore/{sample}.sorted.bam.suppdb",
     output:
         "../nanopore/{sample}.methylation.split_supplementary.tsv"
     shell:
@@ -54,8 +55,9 @@ rule calculate_methylation_frequency:
 rule call_variant_proportion:
     input:
         bam = "../nanopore/{sample}.sorted.bam",
-        phased_bam = "../nanopore/{sample}.phased.sorted.bam",
-        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"
+        phased_bam = "../nanopore/{sample}.phased_sorted.bam",
+        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
+        suppdb = "../nanopore/{sample}.sorted.bam.suppdb",
     output:
         "../nanopore/{sample}.phased.tsv"
     shell:
@@ -104,7 +106,7 @@ rule calculate_meth_ref_freq:
     input:
         "../nanopore/{sample}.methylation.sorted.by_site.tsv.ref.tsv",
     output:
-        "../nanopore/{sample}.methylation.ref.summary.tsv"
+        "../nanopore/{sample}.methylation.ref_summary.tsv"
     shell:
         "python calculate_methylation_frequency.py -i {input} -p > {output}"
 
@@ -112,16 +114,16 @@ rule calculate_meth_alt_freq:
     input:
         "../nanopore/{sample}.methylation.sorted.by_site.tsv.alt.tsv",
     output:
-        "../nanopore/{sample}.methylation.alt.summary.tsv"
+        "../nanopore/{sample}.methylation.alt_summary.tsv"
     shell:
         "python calculate_methylation_frequency.py -i {input} -p > {output}"
 
 rule paired_dss:
     input:
-        "../nanopore/albacore_1.2.2.b6xcast.methylation.ref.summary.tsv",
-        "../nanopore/albacore_1.2.2.b6xcast.methylation.alt.summary.tsv",
-        "../nanopore/albacore_2.2.7.castxb6.promethion.methylation.ref.summary.tsv",
-        "../nanopore/albacore_2.2.7.castxb6.promethion.methylation.alt.summary.tsv",
+        "../nanopore/albacore_1.2.2.b6xcast.methylation.ref_summary.tsv",
+        "../nanopore/albacore_1.2.2.b6xcast.methylation.alt_summary.tsv",
+        "../nanopore/albacore_2.2.7.castxb6.promethion.methylation.ref_summary.tsv",
+        "../nanopore/albacore_2.2.7.castxb6.promethion.methylation.alt_summary.tsv",
     output:
         "../RData/paired_DSS.RData"
     script:
@@ -136,3 +138,22 @@ rule compare_haplotype_methylation:
         "../nanopore/{sample}.compare_haplotype_methylation.tsv"
     shell:
         "python compare_haplotype_methylation.py -m {input.meth} -p {input.phase} -b 11 -o 5 -r $(cat {input.region}) > {output}"
+
+rule build_dmrlist:
+    input:
+        "../RData/paired_DSS.RData",
+        "../genome_data/ensembl_GRCm38.98.chr.genes.tsv",
+    output:
+        "../tables/dss_dmrlist.csv",
+    script:
+        "build_dss_dmrlist.R"
+
+rule build_methylation_df:
+    input:
+        "../bisulfite/CpG_context_TB1_PlacentaE14.5_WT_R1_trimmed.fq_bismark_bt2_pe.summary.tsv",
+        "../nanopore/albacore_1.2.2.b6xcast.methylation.summary.tsv",
+    output:
+        "../RData/nanopolish_df.RData",
+        "../RData/bisulfite_df.RData",
+    script:
+        "build_methylation_df.R"

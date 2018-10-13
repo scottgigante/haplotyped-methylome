@@ -35,7 +35,7 @@ rule nanopolish_methylation:
         reads = "../nanopore/{sample}.fa.gz",
         readdb = "../nanopore/{sample}.fa.gz.readdb"
     output:
-        "../nanopore/{sample}.sorted.bam"
+        "../nanopore/{sample}.methylation.tsv"
     threads:
         16
     shell:
@@ -50,7 +50,7 @@ rule nanopolish_phase:
         vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
         readdb = "../nanopore/{sample}.fa.gz.readdb"
     output:
-        "../nanopore/{sample}.phased.sorted.bam"
+        "../nanopore/{sample}.phased_sorted.bam"
     threads:
         16
     shell:
