@@ -1,0 +1,59 @@
+---
+title: "Nanopolish Variants Analysis"
+author: "Scott Gigante"
+date: "20/07/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(viridis)
+library(forcats)
+```
+
+```{r}
+min_coverage=5
+base_fn <- "../nanopore/albacore_1.2.2.b6xcast"
+haplotype_df <- read_tsv(paste0(base_fn, ".fastq.phased.threeway.tsv")) %>%
+  rename(read_name=read) %>%
+  inner_join(read_tsv(paste0(base_fn, ".sorted.bam.threeway.summary.tsv"), 
+                      col_names=c("read_name", "chr", "start", "end", "qual"), skip=1))
+```
+
+## Assign FVB regions
+
+```{r}
+assign_chr_genotype <- function(.chr, df, binwidth=1e5, smooth=10) {
+  df <- df %>% dplyr::filter(chr==.chr, genotype %in% c("ref", "alt2"))
+  result <- data_frame(pos=seq(from=binwidth/2, to=max(df$end)-binwidth/2, by=binwidth/2))
+  result$prop <- sapply(result$pos, function(i) {
+    .start = i-binwidth/2
+    .end=i+binwidth/2
+    df <- df %>% dplyr::filter(start >= .start, end < .end)
+    sum(df$genotype == "ref")/nrow(df)
+  })
+  tree <- rpart::rpart(prop ~ pos, data=result, control=rpart::rpart.control(minsplit=5, cp=.1))
+  result$tree <- predict(tree, data.frame(pos=result$pos))
+  splits <- c()
+  for (i in which(result$tree[1:(nrow(result)-1)] - result$tree[2:nrow(result)] != 0)) {
+    splits <- c(splits, paste0(round((result$pos[i]+result$pos[i+1])/2e6, 2), "Mb"))
+  }
+  splits <- paste(splits, collapse=", ")
+  ggplot(result, aes(x=pos)) +
+    geom_point(aes(y=prop), alpha=0.05, na.rm=TRUE) +
+    geom_line(aes(y=tree), color='red') +
+    labs(title=paste0("chr", .chr, ": ", splits))
+}
+
+lapply(c(as.character(1:19), "X", "Y"), assign_chr_genotype, haplotype_df)
+```
+
+```{r}
+grid.arrange(assign_chr_genotype("2", haplotype_df),
+assign_chr_genotype("3", haplotype_df),
+assign_chr_genotype("7", haplotype_df),
+assign_chr_genotype("9", haplotype_df),
+assign_chr_genotype("19", haplotype_df),ncol=2)
+```
+

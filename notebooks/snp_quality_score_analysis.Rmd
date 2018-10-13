@@ -1,0 +1,153 @@
+---
+title: "SNP Quality Score Analysis"
+author: "Scott Gigante"
+date: "October 11, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+snp_qual_df <- read_tsv("../nanopore/albacore_1.2.2.phased_reads.per_site.tsv", n_max=5000000) %>%
+  group_by(chr, pos, read_name) %>%
+  arrange(caller) %>%
+  summarize(base_call=ifelse("base" %in% caller, first(genotype), "fail"),
+            signal_call=ifelse("signal" %in% caller, last(genotype), "fail"),
+            base_qual=ifelse("base" %in% caller, first(qual), -5),
+            signal_qual=ifelse("signal" %in% caller, last(qual), 30)) %>%
+  mutate(pass=base_call==signal_call) %>%
+  filter(base_qual < 200,
+         signal_qual < 200,
+         base_call!="fail" | signal_call != "fail") # should not be necessary - some rows are dodgy
+snp_qual_df
+```
+
+```{r}
+snp_qual_df %>%
+  na.omit() %>%
+  gather(caller, qual, ends_with("qual")) %>%
+  ggplot(aes(x=qual, fill=caller)) +
+  geom_histogram(position="dodge")
+```
+
+```{r}
+snp_qual_df %>%
+  na.omit() %>%
+  group_by(base_qual, signal_qual) %>%
+  summarize(log10count=log10(n()+1)) %>%
+  ggplot(aes(x=base_qual, y=signal_qual, fill=log10count)) +
+  geom_tile() +
+  scale_fill_viridis()
+```
+
+
+```{r}
+snp_qual_df %>%
+  group_by(base_qual, signal_qual) %>%
+  summarize(agreement=sum(pass)/n()) %>%
+  ggplot(aes(x=base_qual, y=signal_qual, fill=agreement)) +
+  geom_tile() +
+  scale_fill_viridis() +
+  geom_hline(yintercept=35+7, color='red', linetype=2) +
+  geom_vline(xintercept=7, color='red', linetype=2)
+```
+
+Do we have a monotonic increase in agreement with higher quality scores? Yes!
+
+```{r}
+sapply(0:30, function(x) { sum(snp_qual_df$base_qual > x & snp_qual_df$signal_qual > 35+x & snp_qual_df$base_call == snp_qual_df$signal_call)/sum(snp_qual_df$base_qual > x & snp_qual_df$signal_qual > 35+x) }) %>%
+  plot(type='l', main="Probability of agreement as both quality scores above threshold")
+sapply(0:30, function(x) { sum(snp_qual_df$base_qual == x & snp_qual_df$signal_qual > 35+7 &snp_qual_df$base_call == snp_qual_df$signal_call)/sum(snp_qual_df$base_qual == x) }) %>%
+  plot(type='l', main="Probability of agreement at base quality score")
+sapply(0:30, function(x) { sum(snp_qual_df$signal_qual == 35+x & snp_qual_df$base_qual > 7 & snp_qual_df$base_call == snp_qual_df$signal_call)/sum(snp_qual_df$signal_qual == 35+x) }) %>%
+  plot(type='l', main="Probability of agreement at signal quality score")
+```
+
+
+```{r}
+read_name_genotypes <- haplotype_df$genotype
+names(read_name_genotypes) = haplotype_df$read_name
+snp_qual_df$genotype = read_name_genotypes[snp_qual_df$read_name]
+snp_qual_df <- snp_qual_df %>%
+  mutate(base_correct = (tolower(base_call) == genotype),
+         signal_correct = (tolower(signal_call) == genotype))
+qual_prob_df = snp_qual_df %>%
+  filter(genotype!="fail") %>%
+  mutate(signal_qual = signal_qual-35) %>%
+  group_by(signal_qual) %>%
+  summarize(p_signal_ref_correct = sum(signal_correct & genotype=="ref")/sum(genotype=="ref"),
+            p_signal_alt_correct = sum(signal_correct & genotype=="alt")/sum(genotype=="alt")) %>%
+  ungroup() %>%
+  rename(qual=signal_qual) %>%
+  full_join(snp_qual_df %>%
+            filter(genotype!="fail") %>%
+            group_by(base_qual) %>%
+            summarize(p_base_ref_correct = sum(base_correct & genotype=="ref")/sum(genotype=="ref"),
+                      p_base_alt_correct = sum(base_correct & genotype=="alt")/sum(genotype=="alt")) %>%
+            ungroup() %>%
+            rename(qual=base_qual))
+qual_prob_df
+```
+
+```{r}
+fit <- lm(value ~ qual, 
+          data = qual_prob_df %>%
+            filter(qual > 3,
+                   qual < 29) %>%
+            gather(variable, value, starts_with("p")) %>%
+            mutate(value=log(1-value)) %>%
+            filter(is.finite(value)))
+
+qual_prob_df %>%
+  mutate(fit=1-exp(predict(fit,qual_prob_df))) %>%
+  filter(qual > 0) %>%
+  gather(variable, value, starts_with("p")) %>%
+  ggplot(aes(x=qual, y=value)) +
+  facet_grid(variable~.) +
+  geom_line() +
+  geom_line(aes(x=qual, y=fit), color="red", linetype=2)
+fit
+```
+
+```{r}
+signal_fit <- lm(value ~ qual, 
+          data = qual_prob_df %>%
+            filter(qual > 3,
+                   qual < 29) %>%
+            gather(variable, value, starts_with("p_signal")) %>%
+            mutate(value=log(1-value)) %>%
+            filter(is.finite(value)))
+base_ref_fit <- lm(value ~ qual, 
+          data = qual_prob_df %>%
+            filter(qual > 3,
+                   qual < 29) %>%
+            gather(variable, value, starts_with("p_base_ref")) %>%
+            mutate(value=log(1-value)) %>%
+            filter(is.finite(value)))
+base_alt_fit <- lm(value ~ qual, 
+          data = qual_prob_df %>%
+            filter(qual > 3,
+                   qual < 29) %>%
+            gather(variable, value, starts_with("p_base_alt")) %>%
+            mutate(value=log(1-value)) %>%
+            filter(is.finite(value)))
+fit_prob_df <- data_frame(qual=qual_prob_df$qual,
+                          p_signal_correct=1-exp(predict(signal_fit,qual_prob_df)),
+                          p_base_ref_correct=1-exp(predict(base_ref_fit,qual_prob_df)),
+                          p_base_alt_correct=1-exp(predict(base_alt_fit,qual_prob_df))) %>%
+  filter(qual > 0) %>%
+  mutate(p_signal_alt_correct = p_signal_correct,
+         p_signal_ref_correct = p_signal_correct,
+         p_base_correct = (p_base_ref_correct + p_base_alt_correct)/2) %>%
+  gather(variable, value, -qual)
+
+qual_prob_df %>%
+  filter(qual > 0) %>%
+  gather(variable, value, starts_with("p")) %>%
+  ggplot(aes(x=qual, y=value)) +
+  facet_grid(variable~.) +
+  geom_line() +
+  geom_line(data=fit_prob_df, color="red", linetype=2)
+```

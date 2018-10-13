@@ -1,0 +1,107 @@
+---
+title: "rnaseq_figures"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(cowplot)
+if (!require(ggrastr)) devtools::install_github("VPetukhov/ggrastr")
+library(ggrastr)
+```
+
+## Load data
+
+```{r} 
+load('../rna_seq/repeat_analysis_Sep18_imprint.RData')
+imprinted  <- read_tsv('../rna_seq/imprinted_genes_Supp_file_1.tsv')
+newgenes <- filter(imprinted, in_db + in_andergassen + in_Finn + in_Calabrese + in_Inoue ==0)
+```
+
+
+```{r}
+p <- results  %>% 
+  mutate(status = case_when(padj < 0.1 & logFC > 0 ~ "Maternal dominant", 
+                            padj < 0.1 & logFC < 0 ~ 'Paternal dominant', 
+                            TRUE ~ 'Not significant')) %>% 
+  mutate(status = factor(status, levels = c('Maternal dominant', 
+                                            'Paternal dominant', 
+                                            'Not significant')),
+         new=ifelse(ensembl_gene_id %in% newgenes$ensembl_gene_id,
+                    "Novel",
+                    "Known"),
+         size=ifelse(status=="Not significant", 1, 2))  %>%
+  arrange(desc(status)) %>%
+  ggplot(aes(x = logCPM, y = logFC, colour = status, shape=new, size=size)) + 
+  geom_point_rast() + 
+  labs(x = 'Average log CPM', 
+       y = 'log2 Fold Change', 
+       colour = 'Differential Expression', 
+       title = 'Imprinted Expression',
+       shape = 'Novel imprinted gene') + 
+  theme_gray() + 
+  scale_color_manual(values=c('Maternal dominant' = "#F8766D", 
+                              'Paternal dominant' = "#00BFC4", 
+                              'Not significant' = 'darkgrey')) + 
+  scale_size_continuous(range=c(0.5, 3), guide='none') + 
+  guides(color = guide_legend(order = 1), 
+         shape = guide_legend(order = 2))
+p
+```
+
+## Figure 3B
+
+```{r }
+load('../rna_seq/repeat_analysis_Sep18_strain.RData')
+p2 <- results.strain  %>% 
+  mutate(status = case_when(padj < 0.05 & logFC > 1 ~ "Cast dominant", 
+                            padj < 0.05 & logFC < -1 ~ 'B6 dominant', 
+                            TRUE ~ 'Not significant')) %>% 
+  mutate(status = factor(status, levels = c('Cast dominant', 
+                                            'B6 dominant', 
+                                            'Not significant')),
+         new=ifelse(ensembl_gene_id %in% newgenes$ensembl_gene_id,
+                    "Novel",
+                    "Known"))  %>%
+  arrange(desc(status)) %>%
+  ggplot(aes(x = logCPM, y = logFC, colour = status)) + 
+  geom_point_rast(size=0.5) + 
+  labs(x = 'Average log CPM', 
+       y = 'log2 Fold Change', 
+       colour = 'Differential Expression', 
+       title = 'Strain-biased Expression') + 
+  theme_gray() + 
+  scale_color_manual(values=c('Cast dominant' = "#E69F00", 
+                              'B6 dominant' = "#000000", 
+                              'Not significant' = 'darkgrey'))
+p2
+```
+
+## Figure 3 combined
+
+```{r}
+#arrange both plots side by side:
+p3 <- plot_grid(p, p2, labels = c("A", "B"), label_size=24)
+p3
+save_plot('../plots/rna_seq/MD-plots_combined.pdf', p3, base_aspect_ratio = 3)
+```
+
+# Figure S4
+
+```{r} 
+bias <- tibble(libsizes = splitDE$samples$lib.size, 
+               libsizes_norm = splitDE$samples$lib.size * splitDE$samples$norm.factors, 
+               cross = c(rep('B6xCast',8), rep('CastxB6',8)), 
+               allele = c(rep(c('Maternal','Paternal'),4),rep(c('Paternal','Maternal'),4)), 
+               embryo = c('162.5','162.5','162.8','162.8','163.4','163.4','163.6','163.6','618.1','618.1','618.4','618.4','627.5','627.5','627.6','627.6'))
+
+p <- ggplot(bias, aes(x = embryo, y = libsizes/1e6, fill = allele)) + 
+  geom_bar(stat='identity', position = 'dodge') + 
+  facet_wrap(~ cross,scales = "free_x" ) + 
+  ylim(c(0,NA)) + 
+  labs(x = 'Sample', y = 'Counts (millions)', fill = 'Allele') + 
+  theme_gray()
+p
+save_plot('../plots/rna_seq/allelic_bias_v2.pdf', p, base_aspect_ratio = 2)
+```

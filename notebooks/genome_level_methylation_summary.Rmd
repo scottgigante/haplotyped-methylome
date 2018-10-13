@@ -1,0 +1,147 @@
+---
+title: "Genome Level Methylation Summary"
+author: "Scott Gigante"
+date: "04/08/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rtracklayer)
+library(data.table)
+library(mclust)
+library(AnnotationHub)
+library(tidyverse)
+```
+
+## Load Data
+
+```{r}
+gtf <- import("../genome_data/ensembl_GRCm38.98.chr.gtf")
+cpg_islands <- read_tsv("../genome_data/CGI_coordinates_mm10.masked.HMM.tsv", col_types='ciiiiidd') %>%
+  mutate(chr=sub("chr", "", chr)) %>%
+  makeGRangesFromDataFrame()
+load("../RData/nanopolish_df.RData")
+load("../RData/bisulfite_df.RData")
+
+genes <- gtf %>%
+  as_data_frame() %>%
+  group_by(gene_name, seqnames, gene_biotype, strand) %>%
+  summarise(start=min(start),
+            end=max(end))
+protein_coding_genes <- genes %>%
+  filter(gene_biotype == "protein_coding") %>%
+  makeGRangesFromDataFrame()
+promoters <- protein_coding_genes %>%
+  as_data_frame() %>%
+  mutate(TSS=ifelse(strand=="+", start, end),
+         start=TSS-1000, 
+         end=TSS+1000) %>%
+  makeGRangesFromDataFrame()
+```
+
+## Define Functions
+
+```{r}
+metaplot <- function(gr, df, overhang=2000, feature_width=2, feature_breaks=c(0, 1), feature_labels=c("5'", "3'"), filename=NULL, label_fun=NULL, label_name="", span=0.1, ...) {
+  # gr <- promoters; overhang=2000; feature_width=2; feature_breaks=c(0, 1); feature_labels=c("5'", "3'"); filename=NULL; label_fun=NULL; label_name=""
+  gr <- gr %>%
+    as_data_frame() %>%
+    dplyr::rename(feature_start=start,
+           feature_end=end) %>%
+    mutate(start=feature_start-overhang,
+           end=feature_end + overhang,
+           id=row_number()) %>%
+    as.data.table()
+  setkey(gr, seqnames, start, end)
+  overlap <- foverlaps(df, gr, nomatch=0) %>%
+    mutate(feature_length=feature_end-feature_start,
+           pos=(i.start+i.end)/2,
+           pos=ifelse(strand=="+", pos-feature_start, feature_end-pos),
+           pos=ifelse(pos < 0, pos/overhang,
+                      ifelse(pos < feature_length, 
+                             feature_width*pos/feature_length,
+                             feature_width + (pos-feature_length)/overhang)),
+           pos=round(pos, 3)) %>%
+    na.omit()
+  if (!is.null(label_fun)) {
+    overlap <- label_fun(overlap, feature_width) %>% 
+      na.omit() %>% 
+      ungroup() %>%
+      group_by(pos, label) %>%
+      summarise(percentMeth=mean(percentMeth),
+                         count=n()) %>% 
+      group_by(label) %>%
+      filter(count > mean(count)-sd(count)) %>%
+      ungroup()
+    p <- ggplot(overlap, aes(x=pos, y=percentMeth, group=label, colour=label)) + 
+      labs(colour=label_name) +
+      scale_color_brewer(palette='Set2')
+  } else {
+    overlap <- overlap %>%
+      group_by(pos) %>%
+      summarise(percentMeth=mean(percentMeth),
+                         count=n()) %>%
+      filter(count > mean(count)-sd(count))
+    p <- ggplot(overlap, aes(x=pos, y=percentMeth))
+  }
+  p <- p +
+    geom_smooth(method="loess", span=span) +
+    geom_vline(xintercept = 0) +
+    geom_vline(xintercept = feature_width) +
+    scale_x_continuous(breaks=c(-1, feature_breaks*feature_width, feature_width + 1),
+                       labels=c(paste0("-", overhang/1000, "Kb"), feature_labels, paste0("+", overhang/1000, "Kb"))) +
+    labs(x="Relative Genomic Position",
+         y="Methylation (%)") +
+    coord_cartesian(ylim=c(0,1)) +
+    theme_grey()
+  if (!is.null(filename)) {
+    ggsave(filename, plot=p, ...)
+  }
+  p
+}
+
+split_by_cluster <- function(overlap, feature_width) {
+  summarised_cgi <- overlap %>%
+    group_by(seqnames, feature_start, id) %>%
+    filter(pos >= 0,
+           pos <= feature_width) %>%
+    summarise(mean=mean(percentMeth),
+              median=median(percentMeth),
+              max=max(percentMeth),
+              min=min(percentMeth),
+              iqr=IQR(percentMeth),
+              sd=sd(percentMeth)) %>%
+    na.omit()
+  clustered_cgi <- summarised_cgi %>%
+    ungroup() %>%
+    dplyr::select(-seqnames, -feature_start, -id) %>%
+    as.matrix() %>% 
+    scale() %>%
+    kmeans(2)
+  summarised_cgi$label = clustered_cgi$cluster
+  summarised_cgi <- summarised_cgi %>% 
+    group_by(label) %>%
+    mutate(count=n()) %>%
+    ungroup() %>%
+    mutate(label=paste0(label, " (n=", count, ")"))
+  left_join(overlap, summarised_cgi %>% dplyr::select(id, label))
+}
+```
+
+## Figure 1A
+
+```{r}
+metaplot(cpg_islands, df, label_fun=split_by_cluster, label_name="Cluster", feature_labels=c("CGI start", "CGI end"), overhang=20000) +
+  theme(legend.position = c(0.88, 0.85))
+ggsave("../plots/clustered_cgi_metaplot.pdf")
+```
+
+## Figure 1B 
+
+```{r}
+df <- nanopolish_df %>% dplyr::rename(seqnames=chr) %>% as.data.table()
+metaplot(promoters, df, feature_breaks=c(0, 0.5, 1), feature_labels=c("5'", "TSS", "3'"), filename="../plots/promoter_metaplot.pdf")
+metaplot(protein_coding_genes, df, feature_breaks=c(0, 1), feature_labels=c("TSS", "TTS"), filename="../plots/gene_body_metaplot.pdf", overhang = 10000, span=0.03)
+```
+

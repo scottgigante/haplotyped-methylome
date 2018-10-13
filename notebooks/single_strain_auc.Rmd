@@ -1,0 +1,164 @@
+---
+title: "Pure B6 Variants Analysis"
+author: "Scott Gigante"
+date: "20/07/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(viridis)
+library(forcats)
+```
+
+## Load data
+
+```{r}
+load("../RData/albacore_1.2.2.b6/haplotype_df.RData")
+b6_haplotype_df <- haplotype_df
+load("../RData/albacore_1.2.2.cast/haplotype_df.RData")
+cast_haplotype_df <- haplotype_df
+rm(haplotype_df)
+
+n <- min(nrow(cast_haplotype_df), nrow(b6_haplotype_df))
+cast_haplotype_df <- cast_haplotype_df[sample(n),]
+b6_haplotype_df <- b6_haplotype_df[sample(n),]
+```
+
+## Define functions
+
+```{r}
+base_classification <- function(haplotype_df, thresh=0.5) {
+  haplotype_df %>%
+    mutate(genotype=ifelse(is.finite(base_ratio),
+                           ifelse(base_ratio > thresh, "ref", "alt"),
+                           "fail"))
+}
+signal_classification <- function(haplotype_df, thresh=0.5) {
+  haplotype_df %>%
+    mutate(genotype=ifelse(is.finite(signal_ratio),
+                           ifelse(signal_ratio > thresh, "ref", "alt"),
+                           "fail"))
+}
+
+assess_df <- function(df, truth) {
+  df <- df %>%
+    filter(genotype %in% c("ref", "alt")) %>%
+    mutate(correct = genotype == truth) %>%
+    group_by(correct) %>%
+    summarise(count=n())
+  for (value in c(TRUE, FALSE)) {
+    if (!(value %in% df$correct)) df <- df %>% bind_rows(data.frame(correct=value, count=0))
+  }
+  df
+}
+
+tpr_fpr <- function(test_fun, thresh=0.5) {
+  cast_assessed <- cast_haplotype_df %>%
+    test_fun(thresh=thresh) %>%
+    assess_df("alt")
+  b6_assessed <- b6_haplotype_df %>%
+    test_fun(thresh=thresh) %>%
+    assess_df("ref")
+  tp <- cast_assessed %>% filter(correct) %>% .$count
+  fn <- cast_assessed %>% filter(!correct) %>% .$count
+  tn <- b6_assessed %>% filter(correct) %>% .$count
+  fp <- b6_assessed %>% filter(!correct) %>% .$count
+  data.frame(tpr=tp/(tp+fn), fpr=fp/(fp+tn), accuracy=(tp+tn)/(fp+fn+tp+tn))
+}
+
+roc <- function(test_fun, from=0, to=1, length.out=100) {
+  map_df(seq(from,to,length.out=length.out), ~ tpr_fpr(test_fun, .))
+}
+
+base_roc <- roc(base_classification)
+signal_roc <- roc(signal_classification)
+```
+
+## ROC Plots
+
+```{r}
+ggplot(base_roc, aes(x=fpr, y=tpr)) +
+  geom_line() +
+  labs(title=paste0("AUC=",MESS::auc(base_roc$fpr, base_roc$tpr) %>% round(3)))
+ggplot(signal_roc, aes(x=fpr, y=tpr)) +
+  geom_line() +
+  labs(title=paste0("AUC=",MESS::auc(signal_roc$fpr, signal_roc$tpr) %>% round(3)))
+```
+
+## GLM
+
+```{r}
+glm_data <- bind_rows(cast_haplotype_df %>% mutate(target="alt"), 
+                      b6_haplotype_df %>% mutate(target="ref")) %>%
+  filter(is.finite(signal_ratio), is.finite(base_ratio)) %>%
+  mutate(target=factor(target))
+x <- data.frame(signal_ratio=glm_data$signal_ratio, base_ratio=glm_data$base_ratio) %>% as.matrix()
+y = glm_data$target
+cv <- glmnet::cv.glmnet(x, y, family = "binomial", nfold = 10, type.measure = "deviance", alpha = 0.5)
+fit <- glmnet::glmnet(x, y, lambda=cv$lambda.1se,
+                 family="binomial", alpha=0.5)
+pred_y <- predict(fit, x)
+
+glmnet_label_df <- function(haplotype_df) {
+  x <- data.frame(signal_ratio=haplotype_df$signal_ratio, 
+             base_ratio=haplotype_df$base_ratio) %>% as.matrix()
+  haplotype_df %>%
+    mutate(glm_ll=predict(fit,x))
+}
+cast_haplotype_df <- glmnet_label_df(cast_haplotype_df)
+b6_haplotype_df <- glmnet_label_df(b6_haplotype_df)
+
+glmnet_classification <- function(haplotype_df, thresh=0) {
+  haplotype_df %>%
+    mutate(genotype=ifelse(is.finite(glm_ll),
+                           ifelse(glm_ll < thresh, "alt", "ref"),
+                           "fail"))
+}
+
+glm_roc <- roc(glmnet_classification, from=min(pred_y), to=max(pred_y), length.out=4000)
+
+ggplot(glm_roc, aes(x=fpr, y=tpr)) +
+  geom_line() +
+  labs(title=paste0("AUC=",MESS::auc(glm_roc$fpr, glm_roc$tpr) %>% round(3)))
+```
+
+## Maximum accuracy
+
+```{r}
+print(paste("Base", cast_haplotype_df %>%
+        bind_rows(b6_haplotype_df) %>%
+        filter(is.finite(base_ratio)) %>%
+        nrow(), max(base_roc$accuracy)))
+print(paste("Signal", cast_haplotype_df %>%
+        bind_rows(b6_haplotype_df) %>%
+        filter(is.finite(signal_ratio)) %>%
+        nrow(), max(signal_roc$accuracy)))
+print(paste("GLM", nrow(glm_data), max(glm_roc$accuracy)))
+```
+
+```{r}
+print(paste("Ours", cast_haplotype_df %>%
+              bind_rows(b6_haplotype_df) %>%
+              filter(genotype %in% c("ref", "alt")) %>%
+              nrow(), 
+            (cast_haplotype_df %>% 
+               tpr_fpr(test_fun=function(., thresh) .) %>% 
+               .$accuracy +
+               b6_haplotype_df %>% 
+               tpr_fpr(test_fun=function(., thresh) .) %>%
+               .$accuracy) / 2))
+```
+
+```{r}
+cast_haplotype_df %>% 
+  mutate(correct=genotype=="alt",
+         incorrect=genotype=="ref") %>%
+  bind_rows(b6_haplotype_df %>% 
+              mutate(correct=genotype=="ref",
+                     incorrect=genotype=="alt") ) %>%
+  summarise(correct = sum(correct)/n(),
+            incorrect=sum(incorrect)/n())
+```
+

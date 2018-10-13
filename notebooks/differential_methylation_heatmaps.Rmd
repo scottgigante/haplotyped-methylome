@@ -1,0 +1,170 @@
+---
+title: "Differential Methylation Heatmaps By Gene"
+author: "Scott Gigante"
+date: "8/12/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(forcats)
+library(data.table)
+library(viridis)
+library(cowplot)
+library(gtable)
+library(grid)
+```
+
+## Load data
+
+```{r}
+rolling_t_df_forward <- read_tsv("../nanopore/albacore_1.2.2.b6xcast.compare_haplotype_methylation.tsv") %>%
+  mutate(chr=as.character(chr)) %>%
+  rename_all(str_replace, "ref", "mat") %>%
+  rename_all(str_replace, "alt", "pat") %>%
+  unique()
+rolling_t_df_reverse <- read_tsv("../nanopore/albacore_2.2.7.castxb6.promethion.fastq.compare_haplotype_methylation.tsv") %>%
+  mutate(chr=as.character(chr)) %>%
+  rename_all(str_replace, "ref", "pat") %>%
+  rename_all(str_replace, "alt", "mat") %>%
+  unique()
+
+
+rolling_t_df <- bind_rows(rolling_t_df_forward,
+                          rolling_t_df_reverse)
+
+ICRs <- read_tsv('../genome_data/ICR_plot_regions.tsv', col_names = TRUE) %>%
+  dplyr::rename(gene=name,
+                tx_start=start,
+                tx_end=end) %>%
+  mutate(strand='+',
+         chr=as.character(chr))
+```
+
+## Define functions
+
+```{r}
+plot_ICR_heatmap2 <- function(genes, rolling_t_df, surrounding = 2000, tx_width=1, bins=20, title="", palette="RdBu") {
+  #function to plot methylation difference between alleles over genes
+  #first modify the genes table to have surrounding regions
+  #genes <- ICRs; surrounding = 2000; tx_width=1; bins=20; title=""; flip = FALSE; palette="RdBu"
+  gene_regions <- genes %>% 
+    mutate(TSS = ifelse(strand=="+", tx_start, tx_end), 
+           TTS = ifelse(strand == '+', tx_end, tx_start), 
+           start = tx_start - surrounding, 
+           end = tx_end + surrounding) %>% 
+    as.data.table()
+  setkey(gene_regions, chr, start, end)
+  #get overlap with the binned methylation data
+  overlap <- foverlaps(as.data.table(rolling_t_df), gene_regions, nomatch = 0) %>%
+    mutate(tx_length=tx_end-tx_start,
+           pos=(i.start+i.end)/2, #middle position of each bin
+           pos=ifelse(strand=="+", pos-tx_start, tx_end-pos), #centre on TSS, which is now 0
+           pos=ifelse(pos < 0, pos/surrounding,  #if before TSS, bin number is 
+                      ifelse(pos < tx_length,   #if after TSS but before TTS,
+                             tx_width*pos/tx_length,  #where I am on the transcript, times scale factor
+                             tx_width + (pos-tx_length)/surrounding)), #if after TTS, 
+           pos=round((pos+1)*bins/(tx_width+2))/bins*(tx_width+2)-1,  #map back to -1;2, but now it's discrete
+           pos=ifelse(pos < -1, -1, pos),
+           pos=ifelse(pos > tx_width+1, tx_width+1, pos)) %>%
+    
+    group_by(gene, pos, centre) %>%
+    summarise(diff=sum(mat_mean * mat_site_count, na.rm=TRUE)/sum(mat_site_count, na.rm=TRUE)-sum(pat_mean * pat_site_count, na.rm=TRUE)/sum(pat_site_count, na.rm=TRUE)) %>%
+    ungroup()
+    #foverlaps gives i.start and i.end, the binned methylation values
+  #divide up each gene into 10 bins, and have 5 bins upstream the TSS and 5 downstream of the TSS. Then in each bin, calculate the average difference in methylation.
+  #start by assigning bin to each region.
+
+  # fill empty bins
+  overlap <- overlap %>% bind_rows(lapply(unique(overlap$gene), function(.gene) {
+    overlap_filt <- overlap %>% filter(gene == .gene)
+    positions <- overlap_filt$pos %>% unique()
+    centre <- overlap_filt$centre[1]
+    df <- data_frame()
+    for (.pos in unique(overlap$pos)) {
+      if (!.pos %in% positions) {
+        df <- rbind(df, data_frame(gene=.gene, pos=.pos, centre=centre, diff=NA))
+      }
+    } 
+    df
+  }))
+  
+  #filter out missing data and sort
+  overlap <- overlap %>% 
+    filter(!(gene %in% sapply(unique(overlap$gene), function(.gene) {
+      ifelse(overlap %>% filter(gene == .gene, !is.na(diff)) %>% nrow() == 0, .gene, "")
+    }))) %>%
+    left_join(genes %>% select(gene, allele)) %>%
+    filter(allele %in% c("m", "p")) %>%
+    mutate(allele=factor(allele, levels=c("m", "p"), labels=c("Maternal", "Paternal"))) %>%
+    group_by(centre) %>%
+    mutate(centre_mean = mean(diff, na.rm=TRUE)) %>%
+    ungroup() %>%
+    group_by(gene) %>%
+    mutate(gene_mean = mean(diff, na.rm=TRUE)) %>%
+    ungroup() %>%
+    arrange(allele, centre_mean, gene_mean) %>%
+    mutate(rank=row_number()) %>%
+    mutate(gene=factor(gene),
+           gene=fct_reorder2(gene, allele, rank, .fun=function(.allele, .rank) {
+             ifelse(.allele[1]=="Paternal", min(.rank), -min(.rank))
+           }))
+  
+  ggplot(overlap, aes(x=pos, y=gene, fill=diff)) +
+    geom_tile() + 
+    labs(x="Genomic Position", y="Imprinting Control Region", fill="Methylation\nDifference", title=title) +
+    scale_x_continuous(breaks=c(-1, 0, tx_width, tx_width+1), labels=c(paste0("-", surrounding/1000, " kb"), "ICR start", "ICR end", paste0("+", surrounding/1000, " kb")), expand = c(0, 0)) +
+    geom_vline(xintercept=0, linetype=2) +
+    geom_vline(xintercept=tx_width, linetype=2) +
+    facet_grid(allele~., scales="free", space="free", switch = "both") +
+    scale_fill_distiller(palette=palette, limits = c(-0.75,0.75), na.value = 'grey70') +
+    theme_grey() + 
+    scale_y_discrete(expand=c(0,0))
+}
+```
+
+```{r}
+recolor_facet_strips <- function(p) {
+  dummy <- ggplot(data = p$data, aes(x=pos, y=gene, fill=diff))+
+    facet_grid(allele~., scales="free", space="free", switch = "both") +
+    ggplot2::geom_rect(aes(fill=allele), xmin=-Inf, xmax=Inf, ymin=-Inf, ymax=Inf) +
+    theme_minimal()
+
+  g1 <- ggplotGrob(p)
+  g2 <- ggplotGrob(dummy)
+  
+  gtable_select <- function (x, ...) 
+  {
+    matches <- c(...)
+    x$layout <- x$layout[matches, , drop = FALSE]
+    x$grobs <- x$grobs[matches]
+    x
+  }
+  
+  panels <- grepl(pattern="panel", g2$layout$name)
+  strips <- grepl(pattern="strip-l", g2$layout$name)
+  g2$layout$l[panels] <- g2$layout$l[panels] - 1
+  g2$layout$r[panels] <- g2$layout$r[panels] - 1
+  
+  new_strips <- gtable_select(g2, panels | strips)
+  
+  gtable_stack <- function(g1, g2){
+    g1$grobs <- c(g1$grobs, g2$grobs)
+    g1$layout <- transform(g1$layout, z= z-max(z), name="g2")
+    g1$layout <- rbind(g1$layout, g2$layout)
+    g1
+  }
+  ## ideally you'd remove the old strips, for now they're just covered
+  new_plot <- gtable_stack(g1, new_strips)
+  new_plot
+}
+```
+
+## Figure 4C
+
+```{r} 
+p <- plot_ICR_heatmap2(ICRs, rolling_t_df, surrounding = 5000) %>%
+  recolor_facet_strips()
+ggsave("../plots/paper_primary_ICRs.png", width=8, height=10, plot=p)
+```

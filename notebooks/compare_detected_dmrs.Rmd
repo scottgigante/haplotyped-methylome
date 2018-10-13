@@ -1,0 +1,181 @@
+---
+title: "Comparing detected DMRs"
+output: html_document
+---
+ 
+```{r}
+library(tidyverse)
+library(data.table)
+library(fuzzyjoin)
+```
+
+## Additional File 2
+
+```{r}
+combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
+```
+
+## Figure 5A
+
+```{r}
+gene_tss <- read_tsv("../genome_data/ensembl_GRCm38.98.chr.genes.tsv", col_types="ccccdd") %>% 
+  mutate(tss=ifelse(strand=="+", start, end)) %>%
+  group_by(chr, gene_name, gene_id, strand) %>%
+  summarise(pos=min(tss)) %>%
+  ungroup()
+dmr_midpoint <- combined_dmr %>%
+  filter(id < 400) %>%
+  filter(type=="imprinted") %>%
+  group_by(chr, type, areaStat) %>%
+  summarise(pos=(start+end) %/% 2) %>%
+  ungroup()
+match_fun <- function(v1, v2) {
+  d <- (abs(v1 - v2))
+  ret <- dplyr::data_frame(instance = d <= 1e12)
+  ret[["dist_to_dmr"]] <- d
+  ret
+}
+closest_dmr <- map_df(unique(gene_tss$chr),  ~ fuzzy_inner_join(
+  gene_tss %>% dplyr::filter(chr == .x), 
+  dmr_midpoint %>% dplyr::filter(chr == .x), 
+  by="pos", match_fun=match_fun) %>%
+    dplyr::group_by(gene_name) %>%
+    dplyr::filter(dist_to_dmr==min(dist_to_dmr)) %>%
+    dplyr::ungroup()) %>%
+  dplyr::select(-chr.x) %>%
+  dplyr::rename(chr=chr.y)
+```
+
+```{r}
+parent_de_genes <- read_tsv("../rna_seq/parent_biased_genes_10pctFDR.tsv", col_types = 'cdddddccii_____') %>%
+  dplyr::rename(chr=chromosome_name,
+         gene_id=ensembl_gene_id,
+         gene_name=mgi_symbol)
+parent_de_closest_dmr <- closest_dmr %>% inner_join(parent_de_genes) %>% dplyr::filter(chr != "X")
+parent_no_de_closest_dmr <- closest_dmr %>% anti_join(parent_de_genes) %>% dplyr::filter(chr != "X")
+```
+
+```{r}
+print(median(parent_de_closest_dmr$dist_to_dmr))
+print(median(parent_no_de_closest_dmr$dist_to_dmr))
+```
+
+```{r}
+p <- parent_de_closest_dmr %>%
+  mutate(type="Parent-of-origin\nBiased") %>%
+  bind_rows(parent_no_de_closest_dmr %>%
+              mutate(type="Unbiased")) %>%
+  ggplot() +
+  scale_colour_manual(breaks=c("Parent-of-origin\nBiased", "Unbiased"),
+                      values=c("purple", "black")) +
+  scale_fill_manual(breaks=c("Parent-of-origin\nBiased", "Unbiased"),
+                      values=c("purple", "black")) +
+  labs(fill="Differential Expression",
+       colour="Differential Expression") +
+  theme_grey() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank())
+p +
+  geom_density(aes(x=dist_to_dmr, fill=type, colour=type), 
+               alpha=0.3) +
+  scale_x_log10(labels = scales::comma) +
+  labs(x="Distance to Nearest DMR",
+       y="Gene Density")
+ggsave("../plots/dss_distance/parent_log.png", width=7.29, height=4.5)
+parent_linear_p <- p +
+  geom_density(aes(x=dist_to_dmr, fill=type, colour=type), 
+               alpha=0.3, n=2**20, bw=300, show.legend = F) +
+  xlim(0, 10000) +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank()) +
+  scale_x_continuous(labels=scales::comma)
+parent_linear_p
+ggsave("../plots/dss_distance/parent_linear.png", width=4.5, height=4.5)
+```
+
+## Figure 5B
+
+```{r}
+dmr_midpoint <- combined_dmr %>%
+  filter(id < 400) %>%
+  filter(type=="strain") %>%
+  group_by(chr, type, areaStat) %>%
+  summarise(pos=(start+end) %/% 2) %>%
+  ungroup()
+match_fun <- function(v1, v2) {
+  d <- (abs(v1 - v2))
+  ret <- dplyr::data_frame(instance = d <= 1e12)
+  ret[["dist_to_dmr"]] <- d
+  ret
+}
+closest_dmr <- map_df(unique(gene_tss$chr),  ~ fuzzy_inner_join(
+  gene_tss %>% filter(chr == .x), 
+  dmr_midpoint %>% filter(chr == .x), 
+  by="pos", match_fun=match_fun) %>%
+    group_by(gene_name) %>%
+    filter(dist_to_dmr==min(dist_to_dmr)) %>%
+    ungroup()) %>%
+  select(-chr.x) %>%
+  dplyr::rename(chr=chr.y)
+```
+
+```{r}
+strain_de_genes <- read_tsv("../rna_seq/strain_biased_genes_5pctFDR.tsv", col_types = 'dddddccc') %>%
+  dplyr::rename(chr=chromosome_name,
+         gene_id=ensembl_gene_id,
+         gene_name=mgi_symbol) %>%
+  dplyr::filter(abs(logFC) >= 2)
+strain_de_closest_dmr <- closest_dmr %>% inner_join(strain_de_genes) %>% filter(chr != "X")
+strain_no_de_closest_dmr <- closest_dmr %>% anti_join(strain_de_genes) %>% filter(chr != "X")
+```
+
+```{r close_gene}
+strain_de_closest_dmr %>%
+  dplyr::filter(dist_to_dmr < 10000) %>%
+  select(gene_name, chr, pos.x, areaStat, logFC) %>%
+  print(n=50)
+parent_de_closest_dmr %>%
+  dplyr::filter(dist_to_dmr < 5000) %>%
+  select(gene_name, chr, pos.x, areaStat, logFC) %>%
+  print(n=50)
+```
+
+
+```{r}
+print(median(strain_de_closest_dmr$dist_to_dmr))
+print(median(strain_no_de_closest_dmr$dist_to_dmr))
+```
+
+```{r}
+p <- strain_de_closest_dmr %>%
+  mutate(type="Strain Biased") %>%
+  bind_rows(strain_no_de_closest_dmr %>%
+              mutate(type="Unbiased")) %>%
+  ggplot() +
+  scale_colour_manual(breaks=c("Strain Biased", "Unbiased"),
+                      values=c("orange", "black")) +
+  scale_fill_manual(breaks=c("Strain Biased", "Unbiased"),
+                      values=c("orange", "black")) +
+  labs(x="Distance to Nearest DMR",
+       y="Gene Density",
+       fill="Differential Expression",
+       colour="Differential Expression") +
+  theme_grey() +
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank())
+p +
+  geom_density(aes(x=dist_to_dmr, fill=type, colour=type), 
+               alpha=0.3) +
+  scale_x_log10(labels=scales::comma)
+ggsave("../plots/dss_distance/strain_log.png", width=7.29, height=4.5)
+parent_linear_range <- ggplot_build(parent_linear_p)$layout$panel_scales_y[[1]]$range$range
+p +
+  geom_density(aes(x=dist_to_dmr, fill=type, colour=type), 
+               alpha=0.3, n=2**20, bw=300, show.legend = F) +
+  xlim(0, 10000) +
+  ylim(parent_linear_range[1], parent_linear_range[2]) +
+  theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank()) +
+  scale_x_continuous(labels=scales::comma)
+ggsave("../plots/dss_distance/strain_linear.png", width=4.5, height=4.5)
+```

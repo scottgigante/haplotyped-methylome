@@ -1,0 +1,38 @@
+name: nanopore_allelic_methylation
+channels: !!python/tuple
+  - !!python/unicode
+    'conda-forge'
+  - !!python/unicode
+    'bioconda'
+  - !!python/unicode
+    'r'
+  - !!python/unicode
+  'defaults'
+dependencies:
+  - bioconda::bioconductor-annotationhub
+  - bioconda::bioconductor-genomicranges
+  - bioconda::bioconductor-rtracklayer
+  - bioconda::bioconductor-dss
+  - bioconda::bioconductor-bsseq
+  - bioconda::r-mclust
+  - bioconda::biopython
+  - bioconda::pysam
+  - bioconda::samtools
+  - bioconda::snakemake
+  - bioconda::bwa
+  - bioconda::nanopolish
+  - r::r-data.table
+  - r::r-tidyverse
+  - r::r-rmarkdown
+  - r::r-viridis
+  - r::r-gtable
+  - r::r-knitr
+  - r::r-gridextra
+  - r::r-devtools
+  - r::r-broom
+  - conda-forge::r-fuzzyjoin
+  - conda-forge::r-cowplot
+  - conda-forge::r-ggextra
+  - conda-forge::future
+  - conda-forge::numpy
+  - conda-forge::pandoc

@@ -1,0 +1,469 @@
+---
+title: "Visualising DMRs"
+author: "Scott Gigante"
+date: "02/08/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rtracklayer)
+library(GenomicRanges)
+library(ggbio)
+library(gridExtra)
+library(forcats)
+library(AnnotationHub)
+library(tidyverse)
+```
+
+## Load data
+
+```{r}
+load("../RData/albacore_2.2.7.castxb6.promethion/fit_reads.RData")
+castxb6_fit_reads <- fit_reads
+load("../RData/albacore_2.2.7.castxb6.promethion/fit_reads_df.RData")
+castxb6_fit_reads_df <- fit_reads_df %>%
+  mutate(parent=ifelse(genotype=='ref', 'paternal', 'maternal'))
+combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
+```
+
+```{r load_presaved_data}
+load("../RData/albacore_1.2.2.b6xcast/fit_reads.RData")
+load("../RData/albacore_1.2.2.b6xcast/fit_reads_df.RData")
+fit_reads_df <- fit_reads_df %>%
+  mutate(parent=ifelse(genotype=='ref', 'maternal', 'paternal'))
+load("../genome_data/CpG_coordinates_mm10.RData")
+bisulfite_allelic_df <- read_tsv('../bisulfite/CpG_context.combined_replicates.genome1.summary.tsv', col_names = c('chr', 'start', 'pctmeth', 'mC', 'C')) %>%
+  mutate(allele="m") %>% 
+  bind_rows(read_tsv('../bisulfite/CpG_context.combined_replicates.genome2.summary.tsv', col_names = c('chr', 'start', 'pctmeth', 'mC', 'C')) %>%
+              mutate(allele='p')) %>%
+  mutate(end=start,
+         chr=sub("chr", "", chr))
+ah <- AnnotationHub()
+repeats <- ah[["AH6075"]]
+seqlevels(repeats) <- sub("chr", "", seqlevels(repeats))
+```
+
+```{r}
+load("../RData/knownGene.RData")
+```
+
+```{r}
+load("../RData/rna_seq_with_reverse2.RData")
+```
+
+
+```{r load_cgi_elements}
+cpg_islands <- read_tsv("../genome_data/CGI_coordinates_mm10.masked.HMM.tsv", 
+                        col_names=c("chr", "start", "end", "length", "CpGcount", "GCcount", "pctGC", "obsExp"),
+                        col_types='_ciiiiidd', skip = 1) %>%
+  mutate(chr=sub("chr", "", chr)) %>%
+  dplyr::select(chr, start, end) %>%
+  mutate(name="island") %>%
+  makeGRangesFromDataFrame(keep.extra.columns=TRUE)
+# extract the shore defined by 2000 bp downstream of cpg islands
+# perform intersection and combine the shores where they overlap
+# extract the features (ranges) that are present in shores only and not in cpg_islands
+cgi_shores=GenomicRanges::reduce(c(flank(cpg_islands, 2000, start=TRUE),
+                                 flank(cpg_islands, 2000, start=FALSE))) %>%
+  GenomicRanges::setdiff(cpg_islands)
+cgi_shores$name="shore"
+# extract the shelf defined by 4000 bp downstream of cpg islands
+# perform intersection and combine the shelves where they overlap
+# extract the features (ranges) that are present in shelves only and not in cpg_islands or shores
+cgi_shelves=GenomicRanges::reduce(c(flank(cpg_islands, 4000, start=TRUE),
+                                 flank(cpg_islands, 4000, start=FALSE))) %>%
+  GenomicRanges::setdiff(c(cpg_islands, cgi_shores))
+cgi_shelves$name="shelf"
+cgi_elements <- c(cpg_islands, cgi_shores, cgi_shelves)
+cgi_elements$name <- fct_relevel(factor(cgi_elements$name), "island", "shore", "shelf")
+#cpg_elements_gr=GRangesList("islands"=cpg_islands, "shores"=cpgi_shores, "shelves"=cpgi_shelves)
+```
+
+```{r load_icrs}
+icr_df <- read_tsv("../genome_data/primary_ICRs_mm10.tsv") %>%
+  mutate(chr=str_remove(chr, "^chr"))
+icr_df <- icr_df %>%
+  mutate(width=end-start) %>%
+  group_by(name) %>%
+  filter(width==max(width)) %>%
+  ungroup()
+```
+
+```{r}
+variant_df <- read_tsv("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf", skip=69, 
+                       col_types = "ci____c___", col_names=c("chr", "start", "FILTER"),
+                       progress=FALSE) %>%
+  dplyr::filter(FILTER=="PASS")
+```
+
+
+## Define functions
+
+```{r}
+reconstruct_read <- function(x, fit_reads, binwidth=500) {
+  .start = as.integer(x[2])
+  .end = as.integer(x[3])
+  .id = as.integer(x[4])
+  .chr=gsub(" ", "", x[1])
+  .genotype = x[6]
+  .parent = x[8]
+  fit = fit_reads[[.id]]
+  positions=seq(from=fit$start, to=fit$end, by=min(binwidth, (fit$end-fit$start)/2))
+  fit$x = positions
+  fit$pars$parametric=FALSE
+  fit$pars$surface="interpolate"
+  class(fit) <- "loess"
+  data_frame(id=.id,
+       genotype=.genotype,
+       percentMeth=predict(fit, newdata=positions),
+       start=positions,
+       parent=.parent) %>%
+    mutate(percentMeth=ifelse(percentMeth > 1, 1, percentMeth),
+           percentMeth=ifelse(percentMeth < 0, 0, percentMeth))
+}
+
+plot_fitted_region <- function(.chr, .start, .end, .highlight_start=NULL, .highlight_end=NULL,
+                               fit_reads_df, fit_reads, site_track="cpg", bins=100) {
+  # bins = 200; .highlight_start=NULL; .highlight_end=NULL; site_track="cpg"
+  df <- fit_reads_df %>%
+    filter(chr == .chr, 
+           end > .start, 
+           start < .end,
+           genotype %in% c("ref", "alt"))
+  if (nrow(df) == 0) return(ggplot())
+  p <- df %>%
+    apply(1, function(x) reconstruct_read(x, fit_reads, (.end-.start)/bins)) %>%
+    bind_rows() %>%
+    ggplot() +
+    labs(colour="Genotype",
+         x="", y="") +
+    ggplot2::ylim(0,1) + 
+    geom_line(aes(x=start, y=percentMeth, colour=parent, group=id), size=0.5, show.legend=FALSE) +
+    scale_color_manual(values=c('maternal' = "#F8766D", 
+                              'paternal' = "#00BFC4"))
+  if (site_track == "cpg") {
+    p <- p +
+      geom_point(data=cg_df %>% filter(chr==.chr, 
+                                       start > min(df$start), 
+                                       start < max(df$end)), 
+                 aes(x=start), y=0, pch='|')
+  } else if (site_track == "variant") {
+    p <- p +
+      geom_point(data=variant_df %>% filter(chr==.chr, 
+                                               start > min(df$start), 
+                                               start < max(df$end)),
+                 aes(x=start), y=0, pch="+", size=2)
+  }
+  if (!(is.null(.highlight_start) || is.null(.highlight_end))) {
+    highlight <- data_frame(x=c(.highlight_start, .highlight_end))
+    p <- p + geom_ribbon(data=highlight, aes(x), fill='red', color='transparent', alpha=0.2, ymin=0, ymax=1)
+  } else {
+    dmr_df <- combined_dmr %>% 
+      filter(chr==.chr, 
+             end > .start, 
+             start < .end)
+    if (nrow(dmr_df) > 0) {
+      for (i in 1:nrow(dmr_df)) {
+        highlight <- data_frame(x=c(dmr_df[i,]$start, dmr_df[i,]$end))
+        p <- p + geom_ribbon(data=highlight, aes(x), fill='red', color='transparent', alpha=0.2, ymin=0, ymax=1)
+      }
+    }
+  }
+  p
+}
+
+plot_rrbs <- function(.chr, .start, .end, name="") {
+  bisulfite_allelic_df %>%
+    filter(chr==.chr,
+           start > .start,
+           end < .end) %>%
+    ggplot() + 
+    geom_point(aes(x = start, y = pctmeth, colour = allele), size=0.5, show.legend=FALSE) + 
+    labs(x="", y="", colour="Allele", fill="Allele") + 
+    ylim(0,1) +
+    scale_color_manual(values=c('m' = "#F8766D", 
+                              'p' = "#00BFC4"))
+}
+
+subset_gr <- function(gr, .chr, .start, .end, overhang) {
+  # gr <- split(grlist, grlist$gene_name)[[4]]
+  if (max(end(gr)) < .start || min(start(gr)) > .end) {
+    return(NULL)
+  }
+  gr_visible <- gr[start(gr) <= .end & end(gr) >= .start]
+  if (max(start(gr)) > .end) {
+    gap <- gr[1,]
+    if (start(gap) < .end + overhang) {
+      end(gap) <- .end+overhang+1
+      start(gap) <- .end+overhang
+    } else {
+      start(gap) <- .end+overhang
+      end(gap) <- .end+overhang+1
+    }
+    gap$type <- "utr"
+    gr_visible <- c(gr_visible, gap)
+  }
+  if (min(end(gr)) < .start) {
+    gap <- gr[1,]
+    if (end(gap) > .start - overhang) {
+      start(gap) <- .start-overhang-1
+      end(gap) <- .start-overhang
+    } else {
+      end(gap) <- .start-overhang
+      start(gap) <- .start-overhang-1
+    }
+    gap$type <- "utr"
+    gr_visible <- c(gap, gr_visible)
+  }
+  gr_visible
+}
+
+subset_gtf <- function(gtf, .chr, .start, .end, overhang) {
+  # .chr<-"2"; .start <- 145787551; .end <- 145797751; gtf <- knownGene; max_intron_length<-200000; overhang <- (.end-.start)/18
+  gene_list <- knownGeneShort %>%
+    filter(seqnames==.chr, start < .end + overhang, end > .start - overhang)
+  grlist <- gtf[gtf$gene_id %in% gene_list$gene_id]
+  grlist <- split(grlist, grlist$gene_name) %>%
+    lapply(function(gr) subset_gr(gr, .chr, .start, .end, overhang))
+  grlist <- grlist[!sapply(grlist, is.null)] %>%
+    GRangesList()
+  grlist
+}
+
+plot_annotation <- function(.chr, .start, .end, overhang=(.end-.start)/18) {
+  grlist <- subset_gtf(knownGene, .chr, .start, .end, overhang)
+  if (length(grlist) > 0) {
+    ggplot(grlist) + geom_alignment(label=TRUE, names.expr="gene_name")
+  } else{
+    ggplot(data_frame(x=seq(from=.start, to=.end, length=2)), aes(x=x))
+  }
+}
+
+plot_cgi <- function(.chr, .start, .end) {
+  cgi_elements[seqnames(cgi_elements) == .chr] %>%
+    ggplot(aes(alpha=name)) + 
+    geom_rect(color=NA, show.legend=FALSE) +
+    scale_alpha_manual(values=c(island=1, shore=0.6, shelf=0.2)) +
+    theme(legend.title=element_blank())
+}
+
+plot_icr <- function(.chr, .start, .end) {
+  icrs <- icr_df %>%
+    filter(chr == .chr,
+           start < .end,
+           end > .start)
+  if (nrow(icrs) > 0) icrs %>%
+    ggplot() + 
+    ggplot2::geom_rect(aes(xmin=start, xmax=end, fill=MethAllele), ymin=0, ymax=1, show.legend=FALSE) +
+    geom_text(aes(x=(end+start)/2, y=0.5, label=name), color='grey10') +
+    theme(legend.title=element_blank()) +
+    scale_y_continuous(breaks=NULL) +
+    labs(x='', y='') +
+    scale_color_manual(values=c('m' = "#F8766D", 
+                              'p' = "#00BFC4"))
+}
+
+plot_repeat <- function(.chr, .start, .end, overhang=(.end-.start)/18) {
+  gr <- GenomicRanges::reduce(repeats[seqnames(repeats) == .chr & start(repeats) <= .end+overhang & end(repeats) >= .start-overhang]) %>%
+    as.data.frame() %>%
+    mutate(id=row_number()) %>%
+    gather(variable, position, start, end)
+  if (length(gr) > 0) {
+    ggplot(gr, aes(x=position, group=id)) + 
+      geom_ribbon(ymin=0, ymax=1) +
+      scale_y_continuous(breaks=NULL)
+  } else {
+    ggplot(data_frame(x=seq(from=.start, to=.end, length=2)), aes(x=x))
+  }
+}
+
+plot_rna_seq <- function(.chr, .start, .end, bins=500, reverse=FALSE, sqrt=FALSE) {
+  if (reverse) {
+    count_df <- rna_seq %>% 
+      select(chr, pos, maternal=rev_mat, paternal=rev_pat)
+  } else  {
+    count_df <- rna_seq %>% 
+      select(chr, pos, maternal=fwd_mat, paternal=fwd_pat)
+  }
+  count_df <- count_df %>%
+    filter(chr==.chr,
+           pos >= .start,
+           pos <= .end) %>%
+    dplyr::rename(start=pos) %>%
+    gather(allele, count, maternal, paternal)
+  if (nrow(count_df) > 0) {
+    intercept=min(count_df$start)
+    magnitude=max(count_df$start)-intercept
+    count_df <- count_df %>%
+      mutate(start=(start-intercept)/magnitude,
+             start=round(start*bins)/bins,
+             start=start * magnitude + intercept) %>%
+      group_by(allele, start) %>%
+      summarise(count=sum(count))
+  } else {
+    count_df <- data_frame(start=.start, allele=c("maternal", "paternal"), count=0)
+  }
+  p <- count_df %>%
+    bind_rows(data_frame(start=.$start[1], allele=c("maternal", "paternal"), count=0)) %>%
+    ggplot(aes(x=start, y=count, fill=allele)) +
+    geom_bar(stat='identity', show.legend=FALSE) +
+    labs(x="",
+         y="") + 
+    theme(strip.background = element_blank(),
+          strip.text.y = element_blank(),
+          axis.text.x = element_blank(),
+          axis.ticks.x = element_blank(),
+          axis.line.x = element_blank()) +
+    scale_fill_manual(values=c('maternal' = "#F8766D", 
+                              'paternal' = "#00BFC4"))
+  if (sqrt) {
+    scale_fn <- scale_y_sqrt
+  } else {
+    scale_fn <- scale_y_continuous
+  }
+  if (sum(count_df$count) > 0) {
+    p <- p +
+      scale_fn(limits=c(0, max(count_df$count)), 
+                         breaks = c(0, 
+                                    10^floor(log10(max(count_df$count))), 
+                                    max(count_df$count) - max(count_df$count) %% 10^floor(log10(max(count_df$count)))),
+                         labels = c("", paste0(c(1, 
+                                                 max(count_df$count) %/% 10^floor(log10(max(count_df$count)))), 
+                                               "e", floor(log10(max(count_df$count))))))
+  } else {
+    p <- p +
+      scale_y_continuous(limits=c(0), 
+                         breaks = c(0),
+                         labels = c(0))
+  }
+  p
+}
+
+filter_rna_seq_plot <- function(p, .allele) {
+  if (!is.null(p)) {
+    p$data <- p$data %>% filter(allele==.allele | count==0)
+  }
+  p
+}
+
+plot_track <- function(.chr, .start, .end, .highlight_start=NULL, .highlight_end=NULL, flank=NULL, cgi=TRUE, reverse=TRUE, rrbs=TRUE, gene=TRUE, repeats=FALSE, icr=T, rna=T, highlight_flanked=FALSE, sqrt_rna=FALSE,  ...) {
+  if (!is.null(flank)) {
+    if (highlight_flanked) {
+      .highlight_start <- .start
+      .highlight_end <- .end
+    }
+    .start <- .start - flank
+    .end <- .end + flank
+  }
+  args <- list(..., xlim=GRanges(.chr, IRanges(.start, .end)), heights=c())
+  if (cgi) {
+    args$CGI <- plot_cgi(.chr, .start, .end)
+    args$heights <- c(args$heights, 0.11)
+  }
+  args$B6xCast=plot_fitted_region(.chr, .start, .end, .highlight_start, .highlight_end, fit_reads_df, fit_reads, bins=200)
+  args$heights <- c(args$heights, 0.35)
+  if (reverse) {
+    args$CastxB6=plot_fitted_region(.chr, .start, .end, .highlight_start, .highlight_end, castxb6_fit_reads_df, castxb6_fit_reads, bins=200, site_track="variant")
+    args$heights <- c(args$heights, 0.35)
+  }
+  if (rrbs) {
+    args$RRBS <- plot_rrbs(.chr, .start, .end)
+    args$heights <- c(args$heights, 0.35)
+  }
+  if (rna) {
+    p_rna <- plot_rna_seq(.chr, .start, .end, sqrt=sqrt_rna)
+    args$B6F=filter_rna_seq_plot(p_rna, "maternal")
+    args$CastM=filter_rna_seq_plot(p_rna, "paternal")
+    args$heights <- c(args$heights, 0.1, 0.1)
+  }
+  if (rna & reverse) {
+    p_rna <- plot_rna_seq(.chr, .start, .end, reverse=TRUE, sqrt=sqrt_rna)
+    args$B6M=filter_rna_seq_plot(p_rna, "paternal")
+    args$CastF=filter_rna_seq_plot(p_rna, "maternal")
+    args$heights <- c(args$heights, 0.1, 0.1)
+  }
+  
+  if (gene) {
+    args$Genes=plot_annotation(.chr, .start, .end)
+    args$heights <- c(args$heights, 0.55)
+  }
+  if (icr) {
+    result <- plot_icr(.chr, .start, .end)
+    if (!is.null(result)) {
+      args$ICR=result
+      args$heights <- c(args$heights, 0.09)
+    }
+  }
+  if (repeats) {
+    args$Repeat=plot_repeat(.chr, .start, .end)
+    args$heights <- c(args$heights, 0.15)
+  }
+  do.call(tracks, args) +
+    theme_grey()
+}
+```
+
+## Figure 4A and B
+
+```{r}
+plot_track("2", 174.28e6, 174.30e6, reverse=TRUE, repeats=FALSE, icr=TRUE, rna=TRUE)
+ggbio::ggsave("../plots/nespas_gnas_track.pdf", width=6.84*1.5, height=4.11*1.5)
+plot_track("18", 12972000, 12994000, repeats=FALSE, icr=TRUE, rrbs=T, rna=TRUE)
+ggbio::ggsave("../plots/impact_track.pdf", width=6.84*1.5, height=4.11*1.5)
+```
+
+## Figure 6
+
+```{r}
+plot_track("6", 4746012, 4749480, flank=5000) # PEG10
+ggbio::ggsave("../plots/dmr_examples/peg10.pdf", width=4.5*1.5, height=4.11*1.5)
+plot_track("7", 6727344,6731296, flank=5000) # ZIM2
+ggbio::ggsave("../plots/dmr_examples/zim2.pdf", width=4.5*1.5, height=4.11*1.5)
+plot_track("3", 41555359, 41556940, flank=5000) # JADE1
+ggbio::ggsave("../plots/dmr_examples/jade1.pdf", width=4.5*1.5, height=4.11*1.5)
+plot_track("17", 34218511, 34218993, flank=5000) # Tap2 / IAPEZ repeat
+ggbio::ggsave("../plots/dmr_examples/iapez.pdf", width=4.5*1.5, height=4.11*1.5)
+plot_track("15", 97166956, 97167257, flank=5000) # AC158554.1
+ggbio::ggsave("../plots/dmr_examples/ac158554-1.pdf", width=4.5*1.5, height=4.11*1.5)
+plot_track("4", 33030872, 33031252, flank=5000) # 4933421O10Rik
+ggbio::ggsave("../plots/dmr_examples/4933421O10Rik.pdf", width=4.5*1.5, height=4.11*1.5)
+```
+
+## Visualise all ICRs
+
+```{r fig.height=14, fig.width=8}
+for (.name in icr_df$name) {
+  try({
+    if (file.exists(paste0("../plots/icrs/", str_replace(.name, "/", "_"), ".png"))) {
+    dmr1 <- icr_df %>%
+      filter(name==.name)
+    p <- dmr1 %>%
+    {plot_track(.$chr[1], .$start[1], .$end[1], flank=5000, rrbs=T, icr=T, reverse=T, rna=T)}
+    ggbio::ggsave(paste0("../plots/icrs/", str_replace(.name, "/", "_"), ".png"), plot=p, width=8, height=12)
+  }})
+}
+plot_track("1", 63260067, 63260907, flank=50000, rna=T, sqrt_rna=T)
+```
+
+## Visualise all DMRs
+
+```{r}
+combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
+combined_dmr <- combined_dmr %>%
+  mutate(name=paste(id, chr, start, end, type, sep="_"))
+for (.name in unique(combined_dmr$name)) {
+  try({
+    dmr1 <- combined_dmr %>%
+      filter(name==.name)
+    p <- dmr1 %>%
+    {plot_track(.$chr[1], .$start[1], .$end[1], flank=5000, rrbs=T, icr=T, reverse=T, rna=T)}
+    ggbio::ggsave(paste0("../plots/dss_paired/", .name, ".png"), plot=p, width=8, height=12)
+    p <- dmr1 %>%
+    {plot_track(.$chr[1], .$start[1], .$end[1], flank=20000, rrbs=T, icr=T, reverse=T, rna=T)}
+    ggbio::ggsave(paste0("../plots/dss_paired_20kb/", .name, ".png"), plot=p, width=8, height=12)
+  })
+}
+```
+
+

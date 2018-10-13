@@ -1,0 +1,95 @@
+---
+title: "Pure B6 Variants Analysis"
+author: "Scott Gigante"
+date: "20/07/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(viridis)
+library(forcats)
+```
+
+## Load data
+
+```{r}
+load("../RData/albacore_1.2.2.b6/haplotype_df.RData")
+load("../RData/albacore_1.2.2.b6/summary_df.RData")
+load("../RData/albacore_1.2.2.b6/fit_reads_df.RData")
+```
+
+## Figure S2Aii
+
+```{r}
+p <- summary_df %>%
+  left_join(haplotype_df) %>%
+  mutate(genotype=ifelse(is.na(genotype), "no_snps", genotype)) %>%
+  group_by(genotype) %>%
+  summarise(count=n()) %>%
+  mutate(platform="Nanopore") %>%
+  mutate(genotype=factor(genotype, 
+                         levels=c("ref", "alt", "fail", "no_snps"), 
+                         labels=c("Maternal", "Paternal", "Filtered", "Unassignable")),
+         count=count/sum(count) * 100) %>%
+  ggplot(aes(x=genotype, y=count, fill=genotype)) +
+  geom_bar(stat='identity', position='dodge', show.legend=FALSE) +
+  theme_grey() +
+  labs(x="Haplotype",
+       y="Read Assignment (%)",
+       fill="Genotype") +
+  scale_fill_manual(limits=c("Maternal", "Paternal", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black")) +
+  theme(axis.text.x = element_blank())
+p
+ggsave("../plots/single_strain_validation/b6.paper_haplotype_decision_frequency.png", dpi=200, width=2, height=4)
+```
+
+## Figure S2Bii
+
+```{r}
+p <- summary_df %>%
+  left_join(haplotype_df, by="read_name") %>%
+  mutate(genotype=ifelse(is.na(genotype), "no_snp", genotype),
+         genotype=factor(genotype,
+                         levels=c("ref", "alt", "fail", "no_snp"),
+                         labels=c("Maternal", "Paternal", "Filtered", "Unassignable")),
+         length=end-start) %>%
+  filter(chr %in% c(as.character(1:20), 'X', 'Y')) %>%
+  mutate(chr = factor(chr),
+         chr= fct_relevel(chr, "1", "2", "3", "4", "5", "6", "7", "8", "9")) %>%
+  ggplot(aes(x=chr, fill=genotype)) +
+  geom_histogram(stat='count', position='dodge') +
+  labs(fill="Haplotype", 
+       x="Chromosome",
+       y="Count") +
+  scale_fill_manual(limits=c("Maternal", "Paternal", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black")) +
+  theme_grey() +
+  theme(legend.position = c(0.88, 0.80))
+p
+ggsave("../plots/single_strain_validation/b6.paper_haplotype_by_chr.png", dpi=200, width=8, height=4)
+```
+
+## Figure S2Cii
+
+```{r}
+p <- haplotype_df[sample(1:nrow(haplotype_df), 10000),] %>%
+  mutate(genotype=factor(genotype,
+                        levels=c("alt", "fail", "ref"),
+                        labels=c("Paternal", "Filtered", "Maternal"))) %>%
+  ggplot(aes(x=signal_ratio, y=base_ratio, 
+             colour=genotype, 
+             pch=genotype)) +
+  geom_point(alpha=0.2, show.legend=FALSE) +
+  labs(x="Signal-level score",
+       y="Base-level score",
+       colour="Haplotype",
+       shape="Haplotype") +
+  theme_grey() + 
+  scale_colour_manual(limits=c("Maternal", "Paternal", "Filtered"), values=c("#F8766D", "#00BFC4", "grey50")) +
+  scale_shape_discrete(limits=c("Maternal", "Paternal", "Filtered")) +
+  guides(colour = guide_legend(override.aes = list(alpha = 1)))
+p
+ggsave("../plots/single_strain_validation/b6.paper_haplotype_score_combination.png", dpi=200, height=4, width=4)
+```
+
