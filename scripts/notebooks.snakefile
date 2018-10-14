@@ -58,7 +58,6 @@ rule dmr_comparison:
         "../rna_seq/parent_biased_genes_10pctFDR.tsv",
         "../rna_seq/strain_biased_genes_5pctFDR.tsv",
         "../plots/",
-        "../tables/",
     output:
         "../notebooks/compare_detected_dmrs.html"
     shell:

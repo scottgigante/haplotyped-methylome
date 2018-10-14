@@ -27,6 +27,7 @@ For the standard workflow, we expect that you have the following directory struc
 +── README.md
 ├── genome_data
 |   ├──CAST_EiJ.mgp.v5.snps.dbSNP142.vcf
+|   ├──FVB_NJ.mgp.v5.snps.dbSNP142.vcf
 |   ├──CpG_coordinates_mm10.RData
 |   ├──CGI_coordinates_mm10.masked.HMM.tsv
 |   ├──ensembl_GRCm38.98.chr.gtf
@@ -52,10 +53,7 @@ For the standard workflow, we expect that you have the following directory struc
 |   ├──???
 |   └──???
 ├── notebooks
-├── scripts
-├── RData
-├── plots
-└── tables
+└── scripts
 ```
 
 If you wish to run `nanopolish` on the raw read data, you can replace the contents of `nanopore` with the following:
@@ -90,38 +88,19 @@ snakemake rnaseq_analysis
 
 Compiled dependencies:
 
-* Snakemake
-* Samtools
-* pandoc
-* BWA (optional)
-* Nanopolish (optional)
+* [SAMtools](http://www.htslib.org/download/)
+* [Pandoc](https://pandoc.org/installing.html)
+* [BWA](https://sourceforge.net/projects/bio-bwa/files/) (optional)
+* [Nanopolish](https://nanopolish.readthedocs.io/en/latest/installation.html) (optional)
 
 Python dependencies:
 
-* numpy
-* future
-* biopython
-* pysam
+```
+pip install --user -r requirements.txt
+```
 
 R dependencies:
 
-* tidyverse
-* mclust
-* data.table
-* rmarkdown
-* knitr
-* viridis
-* gridExtra
-* devtools
-* broom
-* fuzzyjoin
-* cowplot
-* ggExtra
-
-Bioconductor dependencies:
-
-* AnnotationHub
-* GenomicRanges
-* rtracklayer
-* DSS
-* BSseq
+```
+Rscript install_R_deps.R
+```

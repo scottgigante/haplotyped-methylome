@@ -10,20 +10,22 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(viridis)
 library(forcats)
+library(gridExtra)
+
 ```
 
 ```{r}
 min_coverage=5
-base_fn <- "../nanopore/albacore_1.2.2.b6xcast"
-haplotype_df <- read_tsv(paste0(base_fn, ".fastq.phased.threeway.tsv")) %>%
+base_fn <- "../../nanopolish_data/albacore_1.2.2.b6xcast"
+haplotype_df <- read_tsv(paste0(base_fn, ".threeway_phased.tsv")) %>%
   rename(read_name=read) %>%
-  inner_join(read_tsv(paste0(base_fn, ".sorted.bam.threeway.summary.tsv"), 
+  inner_join(read_tsv(paste0(base_fn, ".sorted.bam.summary.tsv"), 
                       col_names=c("read_name", "chr", "start", "end", "qual"), skip=1))
 ```
 
-## Assign FVB regions
+## Define functions
 
-```{r}
+```{r fig.height=12, fig.width=10}
 assign_chr_genotype <- function(.chr, df, binwidth=1e5, smooth=10) {
   df <- df %>% dplyr::filter(chr==.chr, genotype %in% c("ref", "alt2"))
   result <- data_frame(pos=seq(from=binwidth/2, to=max(df$end)-binwidth/2, by=binwidth/2))
@@ -35,25 +37,70 @@ assign_chr_genotype <- function(.chr, df, binwidth=1e5, smooth=10) {
   })
   tree <- rpart::rpart(prop ~ pos, data=result, control=rpart::rpart.control(minsplit=5, cp=.1))
   result$tree <- predict(tree, data.frame(pos=result$pos))
-  splits <- c()
-  for (i in which(result$tree[1:(nrow(result)-1)] - result$tree[2:nrow(result)] != 0)) {
-    splits <- c(splits, paste0(round((result$pos[i]+result$pos[i+1])/2e6, 2), "Mb"))
-  }
-  splits <- paste(splits, collapse=", ")
-  ggplot(result, aes(x=pos)) +
-    geom_point(aes(y=prop), alpha=0.05, na.rm=TRUE) +
-    geom_line(aes(y=tree), color='red') +
-    labs(title=paste0("chr", .chr, ": ", splits))
+  result$chr <- as.character(.chr)
+  result
 }
 
-lapply(c(as.character(1:19), "X", "Y"), assign_chr_genotype, haplotype_df)
+plot_rpart <- function(partitions) {
+  partitions %>%
+    bind_rows() %>%
+    mutate(pos = pos/1e6,
+           prop=1-prop,
+           tree=1-tree,
+           chr=paste0("chr", chr),
+           chr=fct_relevel(as.factor(chr), 
+                           "chr1", "chr2", "chr3", "chr4", 
+                           "chr5", "chr6", "chr7", "chr8", "chr9")) %>%
+    ggplot(aes(x=pos)) +
+    geom_point(aes(y=prop), alpha=0.05, na.rm=TRUE) +
+    geom_line(aes(y=tree), color='red') +
+    facet_wrap(~ chr, ncol = 3, scales="free_x") +
+    labs(x="Genomic Position (Mb)",
+         y="FVB Proportion of Maternal Reads")
+}
+
+rpart_to_region <- function(result) {
+  split_idx <- which(result$tree[1:(nrow(result)-1)] - result$tree[2:nrow(result)] != 0)
+  if (length(split_idx)==0) {
+    return()
+  }
+  regions <- c()
+  last_pos <- 0
+  for (i in 1:length(split_idx)) {
+    curr_pos <- (result$pos[split_idx[i]]+result$pos[split_idx[i]+1])/2
+    if (result$tree[split_idx[i]] < 0.6) {
+      regions <- c(regions, paste(last_pos, curr_pos, sep="-"))
+    }
+    last_pos <- curr_pos
+  }
+  if (result$tree[split_idx[length(split_idx)]+1] < 0.6) {
+        regions <- c(regions, curr_pos)
+  }
+  if (length(regions) > 0) {
+    paste(paste0("chr", result$chr[1]), regions, sep=":")
+  }
+}
 ```
 
+## Plot results
+
+```{r fig.height=12, fig.width=10}
+partitions <- lapply(c(as.character(1:19), "X", "Y"), assign_chr_genotype, haplotype_df)
+
+plot_rpart(partitions)
+ggsave("../plots/rpart_fvb_resolution.png")
+```
+
+## Output results as region string
+
 ```{r}
-grid.arrange(assign_chr_genotype("2", haplotype_df),
-assign_chr_genotype("3", haplotype_df),
-assign_chr_genotype("7", haplotype_df),
-assign_chr_genotype("9", haplotype_df),
-assign_chr_genotype("19", haplotype_df),ncol=2)
+# chrY can't have anything, it's Cast only
+partitions[[21]] <- NULL
+fvb_regions <- lapply(partitions, rpart_to_region) %>%
+  unlist() %>%
+  paste(collapse=" ")
+fvb_regions %>%
+  write_file("../genome_data/fvb_regions.txt")
+fvb_regions
 ```
 

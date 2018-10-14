@@ -235,7 +235,7 @@ def call_contig(contig, vcf_fns, original_fn, phased_fn, suppdb, detailed_output
 
 args = parse_args()
 
-with open("{}.suppdb".format(args.bam, 'rb')) as handle:
+with open("{}.suppdb".format(args.bam), 'rb') as handle:
     suppdb = pickle.load(handle)
 
 func = functools.partial(call_contig, vcf_fns=args.vcf, original_fn=args.bam,

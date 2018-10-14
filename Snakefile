@@ -3,6 +3,8 @@ workdir:
 include:
     "scripts/allelic_methylation.snakefile"
 include:
+    "scripts/fvb_resolution.snakefile"
+include:
     "scripts/nanopolish.snakefile"
 include:
     "scripts/notebooks.snakefile"

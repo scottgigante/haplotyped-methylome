@@ -2,6 +2,7 @@
 # Modified version of script from nanopolish to aggregate metylation over genomic positions
 # Adds -p option to aggregate by expected values (E(beta) =
 # 1/(1+e^(-LLR))) instead of binary calls
+from __future__ import print_function
 import math
 import sys
 import csv
@@ -100,10 +101,15 @@ for record in csv_reader:
         update_call_stats(key, num_sites, methylation, sequence)
 
 # header
-print "\t".join(["chromosome", "start", "end", "num_cpgs_in_group", "called_sites", "called_sites_methylated", "methylated_frequency", "group_sequence"])
+print("\t".join(["chromosome", "start", "end", "num_cpgs_in_group",
+                 "called_sites", "called_sites_methylated",
+                 "methylated_frequency", "group_sequence"]))
 
 for key in sites:
     if sites[key].called_sites > 0:
         (c, s, e) = key.split(":")
         f = float(sites[key].called_sites_methylated) / sites[key].called_sites
-        print "\t".join([str(x) for x in [c, s, e, sites[key].group_size, sites[key].called_sites, sites[key].called_sites_methylated, f, sites[key].sequence]])
+        print("\t".join([str(x) for x in [c, s, e, sites[key].group_size,
+                                          sites[key].called_sites,
+                                          sites[key].called_sites_methylated,
+                                          f, sites[key].sequence]]))

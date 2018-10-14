@@ -3,6 +3,8 @@ library(tidyverse)
 library(data.table)
 
 if (!dir.exists("../plots")) dir.create("../plots")
+if (!dir.exists("../plots/all_dmrs")) dir.create("../plots/all_dmrs")
+if (!dir.exists("../plots/icrs")) dir.create("../plots/icrs")
 
 if (!dir.exists("../tables")) dir.create("../tables")
 

@@ -1,0 +1,12 @@
+tidyverse
+mclust
+data.table
+rmarkdown
+knitr
+viridis
+gridExtra
+devtools
+broom
+fuzzyjoin
+cowplot
+ggExtra

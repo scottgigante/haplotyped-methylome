@@ -27,7 +27,7 @@ else:
     print("Reading from stdin.", file=sys.stderr)
     handle = sys.stdin
 
-with open("{}.suppdb".format(bam_fn, 'rb')) as db_handle:
+with open("{}.suppdb".format(bam_fn), 'rb') as db_handle:
     suppdb = pickle.load(db_handle)
 
 reader = csv.DictReader(handle, delimiter="\t")

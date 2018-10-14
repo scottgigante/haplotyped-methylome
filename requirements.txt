@@ -1,0 +1,5 @@
+numpy
+future
+biopython
+pysam
+snakemake

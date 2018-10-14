@@ -458,10 +458,7 @@ for (.name in unique(combined_dmr$name)) {
       filter(name==.name)
     p <- dmr1 %>%
     {plot_track(.$chr[1], .$start[1], .$end[1], flank=5000, rrbs=T, icr=T, reverse=T, rna=T)}
-    ggbio::ggsave(paste0("../plots/dss_paired/", .name, ".png"), plot=p, width=8, height=12)
-    p <- dmr1 %>%
-    {plot_track(.$chr[1], .$start[1], .$end[1], flank=20000, rrbs=T, icr=T, reverse=T, rna=T)}
-    ggbio::ggsave(paste0("../plots/dss_paired_20kb/", .name, ".png"), plot=p, width=8, height=12)
+    ggbio::ggsave(paste0("../plots/all_dmrs/", .name, ".png"), plot=p, width=8, height=12)
   })
 }
 ```

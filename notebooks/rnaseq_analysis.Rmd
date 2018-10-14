@@ -84,7 +84,7 @@ p2
 #arrange both plots side by side:
 p3 <- plot_grid(p, p2, labels = c("A", "B"), label_size=24)
 p3
-save_plot('../plots/rna_seq/MD-plots_combined.pdf', p3, base_aspect_ratio = 3)
+save_plot('../plots/MD-plots_combined.pdf', p3, base_aspect_ratio = 3)
 ```
 
 # Figure S4
@@ -103,5 +103,5 @@ p <- ggplot(bias, aes(x = embryo, y = libsizes/1e6, fill = allele)) +
   labs(x = 'Sample', y = 'Counts (millions)', fill = 'Allele') + 
   theme_gray()
 p
-save_plot('../plots/rna_seq/allelic_bias_v2.pdf', p, base_aspect_ratio = 2)
+save_plot('../plots/allelic_bias_v2.pdf', p, base_aspect_ratio = 2)
 ```

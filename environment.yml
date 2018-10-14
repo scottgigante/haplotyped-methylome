@@ -14,6 +14,7 @@ dependencies:
   - bioconda::bioconductor-rtracklayer
   - bioconda::bioconductor-dss
   - bioconda::bioconductor-bsseq
+  - bioconda::bioconductor-rsamtools
   - bioconda::r-mclust
   - bioconda::biopython
   - bioconda::pysam

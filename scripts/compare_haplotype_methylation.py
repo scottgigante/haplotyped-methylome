@@ -90,6 +90,7 @@ def get_genotype(read_name):
     except KeyError:
         return "fail"
 
+
 print("\t".join(["chr", "start", "end", "ref_mean", "ref_sd", "ref_site_count", "ref_read_count",
                  "alt_mean", "alt_sd", "alt_site_count", "alt_read_count"]))
 chr = None
@@ -166,6 +167,7 @@ with open(meth_fn, 'r') as meth_handle:
             elif genotype == "alt":
                 next_alt_meth.append(meth)
                 next_alt_reads.add(row["read_name"])
+
 # print last result
 if chr is not None:
     ref_mean = np.mean(ref_meth) if len(ref_meth) > 0 else "NA"

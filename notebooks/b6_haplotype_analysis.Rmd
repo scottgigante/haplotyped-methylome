@@ -42,7 +42,7 @@ p <- summary_df %>%
   scale_fill_manual(limits=c("Maternal", "Paternal", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black")) +
   theme(axis.text.x = element_blank())
 p
-ggsave("../plots/single_strain_validation/b6.paper_haplotype_decision_frequency.png", dpi=200, width=2, height=4)
+ggsave("../plots/b6.paper_haplotype_decision_frequency.png", dpi=200, width=2, height=4)
 ```
 
 ## Figure S2Bii
@@ -67,7 +67,7 @@ p <- summary_df %>%
   theme_grey() +
   theme(legend.position = c(0.88, 0.80))
 p
-ggsave("../plots/single_strain_validation/b6.paper_haplotype_by_chr.png", dpi=200, width=8, height=4)
+ggsave("../plots/b6.paper_haplotype_by_chr.png", dpi=200, width=8, height=4)
 ```
 
 ## Figure S2Cii
@@ -90,6 +90,6 @@ p <- haplotype_df[sample(1:nrow(haplotype_df), 10000),] %>%
   scale_shape_discrete(limits=c("Maternal", "Paternal", "Filtered")) +
   guides(colour = guide_legend(override.aes = list(alpha = 1)))
 p
-ggsave("../plots/single_strain_validation/b6.paper_haplotype_score_combination.png", dpi=200, height=4, width=4)
+ggsave("../plots/b6.paper_haplotype_score_combination.png", dpi=200, height=4, width=4)
 ```
 

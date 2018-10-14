@@ -8,6 +8,7 @@
 import sys
 import csv
 import gzip
+from functools import partial
 __true = "+"
 __false = "-"
 
@@ -27,11 +28,11 @@ def add(summary, chr, pos, meth):
     return summary
 
 
-def summarize(in_handle, output_fn, summary=None):
+def summarize(in_handle, summary=None):
     if summary is None:
         summary = dict()
+    header = next(in_handle)
     reader = csv.reader(in_handle, delimiter="\t")
-#    header = next(reader)
     for line in reader:
         meth = line[1] == __true
         chr = line[2]
@@ -59,10 +60,13 @@ else:
 summary = None
 for input_fn in input_fns:
     if input_fn.endswith("gz"):
-        open_fun = gzip.open
+        if sys.version_info >= (3,):
+            open_fun = partial(gzip.open, mode='rt')
+        else:
+            open_fun = gzip.open
     else:
         open_fun = open
-    with open_fun(input_fn, 'r') as handle:
-        summary = summarize(handle, output_fn, summary)
+    with open_fun(input_fn) as handle:
+        summary = summarize(handle, summary)
 
 write_out_summary(output_fn, summary)

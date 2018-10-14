@@ -43,21 +43,14 @@ rule calculate_methylation_frequency:
     shell:
         "python calculate_methylation_frequency.py -i {input} -p > {output}"
 
-
-# def get_vcf(wildcards):
-#     if "b6xcast" in wildcards.sample:
-#         return ("../genome_data/FVB_NJ.mgp.v5.snps.dbSNP142.vcf",
-#                 "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf")
-#     else:
-#         return "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"
-
-
 rule call_variant_proportion:
     input:
         bam = "../nanopore/{sample}.sorted.bam",
-        phased_bam = "../nanopore/{sample}.phased_sorted.bam",
-        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
+        bam_index = "../nanopore/{sample}.sorted.bam.bai",
         suppdb = "../nanopore/{sample}.sorted.bam.suppdb",
+        phased_bam = "../nanopore/{sample}.phased_sorted.bam",
+        phased_bam_index = "../nanopore/{sample}.phased_sorted.bam.bai",
+        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
     output:
         "../nanopore/{sample}.phased.tsv"
     shell:
@@ -70,7 +63,10 @@ rule sort_by_read:
     output:
         "../nanopore/{sample}.methylation.sorted.by_read.tsv"
     shell:
-        "tail -n +2 {input.meth_split} | sort -k4,4 -k1,1 -k2n,2n | cat <(head -n 1 {input.meth}) - > {output}"
+        "mkdir {output}.tmp && tail -n +2 {input.meth_split} | "
+        "sort -k4,4 -k1,1 -k2n,2n -T {output}.tmp | "
+        "cat <(head -n 1 {input.meth}) - > {output} && "
+        "rm -rf {output}.tmp"
 
 rule sort_by_site:
     input:
@@ -79,7 +75,10 @@ rule sort_by_site:
     output:
         "../nanopore/{sample}.methylation.sorted.by_site.tsv"
     shell:
-        "tail -n +2 {input.meth_split} | sort -k1,1 -k2n,2n -k4,4 | cat <(head -n 1 {input.meth}) - > {output}"
+        "mkdir {output}.tmp && tail -n +2 {input.meth_split} | "
+        "sort -k1,1 -k2n,2n -k4,4 -T {output}.tmp | "
+        "cat <(head -n 1 {input.meth}) - > {output} && "
+        "rm -rf {output}.tmp"
 
 rule fit_reads:
     input:
@@ -90,7 +89,11 @@ rule fit_reads:
         "../RData/{sample}/summary_df.RData",
         "../RData/{sample}/haplotype_df.RData",
         "../RData/{sample}/fit_reads.RData",
-        "../RData/{sample}/fit_reads_df.RData"
+        "../RData/{sample}/fit_reads_df.RData",
+    params:
+        sample = lambda wildcards, output: wildcards.sample
+    shell:
+        "Rscript fit_reads.R ../nanopore/{params.sample} ../RData/{params.sample}"
 
 rule split_methylation_by_haplotype:
     input:
@@ -131,7 +134,7 @@ rule paired_dss:
 
 rule compare_haplotype_methylation:
     input:
-        meth = "../nanopore/{sample}.methylation.sorted.by_read.tsv",
+        meth = "../nanopore/{sample}.methylation.sorted.by_site.tsv",
         phase = "../nanopore/{sample}.phased.tsv",
         region = "../genome_data/ICR_plot_regions_string.txt"
     output:
@@ -150,7 +153,7 @@ rule build_dmrlist:
 
 rule build_methylation_df:
     input:
-        "../bisulfite/CpG_context_TB1_PlacentaE14.5_WT_R1_trimmed.fq_bismark_bt2_pe.summary.tsv",
+        "../bisulfite/CpG_context_BC7.all.R1_val_1.fq_bismark_bt2_pe.summary.tsv",
         "../nanopore/albacore_1.2.2.b6xcast.methylation.summary.tsv",
     output:
         "../RData/nanopolish_df.RData",
