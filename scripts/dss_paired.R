@@ -4,7 +4,7 @@ library(bsseq)
 
 meth_fn <- "../nanopore/albacore_1.2.2.b6xcast.methylation"
 
-forward_ref_df <- read.table(paste0(meth_fn, ".ref.summary.tsv"),
+forward_ref_df <- read.table(paste0(meth_fn, ".ref_summary.tsv"),
                              header=TRUE, sep="\t", stringsAsFactors = FALSE) %>%
   mutate(start=start+1,
          end=end+2,
@@ -12,7 +12,7 @@ forward_ref_df <- read.table(paste0(meth_fn, ".ref.summary.tsv"),
   dplyr::rename(chr=chromosome,
                 percentMeth=methylated_frequency) %>%
   arrange(chr, start)
-forward_alt_df <- read.table(paste0(meth_fn, ".alt.summary.tsv"),
+forward_alt_df <- read.table(paste0(meth_fn, ".alt_summary.tsv"),
                              header=TRUE, sep="\t", stringsAsFactors = FALSE) %>%
   mutate(start=start+1,
          end=end+2,
@@ -23,7 +23,7 @@ forward_alt_df <- read.table(paste0(meth_fn, ".alt.summary.tsv"),
 
 meth_fn <- "../nanopore/albacore_2.2.7.castxb6.promethion.methylation"
 
-reverse_ref_df <- read.table(paste0(meth_fn, ".ref.summary.tsv"),
+reverse_ref_df <- read.table(paste0(meth_fn, ".ref_summary.tsv"),
                               header=TRUE, sep="\t", stringsAsFactors = FALSE) %>%
     mutate(start=start+1,
            end=end+2,
@@ -31,7 +31,7 @@ reverse_ref_df <- read.table(paste0(meth_fn, ".ref.summary.tsv"),
     dplyr::rename(chr=chromosome,
                   percentMeth=methylated_frequency) %>%
     arrange(chr, start)
-reverse_alt_df <- read.table(paste0(meth_fn, ".alt.summary.tsv"),
+reverse_alt_df <- read.table(paste0(meth_fn, ".alt_summary.tsv"),
                               header=TRUE, sep="\t", stringsAsFactors = FALSE) %>%
     mutate(start=start+1,
            end=end+2,
