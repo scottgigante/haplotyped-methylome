@@ -13,7 +13,7 @@ combined_dmr <- dmr_parent %>%
          end = dmr_end + 5000,
          id=row_number()) %>%
   select(chr, start, end, everything()) %>%
-  fuzzyjoin::genome_left_join(read_tsv("../genome_data/ensembl_GRCm38.98.chr.genes.tsv", col_types="ccccdd") %>%
+  fuzzyjoin::genome_left_join(read_tsv("../genome_data/Mus_musculus.GRCm38_90.chr.genes.tsv", col_types="ccccdd") %>%
                                 select(chr, start, end, gene_name)) %>%
   select(-starts_with("start"), -starts_with("end"), -chr.y) %>%
   select(id, chr=chr.x, start=dmr_start, end=dmr_end, everything()) %>%

@@ -1,27 +1,23 @@
 name: nanopore_allelic_methylation
-channels: !!python/tuple
-  - !!python/unicode
-    'conda-forge'
-  - !!python/unicode
-    'bioconda'
-  - !!python/unicode
-    'r'
-  - !!python/unicode
-  'defaults'
+channels: 
+  - 'conda-forge'
+  - 'bioconda'
+  - 'r'
+  - 'defaults'
 dependencies:
   - bioconda::bioconductor-annotationhub
+  - bioconda::bioconductor-biomart
   - bioconda::bioconductor-genomicranges
   - bioconda::bioconductor-rtracklayer
   - bioconda::bioconductor-dss
   - bioconda::bioconductor-bsseq
   - bioconda::bioconductor-rsamtools
+  - bioconda::bioconductor-rsubread
+  - bioconda::bioconductor-limma
+  - bioconda::bioconductor-glimma
+  - bioconda::bioconductor-edger
+  - bioconda::bioconductor-biocinstaller
   - bioconda::r-mclust
-  - bioconda::biopython
-  - bioconda::pysam
-  - bioconda::samtools
-  - bioconda::snakemake
-  - bioconda::bwa
-  - bioconda::nanopolish
   - r::r-data.table
   - r::r-tidyverse
   - r::r-rmarkdown
@@ -31,9 +27,21 @@ dependencies:
   - r::r-gridextra
   - r::r-devtools
   - r::r-broom
+  - r::r-glmnet
+  - r::r-essentials
   - conda-forge::r-fuzzyjoin
   - conda-forge::r-cowplot
   - conda-forge::r-ggextra
+  - bioconda::biopython
+  - bioconda::pysam
+  - bioconda::snakemake
   - conda-forge::future
   - conda-forge::numpy
+  - bioconda::samtools
+  - bioconda::bwa
+  - bioconda::hisat2
+  - bioconda::trim-galore
+  - bioconda::snpsplit
+  - bioconda::bismark
+  - bioconda::nanopolish
   - conda-forge::pandoc

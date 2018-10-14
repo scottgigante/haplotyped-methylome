@@ -1,11 +1,3 @@
-rule samtools_index_phased:
-    input:
-        "../nanopore/{sample}.phased_sorted.bam"
-    output:
-        "../nanopore/{sample}.phased_sorted.bam.bai"
-    shell:
-        "samtools index {input}"
-
 rule suppdb_bam:
     input:
         bam = "../nanopore/{sample}.sorted.bam",
@@ -15,15 +7,6 @@ rule suppdb_bam:
         summary = "../nanopore/{sample}.summary.tsv"
     shell:
         "python build_supplementary_db.py {input.bam} --summary {output.summary}"
-
-rule suppdb_phased:
-    input:
-        bam = "../nanopore/{sample}.phased_sorted.bam",
-        bai = "../nanopore/{sample}.phased_sorted.bam.bai",
-    output:
-        "../nanopore/{sample}.phased_sorted.bam.suppdb",
-    shell:
-        "python build_supplementary_db.py {input.bam}"
 
 rule split_methylation_by_alignment:
     input:
@@ -63,7 +46,7 @@ rule sort_by_read:
     output:
         "../nanopore/{sample}.methylation.sorted.by_read.tsv"
     shell:
-        "mkdir {output}.tmp && tail -n +2 {input.meth_split} | "
+        "mkdir -p {output}.tmp && tail -n +2 {input.meth_split} | "
         "sort -k4,4 -k1,1 -k2n,2n -T {output}.tmp | "
         "cat <(head -n 1 {input.meth}) - > {output} && "
         "rm -rf {output}.tmp"
@@ -75,7 +58,7 @@ rule sort_by_site:
     output:
         "../nanopore/{sample}.methylation.sorted.by_site.tsv"
     shell:
-        "mkdir {output}.tmp && tail -n +2 {input.meth_split} | "
+        "mkdir -p {output}.tmp && tail -n +2 {input.meth_split} | "
         "sort -k1,1 -k2n,2n -k4,4 -T {output}.tmp | "
         "cat <(head -n 1 {input.meth}) - > {output} && "
         "rm -rf {output}.tmp"
@@ -105,19 +88,11 @@ rule split_methylation_by_haplotype:
     shell:
         "python split_methylation_by_haplotype.py -m {input.meth} -p {input.phase}"
 
-rule calculate_meth_ref_freq:
+rule calculate_allele_meth_freq:
     input:
-        "../nanopore/{sample}.methylation.sorted.by_site.tsv.ref.tsv",
+        "../nanopore/{sample}.methylation.sorted.by_site.tsv.{allele}.tsv",
     output:
-        "../nanopore/{sample}.methylation.ref_summary.tsv"
-    shell:
-        "python calculate_methylation_frequency.py -i {input} -p > {output}"
-
-rule calculate_meth_alt_freq:
-    input:
-        "../nanopore/{sample}.methylation.sorted.by_site.tsv.alt.tsv",
-    output:
-        "../nanopore/{sample}.methylation.alt_summary.tsv"
+        "../nanopore/{sample}.methylation.{allele}_summary.tsv"
     shell:
         "python calculate_methylation_frequency.py -i {input} -p > {output}"
 
@@ -145,7 +120,7 @@ rule compare_haplotype_methylation:
 rule build_dmrlist:
     input:
         "../RData/paired_DSS.RData",
-        "../genome_data/ensembl_GRCm38.98.chr.genes.tsv",
+        "../genome_data/Mus_musculus.GRCm38_90.chr.genes.tsv",
     output:
         "../tables/dss_dmrlist.csv",
     script:

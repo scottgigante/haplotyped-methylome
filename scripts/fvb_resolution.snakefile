@@ -16,9 +16,9 @@ rule fvb_resolution:
     input:
         "../nanopore/albacore_1.2.2.b6xcast.summary.tsv",
         "../nanopore/albacore_1.2.2.b6xcast.threeway_phased.tsv",
-        "../plots/"
     output:
         "../genome_data/fvb_regions.txt",
+        "../plots/rpart_fvb_resolution.png",
     shell:
         "Rscript render_notebook.R ../nanopolish_threeway_haplotype_analysis.Rmd"
 
@@ -28,6 +28,7 @@ rule merge_threeway_variants:
         summary = "../nanopore/albacore_1.2.2.b6xcast.summary.tsv",
         regions = "../genome_data/fvb_regions.txt",
     output:
-        "../nanopore/albacore_1.2.2.b6xcast.phased.tsv"
+        "../nanopore/albacore_1.2.2.b6xcast.phased.tsv",
+        "../plots/rpart_fvb_resolution.png"
     shell:
         "python merge_recombined_haplotypes.py -i {input.phase} -s {input.summary} -a alt2 -r $(cat {regions}) -o {output}"

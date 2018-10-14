@@ -160,7 +160,7 @@ with open(meth_fn, 'r') as meth_handle:
         elif genotype == "alt":
             alt_meth.append(meth)
             alt_reads.add(row["read_name"])
-        if row["start"] >= next_start:
+        if int(row["start"]) >= next_start:
             if genotype == "ref":
                 next_ref_meth.append(meth)
                 next_ref_reads.add(row["read_name"])

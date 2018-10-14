@@ -1,7 +1,7 @@
 rule bwa_mem_align:
     input:
-        genome = "../genome_data/GRCm38_68.CAST_masked.fa",
-        index = "../genome_data/GRCm38_68.CAST_masked.fa.bwt",
+        genome = "../genome_data/GRCm38_90.CAST_masked.fa",
+        index = "../genome_data/GRCm38_90.CAST_masked.fa.bwt",
         reads = "../nanopore/{sample}.fa.gz"
     output:
         "../nanopore/{sample}.sorted.bam",
@@ -9,14 +9,6 @@ rule bwa_mem_align:
         16
     shell:
         "bwa mem -t {threads} {input.genome} {input.reads} | samtools sort -T {sample}.samtools.tmp -@ {threads} -o {output}"
-
-rule samtools_index_bam:
-    input:
-        "../nanopore/{sample}.sorted.bam"
-    output:
-        "../nanopore/{sample}.sorted.bam.bai"
-    shell:
-        "samtools index {input}"
 
 rule nanopolish_index:
     input:
@@ -29,7 +21,7 @@ rule nanopolish_index:
 
 rule nanopolish_methylation:
     input:
-        genome = "../genome_data/GRCm38_68.CAST_masked.fa",
+        genome = "../genome_data/GRCm38_90.CAST_masked.fa",
         bam = "../nanopore/{sample}.sorted.bam",
         index = "../nanopore/{sample}.sorted.bam.bai",
         reads = "../nanopore/{sample}.fa.gz",
@@ -43,7 +35,7 @@ rule nanopolish_methylation:
 
 rule nanopolish_phase:
     input:
-        genome = "../genome_data/GRCm38_68.fa",
+        genome = "../genome_data/GRCm38_90.fa",
         bam = "../nanopore/{sample}.sorted.bam",
         index = "../nanopore/{sample}.sorted.bam.bai",
         reads = "../nanopore/{sample}.fa.gz",

@@ -1,12 +1,14 @@
-tidyverse
 mclust
 data.table
+tidyverse
 rmarkdown
-knitr
 viridis
+gTable
+knitr
 gridExtra
 devtools
 broom
+glmnet
 fuzzyjoin
 cowplot
 ggExtra

@@ -2,7 +2,8 @@ library(magrittr)
 library(dplyr)
 library(readr)
 
-gtf <- rtracklayer::import("../genome_data/ensembl_GRCm38.98.chr.gtf")
+args <- commandArgs(trailingOnly = TRUE)
+gtf <- rtracklayer::import(args[1])
 gene_list <- gtf %>%
   as_data_frame() %>%
   rename(chr=seqnames) %>%
@@ -11,4 +12,4 @@ gene_list <- gtf %>%
   summarise(start=min(start),
             end=max(end))
 gene_list %>%
-  write_tsv("../genome_data/ensembl_GRCm38.98.chr.genes.tsv")
+  write_tsv(sub("gtf$", "genes.tsv", args[1]))

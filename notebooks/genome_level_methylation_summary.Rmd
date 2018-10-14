@@ -17,11 +17,16 @@ library(tidyverse)
 ## Load Data
 
 ```{r}
-gtf <- import("../genome_data/ensembl_GRCm38.98.chr.gtf")
-cpg_islands <- read_tsv("../genome_data/CGI_coordinates_mm10.masked.HMM.tsv", col_types='ciiiiidd') %>%
+gtf <- import("../genome_data/Mus_musculus.GRCm38_90.chr.gtf")
+cpg_islands <- read_tsv("../genome_data/CGI_coordinates_mm10.masked.HMM.tsv", 
+                        col_names=c("chr", "start", "end", "length", "CpGcount", "GCcount", "pctGC", "obsExp"), 
+                        col_types='_ciiiiidd', skip=1) %>%
   mutate(chr=sub("chr", "", chr)) %>%
   makeGRangesFromDataFrame()
 load("../RData/nanopolish_df.RData")
+nanopolish_df <- nanopolish_df %>% 
+  dplyr::rename(seqnames=chr) %>% 
+  as.data.table()
 load("../RData/bisulfite_df.RData")
 
 genes <- gtf %>%
@@ -132,7 +137,7 @@ split_by_cluster <- function(overlap, feature_width) {
 ## Figure 1A
 
 ```{r}
-metaplot(cpg_islands, df, label_fun=split_by_cluster, label_name="Cluster", feature_labels=c("CGI start", "CGI end"), overhang=20000) +
+metaplot(cpg_islands, nanopolish_df, label_fun=split_by_cluster, label_name="Cluster", feature_labels=c("CGI start", "CGI end"), overhang=20000) +
   theme(legend.position = c(0.88, 0.85))
 ggsave("../plots/clustered_cgi_metaplot.pdf")
 ```
@@ -140,8 +145,7 @@ ggsave("../plots/clustered_cgi_metaplot.pdf")
 ## Figure 1B 
 
 ```{r}
-df <- nanopolish_df %>% dplyr::rename(seqnames=chr) %>% as.data.table()
-metaplot(promoters, df, feature_breaks=c(0, 0.5, 1), feature_labels=c("5'", "TSS", "3'"), filename="../plots/promoter_metaplot.pdf")
-metaplot(protein_coding_genes, df, feature_breaks=c(0, 1), feature_labels=c("TSS", "TTS"), filename="../plots/gene_body_metaplot.pdf", overhang = 10000, span=0.03)
+metaplot(promoters, nanopolish_df, feature_breaks=c(0, 0.5, 1), feature_labels=c("5'", "TSS", "3'"), filename="../plots/promoter_metaplot.pdf")
+metaplot(protein_coding_genes, nanopolish_df, feature_breaks=c(0, 1), feature_labels=c("TSS", "TTS"), filename="../plots/gene_body_metaplot.pdf", overhang = 10000, span=0.03)
 ```
 

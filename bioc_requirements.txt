@@ -4,3 +4,8 @@ rtracklayer
 DSS
 bsseq
 Rsamtools
+limma
+Glimma
+edgeR
+biomaRt
+Rsubread

@@ -46,7 +46,7 @@ p <- summary_df %>%
        fill="Genotype") +
   scale_fill_manual(limits=c("Maternal", "Paternal", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black"))
 p
-ggsave("../plots/haplotype_decision_frequency.pdf", width=4, height=4)
+ggsave("../plots/b6xcast.haplotype_decision_frequency.pdf", width=4, height=4)
 ```
 
 ## Figure 2B
@@ -80,7 +80,7 @@ p <- summary_df %>%
   theme_grey() +
   theme(legend.position = c(0.88, 0.80))
 p
-ggsave("../plots/haplotype_by_chr.pdf", width=8, height=4)
+ggsave("../plots/b6xcast.haplotype_by_chr.pdf", width=8, height=4)
 ```
 
 ## Figure 2C
@@ -103,7 +103,7 @@ p <- haplotype_df[sample(1:nrow(haplotype_df), 10000),] %>%
   scale_shape_discrete(limits=c("Maternal", "Paternal", "Filtered")) +
   guides(colour = guide_legend(override.aes = list(alpha = 1)))
 p
-ggsave("../plots/haplotype_score_combination.pdf", height=4, width=6)
+ggsave("../plots/b6xcast.haplotype_score_combination.pdf", height=4, width=6)
 ```
 
 ## Figure S3A

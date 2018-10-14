@@ -18,7 +18,7 @@ combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
 ## Figure 5A
 
 ```{r}
-gene_tss <- read_tsv("../genome_data/ensembl_GRCm38.98.chr.genes.tsv", col_types="ccccdd") %>% 
+gene_tss <- read_tsv("../genome_data/Mus_musculus.GRCm38_90.chr.genes.tsv", col_types="ccccdd") %>% 
   mutate(tss=ifelse(strand=="+", start, end)) %>%
   group_by(chr, gene_name, gene_id, strand) %>%
   summarise(pos=min(tss)) %>%

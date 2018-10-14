@@ -24,7 +24,7 @@ rolling_t_df_forward <- read_tsv("../nanopore/albacore_1.2.2.b6xcast.compare_hap
   rename_all(str_replace, "ref", "mat") %>%
   rename_all(str_replace, "alt", "pat") %>%
   unique()
-rolling_t_df_reverse <- read_tsv("../nanopore/albacore_2.2.7.castxb6.promethion.fastq.compare_haplotype_methylation.tsv") %>%
+rolling_t_df_reverse <- read_tsv("../nanopore/albacore_2.2.7.castxb6.promethion.compare_haplotype_methylation.tsv") %>%
   mutate(chr=as.character(chr)) %>%
   rename_all(str_replace, "ref", "pat") %>%
   rename_all(str_replace, "alt", "mat") %>%
@@ -166,5 +166,5 @@ recolor_facet_strips <- function(p) {
 ```{r} 
 p <- plot_ICR_heatmap2(ICRs, rolling_t_df, surrounding = 5000) %>%
   recolor_facet_strips()
-ggsave("../plots/paper_primary_ICRs.png", width=8, height=10, plot=p)
+ggsave("../plots/primary_ICRs_heatmap.png", width=8, height=10, plot=p)
 ```

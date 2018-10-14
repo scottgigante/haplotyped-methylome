@@ -49,7 +49,7 @@ load("../RData/knownGene.RData")
 ```
 
 ```{r}
-load("../RData/rna_seq_with_reverse2.RData")
+load("../RData/rna_seq_with_reverse.RData")
 ```
 
 
@@ -433,6 +433,7 @@ ggbio::ggsave("../plots/dmr_examples/4933421O10Rik.pdf", width=4.5*1.5, height=4
 ## Visualise all ICRs
 
 ```{r fig.height=14, fig.width=8}
+if (!dir.exists("../plots/icrs/")) dir.create("../plots/icrs/")
 for (.name in icr_df$name) {
   try({
     if (file.exists(paste0("../plots/icrs/", str_replace(.name, "/", "_"), ".png"))) {
@@ -449,6 +450,7 @@ plot_track("1", 63260067, 63260907, flank=50000, rna=T, sqrt_rna=T)
 ## Visualise all DMRs
 
 ```{r}
+if (!dir.exists("../plots/all_dmrs/")) dir.create("../plots/all_dmrs/")
 combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
 combined_dmr <- combined_dmr %>%
   mutate(name=paste(id, chr, start, end, type, sep="_"))

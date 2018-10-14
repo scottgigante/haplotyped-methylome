@@ -9,19 +9,185 @@ library(tidyverse)
 library(cowplot)
 if (!require(ggrastr)) devtools::install_github("VPetukhov/ggrastr")
 library(ggrastr)
+library(tidyverse)
+library(Rsubread)
+library(limma)
+library(edgeR)
+library(Glimma)
+library(biomaRt)
 ```
 
-## Load data
+## Process bam files
 
 ```{r} 
-load('../rna_seq/repeat_analysis_Sep18_imprint.RData')
-imprinted  <- read_tsv('../rna_seq/imprinted_genes_Supp_file_1.tsv')
-newgenes <- filter(imprinted, in_db + in_andergassen + in_Finn + in_Calabrese + in_Inoue ==0)
+#list bam files
+splitbam <- list.files('../rna_seq/', pattern = '(CastB6|B6Cast)F1_[2-5].hisat2.genome[1-2].bam')
+
+#get counts
+GTF <- 'Mus_musculus.GRCm38.90.gtf'
+#convert to nice gene IDs with biomaRt
+mouse <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+
+gene <- getBM(attributes = c('mgi_symbol','chromosome_name', 'strand', 'start_position', 'end_position'), mart = mouse, values = rownames(totcounts$counts))
+
+splitfeaturecounts <- featureCounts(file.path("..", "rna_seq", splitbam), annot.ext= GTF,isGTFAnnotationFile = TRUE, useMetaFeatures = TRUE, primary = TRUE, isPairedEnd = TRUE, nthreads = 8)
+splitcounts <- as.data.frame(splitfeaturecounts$counts)
+colnames(splitcounts) <- splitbam %>%
+    str_replace("B6CastF1_(2-5]).hisat2.genome1.bam", "B6CastF1_\\1_mat") %>%
+    str_replace("B6CastF1_(2-5]).hisat2.genome2.bam", "B6CastF1_\\1_pat") %>%
+    str_replace("CastB6F1_(2-5]).hisat2.genome1.bam", "CastB6F1_\\1_pat") %>%
+    str_replace("CastB6F1_(2-5]).hisat2.genome2.bam", "CastB6F1_\\1_mat")
+splitcounts$GeneID <- rownames(splitcounts)
+write_tsv(splitcounts, '../rna_seq/hisat2_GCRm38V90_featurecounts_split.tsv.gz')
 ```
+
+
+# Differential expression analysis
+
+## imprinted (parent-biased) expression
 
 
 ```{r}
-p <- results  %>% 
+counts <- select(splitcounts, -GeneID)
+counts <- as.data.frame(counts)
+rownames(counts) <- splitcounts$GeneID
+#filter genes on X and Y chromosomes
+# remove X and Y and MT and duplicated genes
+mouse <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+gene <- getBM(filters = 'ensembl_gene_id', attributes = c('mgi_symbol','ensembl_gene_id','chromosome_name', 'start_position', 'end_position'), mart = mouse, values = rownames(counts))
+#differing number of rows: 3 more in gene.
+#remove duplicated genes
+gene <- gene[!duplicated(gene$ensembl_gene_id),]
+#select genes in chr 1 to 19 only
+sel <- subset(gene, chromosome_name %in% as.character(1:19))
+counts <- counts[rownames(counts) %in% sel$ensembl_gene_id,]	#48,242k genes
+#filter genes with 0 counts:
+counts <- counts[rowSums(counts)>0,]
+#29859 genes left
+```
+
+```{r}
+splitDE <- DGEList(counts = counts)
+#TMM norm
+splitDE <- calcNormFactors(splitDE)
+
+embryo <- colnames(splitcounts) %>%
+  str_replace("_(mat|pat)", "") %>%
+  factor()
+strain <- ifelse((startsWith(colnames(splitcounts), "B6") & endsWith(colnames(splitcounts), "mat")) | 
+                   (startsWith(colnames(splitcounts), "Cast") & endsWith(colnames(splitcounts), "pat")), 
+                 "Black6", "Cast") %>%
+  factor()
+litter <- case_when(str_detect(colnames(splitcounts), "^B6CastF1_(2|3)") ~ "A",
+                    str_detect(colnames(splitcounts), "^B6CastF1_(4|5)") ~ "B",
+                    str_detect(colnames(splitcounts), "^CastB6F1_(2|3)") ~ "C",
+                    str_detect(colnames(splitcounts), "^CastB6F1_(4|5)") ~ "D") %>%
+  factor()
+parent <- ifelse(endsWith(colnames(splitcounts), "mat"), "maternal", "paternal") %>%
+  factor(levels = c('paternal','maternal')) #change that so that higher expr will mean maternal and will be red.
+
+colData <- data.frame(parent = parent, strain = strain, litter = litter, embryo = embryo)
+
+glMDSPlot(splitDE, labels = rownames(splitDE$samples), groups = colData)
+
+design <- model.matrix(~embryo+parent)  #account for paired data
+
+splitDE <- estimateDisp(splitDE, design)
+
+splitfit <- glmQLFit(splitDE, design)
+
+qlf <- glmQLFTest(splitfit)
+
+FDR <- p.adjust(qlf$table$PValue, method="BH")
+
+dt.edger <- decideTestsDGE(qlf, p.value =0.1) #default adjust method is BH, and will pick p.value = 0.05
+
+#make annotation dataframe
+annot <- counts %>% 
+  rownames_to_column('ensembl_gene_id') %>% 
+  as_tibble() %>% 
+  left_join(gene) %>% 
+  rename(ID = ensembl_gene_id) %>% 
+  as.data.frame()
+
+imprint_de_results <- qlf$table %>% 
+  rownames_to_column('ensembl_gene_id') %>% 
+  as_tibble() %>% 
+  mutate(padj = FDR) %>% 
+  left_join(gene) %>% 
+  arrange(padj)
+
+impr10 <- imprint_de_results %>% 
+  filter(padj < 0.1)
+#135 genes.
+#88 MEGs, 47 PEGs.
+write_tsv(impr10, '../rna_seq/parent_biased_genes_10pctFDR.tsv')
+write_tsv(imprint_de_results, '../rna_seq/imprint_DE_results.tsv.gz')
+```
+
+## Additional File 1
+
+```{r}
+#load data
+load('../genome_data/known_imprinted_genes.RData')
+#
+annotated_imprinted <- impr10 %>% 
+  mutate(in_db = ensembl_gene_id %in% 
+           databases$ensembl_gene_id) %>% 
+  mutate(in_andergassen = ensembl_gene_id %in% andergassen$ensembl_gene_id) %>% 
+  left_join(dplyr::select(andergassen, ensembl_gene_id, known_ig, final_conclusion_on_imprinted_status)) %>% 
+  mutate(in_Finn = ensembl_gene_id %in% finn$ensembl_gene_id) %>% 
+  mutate(in_Calabrese = ensembl_gene_id %in% calabrese$ensembl_gene_id) %>% 
+  mutate(in_Inoue = ensembl_gene_id %in% inoue$ensembl_gene_id) %>% 
+  select(-known_ig, -final_conclusion_on_imprinted_status)
+
+write_tsv(annotated_imprinted, '../tables/imprinted_genes_Supp_file_1.tsv')
+```
+
+## strain-biased expression
+
+```{r} 
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+strainDE <- DGEList(counts = counts)
+#TMM norm
+strainDE <- calcNormFactors(strainDE)
+
+colData <- data.frame(parent = parent, strain = strain, litter = litter, embryo = embryo)
+
+design2 <- model.matrix(~embryo+strain)  #account for paired data
+
+strainDE <- estimateDisp(strainDE, design2)
+
+strainfit <- glmQLFit(strainDE, design2)
+
+qlfstrain <- glmQLFTest(strainfit)
+
+FDRstrain <- p.adjust(qlfstrain$table$PValue, method="BH")
+
+
+dt.edger.strain <- decideTestsDGE(qlfstrain, p.value = 0.05, lfc =1) #5% FDR and log2FC of 1
+#make annotation dataframe
+annot <- counts %>% rownames_to_column('ensembl_gene_id') %>% as_tibble() %>% left_join(gene) %>% rename(ID = ensembl_gene_id) %>% as.data.frame()
+
+glMDPlot(qlfstrain, status=dt.edger.strain, counts=counts, groups= colData$embryo, transform=TRUE, html = 'MDPlot_strain', anno = annot, display.columns=c("ID", "mgi_symbol"), sample.cols = rep(cbbPalette[1:2], 8), side.xlab = 'sample', side.ylab = 'Expression')
+
+strain_de_results <- qlfstrain$table %>% rownames_to_column('ensembl_gene_id') %>% as_tibble() %>% mutate(padj = FDRstrain) %>% left_join(gene) %>% arrange(padj)
+
+strain05log2 <- strain_de_results %>% filter(padj < 0.05 & abs(logFC) > 1)
+
+write_tsv(strain05log2, '../rna_seq/strain_biased_genes_5pctFDR.tsv')
+write_tsv(strain_de_results, '../rna_seq/strain_DE_results.tsv.gz')
+```
+
+## Figure 3A
+
+```{r} 
+newgenes <- filter(annotated_imprinted, in_db + in_andergassen + in_Finn + in_Calabrese + in_Inoue ==0)
+```
+
+```{r}
+p <- imprint_de_results  %>% 
   mutate(status = case_when(padj < 0.1 & logFC > 0 ~ "Maternal dominant", 
                             padj < 0.1 & logFC < 0 ~ 'Paternal dominant', 
                             TRUE ~ 'Not significant')) %>% 
@@ -52,9 +218,8 @@ p
 
 ## Figure 3B
 
-```{r }
-load('../rna_seq/repeat_analysis_Sep18_strain.RData')
-p2 <- results.strain  %>% 
+```{r}
+p2 <- strain_de_results  %>% 
   mutate(status = case_when(padj < 0.05 & logFC > 1 ~ "Cast dominant", 
                             padj < 0.05 & logFC < -1 ~ 'B6 dominant', 
                             TRUE ~ 'Not significant')) %>% 
@@ -103,5 +268,5 @@ p <- ggplot(bias, aes(x = embryo, y = libsizes/1e6, fill = allele)) +
   labs(x = 'Sample', y = 'Counts (millions)', fill = 'Allele') + 
   theme_gray()
 p
-save_plot('../plots/allelic_bias_v2.pdf', p, base_aspect_ratio = 2)
+save_plot('../plots/allelic_bias.pdf', p, base_aspect_ratio = 2)
 ```

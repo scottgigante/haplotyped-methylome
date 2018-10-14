@@ -30,7 +30,7 @@ For the standard workflow, we expect that you have the following directory struc
 |   ├──FVB_NJ.mgp.v5.snps.dbSNP142.vcf
 |   ├──CpG_coordinates_mm10.RData
 |   ├──CGI_coordinates_mm10.masked.HMM.tsv
-|   ├──ensembl_GRCm38.98.chr.gtf
+|   ├──Mus_musculus.GRCm38.90.chr.gtf
 |   ├──ICR_plot_regions.tsv
 |   └──primary_ICRs_mm10.tsv
 ├── bisulfite
@@ -86,20 +86,24 @@ snakemake rnaseq_analysis
 
 ### Installation without `conda`
 
-Compiled dependencies:
+Software dependencies:
 
 * [SAMtools](http://www.htslib.org/download/)
-* [Pandoc](https://pandoc.org/installing.html)
-* [BWA](https://sourceforge.net/projects/bio-bwa/files/) (optional)
+* [BWA](https://sourceforge.net/projects/bio-bwa/files/)
+* [Hisat2](https://ccb.jhu.edu/software/hisat2/index.shtml)
+* [Trim Galore](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
+* [SNPsplit](https://www.bioinformatics.babraham.ac.uk/projects/SNPsplit/)
+* [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)
 * [Nanopolish](https://nanopolish.readthedocs.io/en/latest/installation.html) (optional)
+* [Pandoc](https://pandoc.org/installing.html)
 
-Python dependencies:
+Python package dependencies:
 
 ```
 pip install --user -r requirements.txt
 ```
 
-R dependencies:
+R package dependencies:
 
 ```
 Rscript install_R_deps.R

@@ -94,8 +94,6 @@ def parse_args():
                         help='filename of vcf listing snps')
     parser.add_argument('-a', '--alternate-only', default=False, action='store_true',
                         help='replace reference base with alternate allele, rather than retaining both (Default: false)')
-    parser.add_argument('-u', '--update', default=False, action='store_true',
-                        help='Update an already masked genome with another VCF file (Default: false)')
     parser.add_argument('-r', '--region', type=parse_region, nargs="+", metavar="CHR:START-END",
                         help="Name and range of contigs to mask (Default: entire genome)")
     parser.add_argument('-b', '--boundary', type=int, default=0, metavar="INT",
@@ -184,10 +182,7 @@ with open(args.vcf, 'r') as handle:
 
         bases = alt_bases
         if not alternate_only:
-            if args.update:
-                bases = bases + disambiguate_base(record.seq[pos])
-            else:
-                bases = bases + ref_base
+            bases = bases + disambiguate_base(record.seq[pos])
 
         record.seq[pos] = get_ambiguity_base(bases)
         genome[row['CHROM']] = record

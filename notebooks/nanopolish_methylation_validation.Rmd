@@ -54,7 +54,6 @@ meth_df %>%
   geom_density() +
   labs(x=expression(paste("Methylation (", beta, ")")),
        y="Density") +
-  theme(expand=c(0,0)) +
   scale_x_continuous(expand=c(0,0)) +
   scale_y_continuous(expand=c(0,0))
 ggsave("../plots/methylation_density.pdf")
