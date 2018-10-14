@@ -7,7 +7,7 @@ Reproducibility instructions for Gigante et al., 2018.
 ### System requirements
 
 * R
-* python
+* Python>=3.5
 
 #### Dependencies
 
