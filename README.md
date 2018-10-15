@@ -1,8 +1,8 @@
-## Nanopore Imprinted Methylation
+## Haplotyped Methylome
 
 Reproducibility instructions for Gigante et al., 2018.
 
-[![Directed Acyclic Dependency Graph](dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/nanopore-allelic-methylation/blob/master/dependency_graph.svg)
+[![Directed Acyclic Dependency Graph](dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/dependency_graph.svg)
 
 ### System requirements
 
@@ -23,7 +23,7 @@ To install without conda, see the list of dependencies at the bottom of this REA
 
 For the standard workflow, `snakemake` will download all the necessary files.
 
-If you wish to avoid running `nanopolish` on the raw read data, you can download these files from our website and stoe them in the following directory structure.
+If you wish to avoid running `nanopolish` on the raw read data, you can download these files from our website and store them in the following directory structure.
 
 ```
 +── README.md
@@ -85,8 +85,8 @@ R package dependencies:
 Rscript install_R_deps.R
 ```
 
-[![Directed Acyclic Dependency Graph: Methylation](methylation_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/nanopore-allelic-methylation/blob/master/methylation_dependency_graph.svg)
+[![Directed Acyclic Dependency Graph: Methylation](methylation_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/methylation_dependency_graph.svg)
 
-[![Directed Acyclic Dependency Graph: Haplotyping](haplotype_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/nanopore-allelic-methylation/blob/master/haplotype_dependency_graph.svg)
+[![Directed Acyclic Dependency Graph: Haplotyping](haplotype_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/haplotype_dependency_graph.svg)
 
-[![Directed Acyclic Dependency Graph: RNA-seq](rnaseq_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/nanopore-allelic-methylation/blob/master/rnaseq_dependency_graph.svg)
+[![Directed Acyclic Dependency Graph: RNA-seq](rnaseq_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/rnaseq_dependency_graph.svg)
