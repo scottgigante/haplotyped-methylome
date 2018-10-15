@@ -18,7 +18,8 @@ rule bismark_prepare_genome:
     input:
         "../bismark_genome/GRCm38.Cast_N-masked.fa"
     output:
-        "../bismark_genome/Bisulfite_Genome/"
+        "../bismark_genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
+        "../bismark_genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa"
     shell:
         "cd $(dirname {input}) && "
         "bismark_genome_preparation --bowtie2 ./ && "
@@ -26,7 +27,8 @@ rule bismark_prepare_genome:
 
 rule bismark_align:
     input:
-        genome = "../bismark_genome/Bisulfite_Genome/",
+        "../bismark_genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
+        "../bismark_genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
         r1 = "../bisulfite/{sample}_R1_val_1.fq.gz",
         r2 = "../bisulfite/{sample}_R2_val_2.fq.gz",
     output:
@@ -34,12 +36,13 @@ rule bismark_align:
         bam = "../bisulfite/{sample}.bismark_bt2_pe.bam",
     params:
         basename = lambda wildcards, output: "../bisulfite/{}".format(
-            wildcards.sample)
+            wildcards.sample),
+        genome = "../bismark_genome/",
     threads:
         4
     shell:
         "bismark --gzip --bam --bowtie2 -p {threads} -B {params.basename} "
-        "$(dirname {input.genome}) -1 {input.r1} -2 {input.r2} &> {output.log}"
+        "{params.genome} -1 {input.r1} -2 {input.r2} &> {output.log}"
 
 rule snpsplit_bismark:
     input:

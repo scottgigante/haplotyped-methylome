@@ -29,7 +29,6 @@ rule merge_threeway_variants:
         summary = "../nanopore/albacore_1.2.2.b6xcast.sorted.bam.summary.tsv",
         regions = "../genome_data/fvb_regions.txt",
     output:
-        "../nanopore/albacore_1.2.2.b6xcast.phased.tsv",
-        "../plots/rpart_fvb_resolution.png"
+        "../nanopore/albacore_1.2.2.b6xcast.phased.tsv"
     shell:
-        "python merge_recombined_haplotypes.py -i {input.phase} -s {input.summary} -a alt2 -r $(cat {regions}) -o {output}"
+        "python merge_recombined_haplotypes.py -i {input.phase} -s {input.summary} -a alt2 -r $(cat {input.regions}) -o {output}"
