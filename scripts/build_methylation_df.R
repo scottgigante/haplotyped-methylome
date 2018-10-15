@@ -1,7 +1,7 @@
 library(tidyverse)
 library(data.table)
 
-bisulfite_df <- read_tsv("../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.summary.tsv", col_names=c("chr","pos","percentMeth", "meth", "coverage"), col_types='ciddd') %>%
+bisulfite_df <- read_tsv("../bisulfite/B6CastF1_1.bismark_bt2_pe.summary.tsv", col_names=c("chr","pos","percentMeth", "meth", "coverage"), col_types='ciddd') %>%
   arrange(chr, pos) %>%
   dplyr::rename(start=pos) %>%
   mutate(end=start,

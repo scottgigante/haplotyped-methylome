@@ -21,53 +21,28 @@ To install without conda, see the list of dependencies at the bottom of this REA
 
 ### Required data
 
-For the standard workflow, we expect that you have the following directory structure (files included in this GitHub repository are omitted for brevity):
+For the standard workflow, `snakemake` will download all the necessary files.
+
+If you wish to avoid running `nanopolish` on the raw read data, you can download these files from our website and stoe them in the following directory structure.
 
 ```
 +── README.md
 ├── genome_data
-|   ├──CAST_EiJ.mgp.v5.snps.dbSNP142.vcf
-|   ├──FVB_NJ.mgp.v5.snps.dbSNP142.vcf
-|   ├──CpG_coordinates_mm10.RData
-|   ├──CGI_coordinates_mm10.masked.HMM.tsv
-|   ├──Mus_musculus.GRCm38.90.chr.gtf
-|   ├──ICR_plot_regions.tsv
-|   └──primary_ICRs_mm10.tsv
-├── bisulfite
-|   ├──???
-|   └──???
-├── nanopore
-|   ├──albacore_1.2.2.b6.sorted.bam
-|   ├──albacore_1.2.2.b6.phased_sorted.bam
-|   ├──albacore_1.2.2.b6.methylation.tsv
-|   ├──albacore_1.2.2.cast.sorted.bam
-|   ├──albacore_1.2.2.cast.phased_sorted.bam
-|   ├──albacore_1.2.2.cast.methylation.tsv
-|   ├──albacore_1.2.2.b6xcast.sorted.bam
-|   ├──albacore_1.2.2.b6xcast.phased_sorted.bam
-|   ├──albacore_1.2.2.b6xcast.methylation.tsv
-|   ├──albacore_2.7.7.castxb6.promethion.sorted.bam
-|   ├──albacore_2.7.7.castxb6.promethion.phased_sorted.bam
-|   └──albacore_2.7.7.castxb6.promethion.methylation.tsv
-├── rna_seq
-|   ├──???
-|   └──???
 ├── notebooks
-└── scripts
-```
-
-If you wish to run `nanopolish` on the raw read data, you can replace the contents of `nanopore` with the following:
-
-```
-+── nanopore
-    ├──albacore_1.2.2.b6.fast5/
-    ├──albacore_1.2.2.b6.fa.gz
-    ├──albacore_1.2.2.cast.fast5/
-    ├──albacore_1.2.2.cast.fa.gz
-    ├──albacore_1.2.2.b6xcast.fast5/
-    ├──albacore_1.2.2.b6xcast.fa.gz
-    ├──albacore_2.7.7.castxb6.promethion.fast5/
-    └──albacore_2.7.7.castxb6.promethion.fa.gz
+├── scripts
+└── nanopore
+    ├──albacore_1.2.2.b6.sorted.bam
+    ├──albacore_1.2.2.b6.phased_sorted.bam
+    ├──albacore_1.2.2.b6.methylation.tsv
+    ├──albacore_1.2.2.cast.sorted.bam
+    ├──albacore_1.2.2.cast.phased_sorted.bam
+    ├──albacore_1.2.2.cast.methylation.tsv
+    ├──albacore_1.2.2.b6xcast.sorted.bam
+    ├──albacore_1.2.2.b6xcast.phased_sorted.bam
+    ├──albacore_1.2.2.b6xcast.methylation.tsv
+    ├──albacore_2.7.7.castxb6.promethion.sorted.bam
+    ├──albacore_2.7.7.castxb6.promethion.phased_sorted.bam
+    └──albacore_2.7.7.castxb6.promethion.methylation.tsv
 ```
 
 ### Running the workflow

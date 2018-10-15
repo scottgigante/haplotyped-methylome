@@ -70,41 +70,11 @@ rule download_vcf:
 rule mask_with_cast_genome:
     input:
         fasta = "../genome_data/{genome}.fa",
-        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf.gz"
+        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"
     output:
         "../genome_data/{genome}.CAST_masked.fa"
     shell:
         "python mask_genome_variants.py -i {input.fasta} -o {output} -v {input.vcf}"
-
-rule merge_bisulfite_genome1:
-    input:
-        "../bisulfite/CpG_context_BC6.all.R1_val_1.bismark_bt2_pe.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC8.all.R1_val_1.bismark_bt2_pe.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC9.all.R1_val_1.bismark_bt2_pe.genome1.txt.gz"
-    output:
-        "../bisulfite/CpG_context.combined_replicates.genome1.summary.tsv"
-    shell:
-        "python summarize_bisulfite_methylation.py {output} {input}"
-
-rule merge_bisulfite_genome2:
-    input:
-        "../bisulfite/CpG_context_BC6.all.R1_val_1.bismark_bt2_pe.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC8.all.R1_val_1.bismark_bt2_pe.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC9.all.R1_val_1.bismark_bt2_pe.genome2.txt.gz"
-    output:
-        "../bisulfite/CpG_context.combined_replicates.genome2.summary.tsv"
-    shell:
-        "python summarize_bisulfite_methylation.py {output} {input}"
-
-rule merge_bisulfite_BC7:
-    input:
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.txt.gz",
-    output:
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.summary.tsv"
-    shell:
-        "python summarize_bisulfite_methylation.py {output} {input}"
 
 rule ensembl_gtf_to_tsv:
     input:

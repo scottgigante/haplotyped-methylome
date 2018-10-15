@@ -64,3 +64,33 @@ rule bismark_extract:
         "bismark_methylation_extractor --ignore 13 --paired-end --multicore {threads} "
         "--comprehensive --merge_non_CpG --report --output methylation_extractor --gzip "
         "--bedGraph {input} &> {output.log}"
+
+rule merge_bisulfite_genome1:
+    input:
+        "../bisulfite/B6CastF1_1.bismark_bt2_pe.genome1.txt.gz",
+        "../bisulfite/B6CastF1_2.bismark_bt2_pe.genome1.txt.gz",
+        "../bisulfite/B6CastF1_5.bismark_bt2_pe.genome1.txt.gz",
+        "../bisulfite/B6CastF1_6.bismark_bt2_pe.genome1.txt.gz"
+    output:
+        "../bisulfite/B6CastF1.combined_replicates.genome1.summary.tsv"
+    shell:
+        "python summarize_bisulfite_methylation.py {output} {input}"
+
+rule merge_bisulfite_genome2:
+    input:
+        "../bisulfite/B6CastF1_1.bismark_bt2_pe.genome2.txt.gz",
+        "../bisulfite/B6CastF1_2.bismark_bt2_pe.genome2.txt.gz",
+        "../bisulfite/B6CastF1_5.bismark_bt2_pe.genome2.txt.gz",
+        "../bisulfite/B6CastF1_6.bismark_bt2_pe.genome2.txt.gz"
+    output:
+        "../bisulfite/B6CastF1.combined_replicates.genome2.summary.tsv"
+    shell:
+        "python summarize_bisulfite_methylation.py {output} {input}"
+
+rule merge_bisulfite_BC7:
+    input:
+        "../bisulfite/B6CastF1_1.bismark_bt2_pe.txt.gz",
+    output:
+        "../bisulfite/B6CastF1_1.bismark_bt2_pe.summary.tsv"
+    shell:
+        "python summarize_bisulfite_methylation.py {output} {input}"

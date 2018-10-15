@@ -13,10 +13,11 @@ rule trim_galore:
     output:
         r1 = "../{outdir}/{sample}_R1_val_1.fq.gz",
         r2 = "../{outdir}/{sample}_R2_val_2.fq.gz",
+        log = "../{outdir}/{sample}_trim_galore.log",
     params:
         outdir = lambda wildcards, output: "../{}/".format(wildcards.outdir)
     shell:
-        "trim_galore --phred33 --fastqc --gzip --paired -o {params.outdir} {input.r1} {input.r2}"
+        "trim_galore --phred33 --fastqc --gzip --paired -o {params.outdir} {input.r1} {input.r2} &> {output.log}"
 
 rule snpsplit_create_path:
     input:
@@ -54,9 +55,10 @@ rule snpsplit_prepare_genome:
         "../snpsplit_prepare_genome/CAST_EiJ_N-masked/chrY.N-masked.fa",
         "../snpsplit_prepare_genome/CAST_EiJ_N-masked/chrMT.N-masked.fa",
         "../snpsplit_prepare_genome/all_SNPs_CAST_EiJ_GRCm38.txt.gz",
+        log = "../snpsplit_prepare_genome/snpsplit.log"
     shell:
         "cd $(dirname {input.genome}) && "
-        "SNPsplit_genome_preparation --vcf_file {input.vcf} --strain CAST_EiJ --reference_genome ./ && "
+        "SNPsplit_genome_preparation --vcf_file {input.vcf} --strain CAST_EiJ --reference_genome ./ &> {output.log} && "
         "cd ../scripts/"
 
 rule clean_up_snpsplit_genome:
