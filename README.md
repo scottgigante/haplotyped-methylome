@@ -84,3 +84,9 @@ R package dependencies:
 ```
 Rscript install_R_deps.R
 ```
+
+[![Directed Acyclic Dependency Graph: Methylation](methylation_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/nanopore-allelic-methylation/blob/master/methylation_dependency_graph.svg)
+
+[![Directed Acyclic Dependency Graph: Haplotyping](haplotype_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/nanopore-allelic-methylation/blob/master/haplotype_dependency_graph.svg)
+
+[![Directed Acyclic Dependency Graph: RNA-seq](rnaseq_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/nanopore-allelic-methylation/blob/master/rnaseq_dependency_graph.svg)
