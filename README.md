@@ -94,6 +94,7 @@ Software dependencies:
 * [Trim Galore](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
 * [SNPsplit](https://www.bioinformatics.babraham.ac.uk/projects/SNPsplit/)
 * [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)
+* [Bowtie 2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 * [Nanopolish](https://nanopolish.readthedocs.io/en/latest/installation.html) (optional)
 * [Pandoc](https://pandoc.org/installing.html)
 
