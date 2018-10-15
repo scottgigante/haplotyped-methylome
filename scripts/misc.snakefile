@@ -78,10 +78,10 @@ rule mask_with_cast_genome:
 
 rule merge_bisulfite_genome1:
     input:
-        "../bisulfite/CpG_context_BC6.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC8.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC9.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome1.txt.gz"
+        "../bisulfite/CpG_context_BC6.all.R1_val_1.bismark_bt2_pe.genome1.txt.gz",
+        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.genome1.txt.gz",
+        "../bisulfite/CpG_context_BC8.all.R1_val_1.bismark_bt2_pe.genome1.txt.gz",
+        "../bisulfite/CpG_context_BC9.all.R1_val_1.bismark_bt2_pe.genome1.txt.gz"
     output:
         "../bisulfite/CpG_context.combined_replicates.genome1.summary.tsv"
     shell:
@@ -89,10 +89,10 @@ rule merge_bisulfite_genome1:
 
 rule merge_bisulfite_genome2:
     input:
-        "../bisulfite/CpG_context_BC6.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC8.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC9.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome2.txt.gz"
+        "../bisulfite/CpG_context_BC6.all.R1_val_1.bismark_bt2_pe.genome2.txt.gz",
+        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.genome2.txt.gz",
+        "../bisulfite/CpG_context_BC8.all.R1_val_1.bismark_bt2_pe.genome2.txt.gz",
+        "../bisulfite/CpG_context_BC9.all.R1_val_1.bismark_bt2_pe.genome2.txt.gz"
     output:
         "../bisulfite/CpG_context.combined_replicates.genome2.summary.tsv"
     shell:
@@ -100,9 +100,9 @@ rule merge_bisulfite_genome2:
 
 rule merge_bisulfite_BC7:
     input:
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.fq_bismark_bt2_pe.txt.gz",
+        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.txt.gz",
     output:
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.fq_bismark_bt2_pe.summary.tsv"
+        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.summary.tsv"
     shell:
         "python summarize_bisulfite_methylation.py {output} {input}"
 

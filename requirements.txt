@@ -3,3 +3,4 @@ future
 biopython
 pysam
 snakemake
+cutadapt

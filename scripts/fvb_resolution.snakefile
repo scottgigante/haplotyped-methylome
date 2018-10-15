@@ -19,8 +19,9 @@ rule fvb_resolution:
     output:
         "../genome_data/fvb_regions.txt",
         "../plots/rpart_fvb_resolution.png",
+        "../notebooks/nanopolish_fvb_resolution.html",
     shell:
-        "Rscript render_notebook.R ../nanopolish_threeway_haplotype_analysis.Rmd"
+        "Rscript render_notebook.R ../notebooks/nanopolish_fvb_resolution.Rmd"
 
 rule merge_threeway_variants:
     input:

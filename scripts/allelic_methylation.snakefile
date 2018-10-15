@@ -128,7 +128,7 @@ rule build_dmrlist:
 
 rule build_methylation_df:
     input:
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.fq_bismark_bt2_pe.summary.tsv",
+        "../bisulfite/CpG_context_BC7.all.R1_val_1.bismark_bt2_pe.summary.tsv",
         "../nanopore/albacore_1.2.2.b6xcast.methylation.summary.tsv",
     output:
         "../RData/nanopolish_df.RData",

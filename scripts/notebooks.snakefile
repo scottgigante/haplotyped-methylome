@@ -136,7 +136,7 @@ rule rnaseq_analysis_notebook:
                "../rna_seq/CastB6F1_4.hisat2.genome1.bam",
                "../rna_seq/CastB6F1_4.hisat2.genome2.bam",
                "../rna_seq/CastB6F1_5.hisat2.genome1.bam",
-               "../rna_seq/CastB6F1_6.hisat2.genome2.bam")
+               "../rna_seq/CastB6F1_5.hisat2.genome2.bam")
     output:
         '../rna_seq/strain_biased_genes_5pctFDR.tsv',
         '../rna_seq/parent_biased_genes_10pctFDR.tsv',

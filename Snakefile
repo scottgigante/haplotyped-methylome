@@ -12,6 +12,8 @@ include:
     "scripts/misc.snakefile"
 include:
     "scripts/rna_seq.snakefile"
+include:
+    "scripts/rrbs.snakefile"
 
 """Inputs:
         "../nanopore/{sample}.sorted.bam"
@@ -23,16 +25,7 @@ include:
 """
 
 """TODO:
-        "../bisulfite/CpG_context_TB1_PlacentaE14.5_WT_R1_trimmed.fq_bismark_bt2_pe.summary.tsv",
-        "../bisulfite/CpG_context_BC6.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC8.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC9.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome1.txt.gz",
-        "../bisulfite/CpG_context_BC6.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC7.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC8.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome2.txt.gz",
-        "../bisulfite/CpG_context_BC9.all.R1_val_1.fq_bismark_bt2_pe.sorted.genome2.txt.gz"
-Maybe do: FVB resolution, quality analysis
+Maybe do: quality analysis
 """
 
 rule all:

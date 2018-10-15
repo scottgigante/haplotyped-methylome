@@ -1,5 +1,5 @@
 ---
-title: "Nanopolish Variants Analysis"
+title: "Nanopolish FVB Resolution"
 author: "Scott Gigante"
 date: "20/07/2017"
 output: html_document
@@ -16,16 +16,16 @@ library(gridExtra)
 
 ```{r}
 min_coverage=5
-base_fn <- "../../nanopolish_data/albacore_1.2.2.b6xcast"
+base_fn <- "../nanopore/albacore_1.2.2.b6xcast"
 haplotype_df <- read_tsv(paste0(base_fn, ".threeway_phased.tsv")) %>%
   rename(read_name=read) %>%
-  inner_join(read_tsv(paste0(base_fn, ".sorted.bam.summary.tsv"), 
+  inner_join(read_tsv(paste0(base_fn, ".summary.tsv"), 
                       col_names=c("read_name", "chr", "start", "end", "qual"), skip=1))
 ```
 
 ## Define functions
 
-```{r fig.height=12, fig.width=10}
+```{r fig.height=10, fig.width=10}
 assign_chr_genotype <- function(.chr, df, binwidth=1e5, smooth=10) {
   df <- df %>% dplyr::filter(chr==.chr, genotype %in% c("ref", "alt2"))
   result <- data_frame(pos=seq(from=binwidth/2, to=max(df$end)-binwidth/2, by=binwidth/2))
@@ -44,6 +44,7 @@ assign_chr_genotype <- function(.chr, df, binwidth=1e5, smooth=10) {
 plot_rpart <- function(partitions) {
   partitions %>%
     bind_rows() %>%
+    filter(chr!="Y") %>%
     mutate(pos = pos/1e6,
            prop=1-prop,
            tree=1-tree,
@@ -54,7 +55,7 @@ plot_rpart <- function(partitions) {
     ggplot(aes(x=pos)) +
     geom_point(aes(y=prop), alpha=0.05, na.rm=TRUE) +
     geom_line(aes(y=tree), color='red') +
-    facet_wrap(~ chr, ncol = 3, scales="free_x") +
+    facet_wrap(~ chr, ncol = 4, scales="free_x") +
     labs(x="Genomic Position (Mb)",
          y="FVB Proportion of Maternal Reads")
 }
