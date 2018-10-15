@@ -114,12 +114,14 @@ rule map_hisat2:
         index = "../genome_data/GRCm38.Cast_N-masked.1.ht2",
         r1 = "../rna_seq/{sample}_R1_val_1.fq.gz",
         r2 = "../rna_seq/{sample}_R2_val_2.fq.gz",
+    params:
+        base = "../genome_data/GRCm38.Cast_N-masked"
     output:
         "../rna_seq/{sample}.hisat2.bam"
     threads:
         16
     shell:
-        "hisat2 -p {threads} --no-softclip -x {input.genome} -1 {input.r1} -2 {input.r2} | "
+        "hisat2 -p {threads} --no-softclip -x {params.base} -1 {input.r1} -2 {input.r2} | "
         "samtools sort -@ {threads} -T {output}.samtools.tmp -o {output}"
 
 rule snp_split_hisat2:
