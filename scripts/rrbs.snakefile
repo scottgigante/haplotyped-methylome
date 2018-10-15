@@ -90,7 +90,7 @@ rule merge_bisulfite_genome2:
     shell:
         "python summarize_bisulfite_methylation.py {output} {input}"
 
-rule merge_bisulfite_BC7:
+rule merge_matched_bisulfite:
     input:
         "../bisulfite/B6CastF1_1.bismark_bt2_pe.txt.gz",
     output:
