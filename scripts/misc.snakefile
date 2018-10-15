@@ -90,4 +90,4 @@ rule icr_plot_region_string:
     output:
         "../genome_data/ICR_plot_regions_string.txt"
     shell:
-        "python tsv_to_region.py {input} > {output}"
+        "python tsv_to_region.py {input} 10000 > {output}"
