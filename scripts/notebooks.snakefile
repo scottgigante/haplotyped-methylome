@@ -3,53 +3,58 @@ rule b6_haplotype_analysis:
         "../RData/albacore_1.2.2.b6/haplotype_df.RData",
         "../RData/albacore_1.2.2.b6/summary_df.RData",
         "../RData/albacore_1.2.2.b6/fit_reads_df.RData",
+        notebook = "../notebooks/b6_haplotype_analysis.Rmd",
     output:
         "../notebooks/b6_haplotype_analysis.html",
         "../plots/b6.haplotype_score_combination.png",
     shell:
-        "Rscript render_notebook.R ../notebooks/b6_haplotype_analysis.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule cast_haplotype_analysis:
     input:
         "../RData/albacore_1.2.2.cast/haplotype_df.RData",
         "../RData/albacore_1.2.2.cast/summary_df.RData",
         "../RData/albacore_1.2.2.cast/fit_reads_df.RData",
+        notebook = "../notebooks/cast_haplotype_analysis.Rmd",
     output:
         "../notebooks/cast_haplotype_analysis.html",
         "../plots/cast.haplotype_score_combination.png",
     shell:
-        "Rscript render_notebook.R ../notebooks/cast_haplotype_analysis.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule b6xcast_haplotype_analysis:
     input:
         "../RData/albacore_1.2.2.b6xcast/haplotype_df.RData",
         "../RData/albacore_1.2.2.b6xcast/summary_df.RData",
         "../RData/albacore_1.2.2.b6xcast/fit_reads_df.RData",
+        notebook = "../notebooks/b6xcast_haplotype_analysis.Rmd",
     output:
         "../notebooks/b6xcast_haplotype_analysis.html",
         "../plots/b6xcast.haplotype_score_combination.pdf",
     shell:
-        "Rscript render_notebook.R ../notebooks/b6xcast_haplotype_analysis.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule castxb6_haplotype_analysis:
     input:
         "../RData/albacore_2.2.7.castxb6.promethion/haplotype_df.RData",
         "../RData/albacore_2.2.7.castxb6.promethion/summary_df.RData",
         "../RData/albacore_2.2.7.castxb6.promethion/fit_reads_df.RData",
+        notebook = "../notebooks/castxb6_haplotype_analysis.Rmd",
     output:
         "../notebooks/castxb6_haplotype_analysis.html",
         "../plots/castxb6.haplotype_score_combination.png",
     shell:
-        "Rscript render_notebook.R ../notebooks/castxb6_haplotype_analysis.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule haplotype_auc:
     input:
         "../RData/albacore_1.2.2.b6/haplotype_df.RData",
-        "../RData/albacore_1.2.2.cast/haplotype_df.RData"
+        "../RData/albacore_1.2.2.cast/haplotype_df.RData",
+        notebook = "../notebooks/single_strain_auc.Rmd",
     output:
         "../notebooks/single_strain_auc.html",
     shell:
-        "Rscript render_notebook.R ../notebooks/single_strain_auc.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule dmr_comparison:
     input:
@@ -57,11 +62,12 @@ rule dmr_comparison:
         "../tables/dss_dmrlist.csv",
         "../rna_seq/parent_biased_genes_10pctFDR.tsv",
         "../rna_seq/strain_biased_genes_5pctFDR.tsv",
+        notebook = "../notebooks/compare_detected_dmrs.Rmd",
     output:
         "../notebooks/compare_detected_dmrs.html",
         "../plots/dss_distance/strain_linear.png"
     shell:
-        "Rscript render_notebook.R ../notebooks/compare_detected_dmrs.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule visualise_dmrs:
     input:
@@ -78,22 +84,24 @@ rule visualise_dmrs:
         "../genome_data/CGI_coordinates_mm10.masked.HMM.tsv",
         "../genome_data/primary_ICRs_mm10.tsv",
         "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
+        notebook = "../notebooks/visualise_dmr.Rmd",
     output:
         "../notebooks/visualise_dmr.html",
         "../plots/dmr_examples/4933421O10Rik.pdf"
     shell:
-        "Rscript render_notebook.R ../notebooks/visualise_dmr.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule differential_methylation_heatmaps:
     input:
         "../nanopore/albacore_1.2.2.b6xcast.compare_haplotype_methylation.tsv",
         "../nanopore/albacore_2.2.7.castxb6.promethion.compare_haplotype_methylation.tsv",
         '../genome_data/ICR_plot_regions.tsv',
+        notebook = "../notebooks/differential_methylation_heatmaps.Rmd",
     output:
         "../notebooks/differential_methylation_heatmaps.html",
         "../plots/primary_ICRs_heatmap.png",
     shell:
-        "Rscript render_notebook.R ../notebooks/differential_methylation_heatmaps.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule genome_level_methylation_summary:
     input:
@@ -101,21 +109,23 @@ rule genome_level_methylation_summary:
         "../genome_data/CGI_coordinates_mm10.masked.HMM.tsv",
         "../RData/nanopolish_df.RData",
         "../RData/bisulfite_df.RData",
+        notebook = "../notebooks/genome_level_methylation_summary.Rmd",
     output:
         "../notebooks/genome_level_methylation_summary.html",
         "../plots/gene_body_metaplot.pdf",
     shell:
-        "Rscript render_notebook.R ../notebooks/genome_level_methylation_summary.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule nanopolish_methylation_validation:
     input:
         "../RData/nanopolish_df.RData",
         "../RData/bisulfite_df.RData",
+        notebook = "../notebooks/nanopolish_methylation_validation.Rmd",
     output:
         "../notebooks/nanopolish_methylation_validation.html",
         "../plots/binned_site_concordance.pdf"
     shell:
-        "Rscript render_notebook.R ../notebooks/nanopolish_methylation_validation.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule rnaseq_analysis_notebook:
     input:
@@ -136,7 +146,8 @@ rule rnaseq_analysis_notebook:
                "../rna_seq/CastB6F1_4.hisat2.genome1.bam",
                "../rna_seq/CastB6F1_4.hisat2.genome2.bam",
                "../rna_seq/CastB6F1_5.hisat2.genome1.bam",
-               "../rna_seq/CastB6F1_5.hisat2.genome2.bam")
+               "../rna_seq/CastB6F1_5.hisat2.genome2.bam"),
+        notebook = "../notebooks/rnaseq_analysis.Rmd",
     output:
         '../rna_seq/strain_biased_genes_5pctFDR.tsv',
         '../rna_seq/parent_biased_genes_10pctFDR.tsv',
@@ -144,12 +155,12 @@ rule rnaseq_analysis_notebook:
         "../notebooks/rnaseq_analysis.html",
         '../plots/allelic_bias.pdf',
     shell:
-        "Rscript render_notebook.R ../notebooks/rnaseq_analysis.Rmd"
+        "Rscript render_notebook.R {input.notebook}"
 
 rule prepare_visualisation:
     input:
         "../genome_data/Mus_musculus.GRCm38_90.chr.gtf",
-        "../rna_seq/all_runs_with_reverse_coverage.tsv"
+        "../rna_seq/all_runs_with_reverse_coverage.tsv",
     output:
         "../RData/knownGene.RData",
         "../RData/rna_seq_with_reverse.RData"
