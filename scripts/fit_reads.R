@@ -16,7 +16,7 @@ infile <- args[1]
 outdir <- args[2]
 dir.create(outdir, showWarnings = FALSE)
 
-summary_df <- read_tsv(paste0(infile, ".summary.tsv"), 
+summary_df <- read_tsv(paste0(infile, ".sorted.bam.summary.tsv"), 
                        col_names=c("read_name", "chr", "start", "end", "qual"), 
                        skip=1) %>% 
   unique()

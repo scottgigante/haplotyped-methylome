@@ -1,4 +1,4 @@
-## Nanopore Allelic Methylation
+## Nanopore Imprinted Methylation
 
 Reproducibility instructions for Gigante et al., 2018.
 

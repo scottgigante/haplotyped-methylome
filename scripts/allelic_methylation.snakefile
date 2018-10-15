@@ -4,7 +4,7 @@ rule suppdb_bam:
         bai = "../nanopore/{sample}.sorted.bam.bai",
     output:
         suppdb = "../nanopore/{sample}.sorted.bam.suppdb",
-        summary = "../nanopore/{sample}.summary.tsv"
+        summary = "../nanopore/{sample}.sorted.bam.summary.tsv"
     shell:
         "python build_supplementary_db.py {input.bam} --summary {output.summary}"
 
@@ -65,7 +65,7 @@ rule sort_by_site:
 
 rule fit_reads:
     input:
-        "../nanopore/{sample}.summary.tsv",
+        "../nanopore/{sample}.sorted.bam.summary.tsv",
         "../nanopore/{sample}.phased.tsv",
         "../nanopore/{sample}.methylation.sorted.by_read.tsv"
     output:

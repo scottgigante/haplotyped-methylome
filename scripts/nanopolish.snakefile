@@ -1,3 +1,11 @@
+rule download_nanopore:
+    output:
+        "../nanopore/{sample}.fa.gz"
+
+rule download_fast5:
+    output:
+        "../nanopore/{sample}.fast5/"
+
 rule bwa_mem_align:
     input:
         genome = "../genome_data/GRCm38_90.CAST_masked.fa",

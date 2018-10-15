@@ -14,7 +14,7 @@ rule call_variant_proportion_threeway:
 
 rule fvb_resolution:
     input:
-        "../nanopore/albacore_1.2.2.b6xcast.summary.tsv",
+        "../nanopore/albacore_1.2.2.b6xcast.sorted.bam.summary.tsv",
         "../nanopore/albacore_1.2.2.b6xcast.threeway_phased.tsv",
     output:
         "../genome_data/fvb_regions.txt",
@@ -26,7 +26,7 @@ rule fvb_resolution:
 rule merge_threeway_variants:
     input:
         phase = "../nanopore/albacore_1.2.2.b6xcast.threeway_phased.tsv",
-        summary = "../nanopore/albacore_1.2.2.b6xcast.summary.tsv",
+        summary = "../nanopore/albacore_1.2.2.b6xcast.sorted.bam.summary.tsv",
         regions = "../genome_data/fvb_regions.txt",
     output:
         "../nanopore/albacore_1.2.2.b6xcast.phased.tsv",
