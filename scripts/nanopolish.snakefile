@@ -16,7 +16,8 @@ rule bwa_mem_align:
     threads:
         16
     shell:
-        "bwa mem -t {threads} {input.genome} {input.reads} | samtools sort -T {sample}.samtools.tmp -@ {threads} -o {output}"
+        "bwa mem -t {threads} {input.genome} {input.reads} | "
+        "samtools sort -T {output}.samtools.tmp -@ {threads} -o {output}"
 
 rule nanopolish_index:
     input:
@@ -25,7 +26,7 @@ rule nanopolish_index:
     output:
         "../nanopore/{sample}.fa.gz.readdb"
     shell:
-        "nanopolish index -d {fast5} {reads}"
+        "nanopolish index -d {input.fast5} {input.reads}"
 
 rule nanopolish_methylation:
     input:
@@ -39,7 +40,7 @@ rule nanopolish_methylation:
     threads:
         16
     shell:
-        "nanopolish call-methylation -t {threads} -r {reads} -b {bam} -g {genome} > {output}"
+        "nanopolish call-methylation -t {threads} -r {input.reads} -b {input.bam} -g {input.genome} > {output}"
 
 rule nanopolish_phase:
     input:
@@ -54,4 +55,5 @@ rule nanopolish_phase:
     threads:
         16
     shell:
-        "nanopolish phase-reads -t {threads} -r {reads} -b {bam} -g {genome} {vcf} | samtools sort -T {sample}.samtools.tmp -@ {threads} -o {output}"
+        "nanopolish phase-reads -t {threads} -r {input.reads} -b {input.bam} -g {input.genome} {input.vcf} | "
+        "samtools sort -T {output}.samtools.tmp -@ {threads} -o {output}"
