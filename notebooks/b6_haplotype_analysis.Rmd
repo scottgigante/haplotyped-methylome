@@ -1,5 +1,5 @@
 ---
-title: "Pure B6 Variants Analysis"
+title: "Pure B6 Haplotype Analysis"
 author: "Scott Gigante"
 date: "20/07/2017"
 output: html_document

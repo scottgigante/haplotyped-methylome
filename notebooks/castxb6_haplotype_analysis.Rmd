@@ -1,5 +1,5 @@
 ---
-title: "Nanopolish Variants Analysis"
+title: "Cast x B6 F1 Haplotype Analysis"
 author: "Scott Gigante"
 date: "20/07/2017"
 output: html_document

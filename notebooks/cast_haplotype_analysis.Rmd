@@ -1,5 +1,5 @@
 ---
-title: "Pure Cast Variants Analysis"
+title: "Pure Cast Haplotype Analysis"
 author: "Scott Gigante"
 date: "20/07/2017"
 output: html_document

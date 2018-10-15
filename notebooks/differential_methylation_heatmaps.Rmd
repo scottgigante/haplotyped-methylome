@@ -1,5 +1,5 @@
 ---
-title: "Differential Methylation Heatmaps By Gene"
+title: "Differential Methylation Heatmaps by ICR"
 author: "Scott Gigante"
 date: "8/12/2017"
 output: html_document
