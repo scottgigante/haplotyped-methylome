@@ -2,6 +2,10 @@
 
 Reproducibility instructions for Gigante et al., 2018.
 
+_Note: this repository is under construction!_
+
+Data avilable at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view/PRJEB27157).
+
 [![Directed Acyclic Dependency Graph](dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/dependency_graph.svg)
 
 ### System requirements
