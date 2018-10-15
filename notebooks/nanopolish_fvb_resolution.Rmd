@@ -83,7 +83,7 @@ rpart_to_region <- function(result) {
 }
 ```
 
-## Plot results
+## Figure S5
 
 ```{r fig.height=12, fig.width=10}
 partitions <- lapply(c(as.character(1:19), "X", "Y"), assign_chr_genotype, haplotype_df)
