@@ -10,7 +10,7 @@ rule download_rnaseq_B6Cast2:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/004/ERR2639374/ERR2639374_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_rnaseq_B6Cast3:
     output:
@@ -19,7 +19,7 @@ rule download_rnaseq_B6Cast3:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/005/ERR2639375/ERR2639375_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_rnaseq_B6Cast4:
     output:
@@ -28,7 +28,7 @@ rule download_rnaseq_B6Cast4:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/006/ERR2639376/ERR2639376_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_rnaseq_B6Cast5:
     output:
@@ -37,7 +37,7 @@ rule download_rnaseq_B6Cast5:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/008/ERR2639378/ERR2639378_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_rnaseq_CastB62:
     output:
@@ -46,7 +46,7 @@ rule download_rnaseq_CastB62:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/000/ERR2639380/ERR2639380_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_rnaseq_CastB63:
     output:
@@ -55,7 +55,7 @@ rule download_rnaseq_CastB63:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/001/ERR2639381/ERR2639381_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_rnaseq_CastB64:
     output:
@@ -64,7 +64,7 @@ rule download_rnaseq_CastB64:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/002/ERR2639382/ERR2639382_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_rnaseq_CastB65:
     output:
@@ -73,7 +73,7 @@ rule download_rnaseq_CastB65:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/003/ERR2639383/ERR2639383_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule trim_galore:
     input:

@@ -9,7 +9,7 @@ rule download_bisulfite_B6Cast1:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/002/ERR2639372/ERR2639372_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_bisulfite_B6Cast2:
     output:
@@ -18,7 +18,7 @@ rule download_bisulfite_B6Cast2:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/003/ERR2639373/ERR2639373_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_bisulfite_B6Cast5:
     output:
@@ -27,7 +27,7 @@ rule download_bisulfite_B6Cast5:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/007/ERR2639377/ERR2639377_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule download_bisulfite_B6Cast6:
     output:
@@ -36,7 +36,7 @@ rule download_bisulfite_B6Cast6:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/009/ERR2639379/ERR2639379_{}.fastq.gz".format(
             wildcards.file)
     shell:
-        "wget -O {output} {params.url}"
+        "wget -q -O {output} {params.url}"
 
 rule bismark_create_path:
     input:

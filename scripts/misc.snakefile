@@ -4,7 +4,7 @@ rule download_B6_genome:
     params:
         url = "ftp://ftp.ensembl.org/pub/release-90/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz"
     shell:
-        "wget {params.url} -O {output}"
+        "wget -q {params.url} -O {output}"
 
 rule download_gtf:
     output:
@@ -12,7 +12,7 @@ rule download_gtf:
     params:
         url = "ftp://ftp.ensembl.org/pub/release-90/gtf/mus_musculus/Mus_musculus.GRCm38.90.chr.gtf.gz"
     shell:
-        "wget {params.url} -O {output}"
+        "wget -q {params.url} -O {output}"
 
 rule gunzip_fa:
     input:
@@ -65,7 +65,7 @@ rule download_vcf:
         url = lambda wildcards, output: "ftp://ftp-mouse.sanger.ac.uk/current_snps/strain_specific_vcfs/{}.mgp.v5.snps.dbSNP142.vcf.gz".format(
             wildcards.strain)
     shell:
-        "wget {params.url} -O {output}"
+        "wget -q {params.url} -O {output}"
 
 rule mask_with_cast_genome:
     input:
