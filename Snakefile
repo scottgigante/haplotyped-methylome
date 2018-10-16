@@ -14,11 +14,10 @@ include:
     "scripts/rna_seq.snakefile"
 include:
     "scripts/rrbs.snakefile"
+conda:
+    "environment.yaml"
 
 """Inputs:
-        "../nanopore/{sample}.sorted.bam"
-        "../nanopore/{sample}.phased_sorted.bam"
-        "../nanopore/{sample}.methylation.tsv"
         "../genome_data/imprinted_genes.tsv",
         "../genome_data/primary_ICRs_mm10.tsv",
         "../genome_data/ICR_plot_regions.tsv",
