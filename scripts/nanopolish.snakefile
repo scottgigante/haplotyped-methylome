@@ -76,9 +76,10 @@ rule albacore_minion:
         "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
         "../nanopore/{sample}.minion.albacore/pipeline.log",
     params:
-        outdir = "../nanopore/{sample}.minion.albacore"
+        outdir = lambda wildcards, output: "../nanopore/{}.minion.albacore".format(
+            wildcards.sample)
     threads:
-        16
+        32
     shell:
         "read_fast5_basecaller.py -c r94_450bps_linear.cfg -o fastq -i {input} -r -s {params.outdir} -t {threads} -q 0"
 
@@ -90,9 +91,10 @@ rule albacore_promethion:
         "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
         "../nanopore/{sample}.minion.albacore/pipeline.log",
     params:
-        outdir = "../nanopore/{sample}.promethion.albacore"
+        outdir = lambda wildcards, output: "../nanopore/{}.promethion.albacore".format(
+            wildcards.sample)
     threads:
-        16
+        32
     shell:
         "read_fast5_basecaller.py -c r941_450bps_linear_prom.cfg -o fastq -i {input} -r -s {params.outdir} -t {threads} -q 0"
 
@@ -161,7 +163,7 @@ rule fake_genome_download:
     input:
         "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
     output:
-        temp("../genome_data/fake_genome.intermediate_download"),
+        temp("../nanopore/fake_genome.intermediate_download"),
     shell:
         "touch ../genome_data/GRCm38_90.fa && "
         "touch ../genome_data/GRCm38_90.CAST_masked.fa && "
@@ -177,6 +179,7 @@ rule intermediate_download_bam:
         sample = lambda wildcards, output: wildcards.sample
     shell:
         "mkdir -p ../nanopore/{params.sample}.fast5/ && "
+        "mkdir -p ../nanopore/{params.sample}.albacore/workspace && "
         "touch ../nanopore/{params.sample}.fastq && "
         "touch ../nanopore/{params.sample}.fastq.index.readdb && "
         "touch ../nanopore/{params.sample}.intermediate_bam && "
@@ -192,6 +195,8 @@ rule intermediate_download_nanopolish:
     output:
         temp("../nanopore/{sample}.intermediate_download"),
     shell:
+        # actually download
         "touch ../nanopore/{params.sample}.phased_sorted.bam && "
+        # actually download
         "touch ../nanopore/{params.sample}.methylation.tsv && "
         "touch ../nanopore/{params.sample}.intermediate_download"
