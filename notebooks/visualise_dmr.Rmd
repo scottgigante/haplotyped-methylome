@@ -32,7 +32,9 @@ load("../RData/albacore_1.2.2.b6xcast/fit_reads.RData")
 load("../RData/albacore_1.2.2.b6xcast/fit_reads_df.RData")
 fit_reads_df <- fit_reads_df %>%
   mutate(parent=ifelse(genotype=='ref', 'maternal', 'paternal'))
-load("../genome_data/CpG_coordinates_mm10.RData")
+cg_df <- read_tsv("../genome_data/GRCm38_90.cpg_coordinates.tsv",
+                  col_types='ci_') %>%
+  mutate(chr=sub("^chr", "", chr))
 bisulfite_allelic_df <- read_tsv('../bisulfite/B6CastF1.combined_replicates.genome1.summary.tsv', col_names = c('chr', 'start', 'pctmeth', 'mC', 'C')) %>%
   mutate(allele="m") %>% 
   bind_rows(read_tsv('../bisulfite/B6CastF1.combined_replicates.genome2.summary.tsv', col_names = c('chr', 'start', 'pctmeth', 'mC', 'C')) %>%

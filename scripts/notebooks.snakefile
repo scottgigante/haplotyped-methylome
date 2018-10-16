@@ -76,7 +76,7 @@ rule visualise_dmrs:
         "../tables/dss_dmrlist.csv",
         "../RData/albacore_1.2.2.b6xcast/fit_reads.RData",
         "../RData/albacore_1.2.2.b6xcast/fit_reads_df.RData",
-        "../genome_data/CpG_coordinates_mm10.RData",
+        "../genome_data/GRCm38_90.cpg_coordinates.tsv",
         '../bisulfite/B6CastF1.combined_replicates.genome1.summary.tsv',
         '../bisulfite/B6CastF1.combined_replicates.genome2.summary.tsv',
         "../RData/knownGene.RData",

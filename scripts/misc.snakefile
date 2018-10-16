@@ -91,3 +91,11 @@ rule icr_plot_region_string:
         "../genome_data/ICR_plot_regions_string.txt"
     shell:
         "python tsv_to_region.py {input} 10000 > {output}"
+
+rule genome_cpg_coordinates:
+    input:
+        "../genome_data/GRCm38_90.fa"
+    output:
+        "../genome_data/GRCm38_90.cpg_coordinates.tsv"
+    shell:
+        "python count_cpg.py {input} > {output}"
