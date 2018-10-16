@@ -54,13 +54,13 @@ If you wish to avoid running `nanopolish` on the raw read data, you can download
 To generate all plots, tables and notebooks, simply run from the root directory:
 
 ```
-snakemake
+snakemake --cores 16
 ```
 
 If you don't wish to run the full analysis, you can run specific rules from the Snakefile by running, for example:
 
 ```
-snakemake rnaseq_analysis
+snakemake --cores 16 rnaseq_analysis
 ```
 
 ### Installation without `conda`
