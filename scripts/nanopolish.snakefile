@@ -124,8 +124,10 @@ rule nanopolish_index:
         fast5 = "../nanopore/{sample}.fast5/"
     output:
         "../nanopore/{sample}.fastq.index.readdb"
+    params:
+        log = lambda wildcards, output: "{}.log".format(output)
     shell:
-        "nanopolish index -d {input.fast5} {input.reads}"
+        "nanopolish index -d {input.fast5} {input.reads} &> {params.log}"
 
 rule nanopolish_methylation:
     input:

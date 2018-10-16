@@ -47,8 +47,11 @@ rule bwa_index:
         "../genome_data/{genome}.fa.amb",
         "../genome_data/{genome}.fa.pac",
         "../genome_data/{genome}.fa.sa",
+    params:
+        log = lambda wildcards, output: "{}.fa.bwt.log".format(
+            wildcards.genome)
     shell:
-        "bwa index {input}"
+        "bwa index {input} &> {params.log}"
 
 rule samtools_index:
     input:
