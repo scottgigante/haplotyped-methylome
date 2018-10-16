@@ -51,10 +51,12 @@ rule bismark_prepare_genome:
         "../bismark_genome/GRCm38.Cast_N-masked.fa"
     output:
         "../bismark_genome/Bisulfite_Genome/CT_conversion/genome_mfa.CT_conversion.fa",
-        "../bismark_genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa"
+        "../bismark_genome/Bisulfite_Genome/GA_conversion/genome_mfa.GA_conversion.fa",
+    params:
+        log = "../bismark_genome/Bisulfite_Genome.log"
     shell:
         "cd $(dirname {input}) && "
-        "bismark_genome_preparation --bowtie2 ./ && "
+        "bismark_genome_preparation --bowtie2 ./ &> {params.log} && "
         "cd ../scripts/"
 
 rule bismark_align:
