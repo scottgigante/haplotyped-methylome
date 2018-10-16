@@ -2,7 +2,7 @@
 
 Reproducibility instructions for Gigante et al., 2018.
 
-_Note: this repository is under construction!_
+_Note: this repository is under construction! If you find a bug, please file an issue._
 
 Data avilable at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view/PRJEB27157).
 
@@ -12,7 +12,6 @@ Data avilable at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view/
 
 * R
 * Python>=3.5
-* [Albacore](https://community.nanoporetech.com/downloads) (optional)
 * Lots of RAM (tested on 500GB)
 * Lots of disk space
 
@@ -22,8 +21,10 @@ To install with `conda`, run the following command.
 
 ```
 conda env create -f environment.yml
-source active haplotyped_methylome
+source activate haplotyped_methylome
 ```
+
+You will then need to install Albacore: it is available on the [Nanopore Community](https://community.nanoporetech.com/downloads).
 
 To install without conda, see the list of dependencies at the bottom of this README.
 
@@ -36,6 +37,10 @@ If you wish to avoid running `albacore`, `bwa` and `nanopolish` on the raw nanop
 ```
 snakemake intermediate_download
 ```
+
+_Note: the download link for these files is not yet available._
+
+If you wish to rerun from the beginning after running this command, you can revert to the original download with `snakemake --forceall`.
 
 ### Running the workflow
 
@@ -62,6 +67,7 @@ Software dependencies:
 * [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)
 * [Bowtie 2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 * [Pandoc](https://pandoc.org/installing.html)
+* [Albacore](https://community.nanoporetech.com/downloads) (optional)
 * [BWA](https://sourceforge.net/projects/bio-bwa/files/) (optional)
 * [Nanopolish](https://nanopolish.readthedocs.io/en/latest/installation.html) (optional)
 
