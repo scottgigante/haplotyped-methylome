@@ -84,7 +84,7 @@ rule trim_galore:
         r2 = "../{outdir}/{sample}_R2_val_2.fq.gz",
     params:
         log = lambda wildcards, output: "../{}/{}_trim_galore.log".format(
-            wildcards.sample, wildcards.outdir),
+            wildcards.outdir, wildcards.sample),
         outdir = lambda wildcards, output: "../{}/".format(wildcards.outdir)
     shell:
         "trim_galore --phred33 --fastqc --gzip --paired -o {params.outdir} {input.r1} {input.r2} &> {params.log}"
