@@ -19,12 +19,14 @@ library(grid)
 ## Load data
 
 ```{r}
-rolling_t_df_forward <- read_tsv("../nanopore/b6xcast.minion.compare_haplotype_methylation.tsv") %>%
+rolling_t_df_forward <- read_tsv("../nanopore/b6xcast.minion.compare_haplotype_methylation.tsv",
+                                 col_types='ciiddiiddii') %>%
   mutate(chr=as.character(chr)) %>%
   rename_all(str_replace, "ref", "mat") %>%
   rename_all(str_replace, "alt", "pat") %>%
   unique()
-rolling_t_df_reverse <- read_tsv("../nanopore/castxb6.promethion.compare_haplotype_methylation.tsv") %>%
+rolling_t_df_reverse <- read_tsv("../nanopore/castxb6.promethion.compare_haplotype_methylation.tsv",
+                                 col_types='ciiddiiddii') %>%
   mutate(chr=as.character(chr)) %>%
   rename_all(str_replace, "ref", "pat") %>%
   rename_all(str_replace, "alt", "mat") %>%
@@ -34,7 +36,9 @@ rolling_t_df_reverse <- read_tsv("../nanopore/castxb6.promethion.compare_haploty
 rolling_t_df <- bind_rows(rolling_t_df_forward,
                           rolling_t_df_reverse)
 
-ICRs <- read_tsv('../genome_data/ICR_plot_regions.tsv', col_names = TRUE) %>%
+ICRs <- read_tsv('../genome_data/ICR_plot_regions.tsv',
+                 col_names = TRUE,
+                 col_types = 'ciiccc') %>%
   dplyr::rename(gene=name,
                 tx_start=start,
                 tx_end=end) %>%

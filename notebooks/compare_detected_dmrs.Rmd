@@ -12,7 +12,7 @@ library(fuzzyjoin)
 ## Additional File 2
 
 ```{r}
-combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
+combined_dmr <- read_csv("../tables/dss_dmrlist.csv", col_types='iciiiiddddcc')
 ```
 
 ## Figure 5A

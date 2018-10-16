@@ -18,12 +18,13 @@ dir.create(outdir, showWarnings = FALSE)
 
 summary_df <- read_tsv(paste0(infile, ".sorted.bam.summary.tsv"), 
                        col_names=c("read_name", "chr", "start", "end", "qual"), 
+                       col_types='cciid',
                        skip=1) %>% 
   unique()
 save(summary_df, file=file.path(outdir, "summary_df.RData"))
 
 min_coverage=5
-haplotype_df <- read_tsv(paste0(infile, ".phased.tsv")) %>%
+haplotype_df <- read_tsv(paste0(infile, ".phased.tsv"), col_types='ccddiddi') %>%
   mutate(signal_coverage = signal_ref + signal_alt,
          signal_ratio = signal_ref / signal_coverage,
          base_coverage = base_ref + base_alt,

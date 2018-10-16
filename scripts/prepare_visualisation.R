@@ -23,7 +23,8 @@ rna_seq <- read_tsv("../rna_seq/all_runs_with_reverse_coverage.tsv",
                                 "fwd2_mat", "fwd2_pat", "fwd3_mat", "fwd3_pat", 
                                 "fwd4_mat", "fwd4_pat", "rev1_pat", "rev1_mat", 
                                 "rev2_pat", "rev2_mat", "rev3_pat", "rev3_mat", 
-                                "rev4_pat", "rev4_mat"), col_types = 'ciiiiiiiiiiiiiiiii') %>%
+                                "rev4_pat", "rev4_mat"),
+                    col_types = 'ciiiiiiiiiiiiiiiii') %>%
   mutate(fwd_mat=(fwd1_mat+fwd2_mat+fwd3_mat+fwd4_mat)/4,
          fwd_pat=(fwd1_pat+fwd2_pat+fwd3_pat+fwd4_pat)/4,
          rev_pat=(rev1_pat+rev2_pat+rev3_pat+rev4_pat)/4,

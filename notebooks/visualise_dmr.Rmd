@@ -24,7 +24,7 @@ castxb6_fit_reads <- fit_reads
 load("../RData/castxb6.promethion/fit_reads_df.RData")
 castxb6_fit_reads_df <- fit_reads_df %>%
   mutate(parent=ifelse(genotype=='ref', 'paternal', 'maternal'))
-combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
+combined_dmr <- read_csv("../tables/dss_dmrlist.csv", col_types='iciiiiddddcc')
 ```
 
 ```{r load_presaved_data}
@@ -35,9 +35,13 @@ fit_reads_df <- fit_reads_df %>%
 cg_df <- read_tsv("../genome_data/GRCm38_90.cpg_coordinates.tsv",
                   col_types='ci_') %>%
   mutate(chr=sub("^chr", "", chr))
-bisulfite_allelic_df <- read_tsv('../bisulfite/B6CastF1.combined_replicates.genome1.summary.tsv', col_names = c('chr', 'start', 'pctmeth', 'mC', 'C')) %>%
+bisulfite_allelic_df <- read_tsv('../bisulfite/B6CastF1.combined_replicates.genome1.summary.tsv', 
+                                 col_names = c('chr', 'start', 'pctmeth', 'mC', 'C'),
+                                 col_types = 'cidii') %>%
   mutate(allele="m") %>% 
-  bind_rows(read_tsv('../bisulfite/B6CastF1.combined_replicates.genome2.summary.tsv', col_names = c('chr', 'start', 'pctmeth', 'mC', 'C')) %>%
+  bind_rows(read_tsv('../bisulfite/B6CastF1.combined_replicates.genome2.summary.tsv', 
+                                 col_names = c('chr', 'start', 'pctmeth', 'mC', 'C'),
+                                 col_types = 'cidii') %>%
               mutate(allele='p')) %>%
   mutate(end=start,
          chr=sub("chr", "", chr))
@@ -83,7 +87,8 @@ cgi_elements$name <- fct_relevel(factor(cgi_elements$name), "island", "shore", "
 ```
 
 ```{r load_icrs}
-icr_df <- read_tsv("../genome_data/primary_ICRs_mm10.tsv") %>%
+icr_df <- read_tsv("../genome_data/primary_ICRs_mm10.tsv",
+                   col_types = 'ccciiccc') %>%
   mutate(chr=str_remove(chr, "^chr"))
 icr_df <- icr_df %>%
   mutate(width=end-start) %>%
@@ -453,7 +458,7 @@ plot_track("1", 63260067, 63260907, flank=50000, rna=T, sqrt_rna=T)
 
 ```{r}
 if (!dir.exists("../plots/all_dmrs/")) dir.create("../plots/all_dmrs/")
-combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
+combined_dmr <- read_csv("../tables/dss_dmrlist.csv", col_types='iciiiiddddcc')
 combined_dmr <- combined_dmr %>%
   mutate(name=paste(id, chr, start, end, type, sep="_"))
 for (.name in unique(combined_dmr$name)) {

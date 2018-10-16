@@ -78,7 +78,7 @@ rule albacore_minion:
         outdir = lambda wildcards, output: "../nanopore/{}.minion.albacore".format(
             wildcards.sample)
     threads:
-        32
+        16
     shell:
         "read_fast5_basecaller.py -c r94_450bps_linear.cfg -o fastq -i {input} -r -s {params.outdir} -t {threads} -q 0"
 
@@ -92,7 +92,7 @@ rule albacore_promethion:
         outdir = lambda wildcards, output: "../nanopore/{}.promethion.albacore".format(
             wildcards.sample)
     threads:
-        32
+        16
     shell:
         "read_fast5_basecaller.py -c r941_450bps_linear_prom.cfg -o fastq -i {input} -r -s {params.outdir} -t {threads} -q 0"
 
