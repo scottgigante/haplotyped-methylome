@@ -68,7 +68,6 @@ rule bismark_align:
     params:
         log = lambda wildcards, output: "../bisulfite/{}.bismark.log".format(
             wildcards.sample),
-    params:
         basename = lambda wildcards, output: "../bisulfite/{}".format(
             wildcards.sample),
         genome = "../bismark_genome/",
