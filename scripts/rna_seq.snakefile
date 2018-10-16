@@ -206,7 +206,7 @@ rule snp_split_hisat2:
         "../rna_seq/{sample}.hisat2.genome2.bam",
     params:
         log = lambda wildcards, output: "../rna_seq/{}.snpsplit.log".format(
-            wildcards.genome),
+            wildcards.sample),
     shell:
         "SNPsplit --snp_file {input.snp} --paired --no_sort {input.bam} &> {params.log}"
 
