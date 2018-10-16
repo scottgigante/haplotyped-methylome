@@ -39,7 +39,7 @@ rule bismark_align:
             wildcards.sample),
         genome = "../bismark_genome/",
     threads:
-        4
+        16
     shell:
         "bismark --gzip --bam --bowtie2 -p {threads} -B {params.basename} "
         "{params.genome} -1 {input.r1} -2 {input.r2} &> {output.log}"
@@ -62,7 +62,7 @@ rule bismark_extract:
         "../bisulfite/{sample}.txt.gz",
         log = "../bisulfite/{sample}.bismark.log",
     threads:
-        2
+        4
     shell:
         "bismark_methylation_extractor --ignore 13 --paired-end --multicore {threads} "
         "--comprehensive --merge_non_CpG --report --output methylation_extractor --gzip "
