@@ -2,7 +2,6 @@
 # Xuanken Tay, 2018
 
 import sys
-import error
 import re
 
 
@@ -37,6 +36,6 @@ if __name__ == "__main__":
         if sys.stdin:
             count_cpg(sys.stdin, path=False)
         else:
-            error.print_error()
+            raise TypeError("missing file input")
     else:
         count_cpg(sys.argv[1])
