@@ -83,8 +83,8 @@ rule trim_galore:
         r1 = "../{outdir}/{sample}_R1_val_1.fq.gz",
         r2 = "../{outdir}/{sample}_R2_val_2.fq.gz",
     params:
-        log = "../{outdir}/{sample}_trim_galore.log",
-    params:
+        log = lambda wildcards, output: "../{}/{}_trim_galore.log".format(
+            wildcards.sample, wildcards.outdir),
         outdir = lambda wildcards, output: "../{}/".format(wildcards.outdir)
     shell:
         "trim_galore --phred33 --fastqc --gzip --paired -o {params.outdir} {input.r1} {input.r2} &> {params.log}"
@@ -176,7 +176,8 @@ rule build_hisat2:
     output:
         index = "../genome_data/{genome}.1.ht2",
     params:
-        log = "../genome_data/{genome}.hisat-build.log",
+        log = lambda wildcards, output: "../genome_data/{}.hisat-build.log".format(
+            wildcards.genome),
     shell:
         "hisat2-build {input} {params.base} &> {params.log}"
 
@@ -204,7 +205,8 @@ rule snp_split_hisat2:
         "../rna_seq/{sample}.hisat2.genome1.bam",
         "../rna_seq/{sample}.hisat2.genome2.bam",
     params:
-        log = "../rna_seq/{sample}.snpsplit.log",
+        log = lambda wildcards, output: "../rna_seq/{}.snpsplit.log".format(
+            wildcards.genome),
     shell:
         "SNPsplit --snp_file {input.snp} --paired --no_sort {input.bam} &> {params.log}"
 

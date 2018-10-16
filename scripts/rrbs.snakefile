@@ -66,7 +66,8 @@ rule bismark_align:
     output:
         bam = "../bisulfite/{sample}_pe.bam",
     params:
-        log = "../bisulfite/{sample}.bismark.log",
+        log = lambda wildcards, output: "../bisulfite/{}.bismark.log".format(
+            wildcards.sample),
     params:
         basename = lambda wildcards, output: "../bisulfite/{}".format(
             wildcards.sample),
@@ -95,7 +96,8 @@ rule snpsplit_bismark:
         "../bisulfite/{sample}_pe.sorted.genome1.bam",
         "../bisulfite/{sample}_pe.sorted.genome2.bam",
     params:
-        log = "../bisulfite/{sample}.snpsplit.log",
+        log = lambda wildcards, output: "../bisulfite/{}.snpsplit.log".format(
+            wildcards.sample),
     shell:
         "SNPsplit --paired --bisulfite --snp_file --no_sort {input.snp} {input.bam} &> {params.log}"
 
@@ -107,7 +109,8 @@ rule bismark_extract:
         "../bisulfite/{sample}.bismark.cov.gz",
         txt = "../bisulfite/CpG_context_{sample}.txt.gz",
     params:
-        log = "../bisulfite/{sample}.bismark.log",
+        log = lambda wildcards, output: "../bisulfite/{}.bismark.log".format(
+            wildcards.sample),
     threads:
         4
     shell:
