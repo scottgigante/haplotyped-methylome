@@ -21,16 +21,14 @@ library(biomaRt)
 
 ```{r} 
 #list bam files
-splitbam <- list.files('../rna_seq/', pattern = '(CastB6|B6Cast)F1_[2-5].hisat2.genome[1-2].bam')
+splitbam <- list.files('../rna_seq/', pattern = '(CastB6|B6Cast)F1_[2-5].hisat2.genome[1-2].bam$')
 
 #get counts
-GTF <- 'Mus_musculus.GRCm38.90.gtf'
-#convert to nice gene IDs with biomaRt
-mouse <- useMart("ensembl", dataset = "mmusculus_gene_ensembl")
+GTF <- '../genome_data/Mus_musculus.GRCm38_90.chr.gtf'
 
-gene <- getBM(attributes = c('mgi_symbol','chromosome_name', 'strand', 'start_position', 'end_position'), mart = mouse, values = rownames(totcounts$counts))
-
-splitfeaturecounts <- featureCounts(file.path("..", "rna_seq", splitbam), annot.ext= GTF,isGTFAnnotationFile = TRUE, useMetaFeatures = TRUE, primary = TRUE, isPairedEnd = TRUE, nthreads = 8)
+splitfeaturecounts <- featureCounts(file.path("..", "rna_seq", splitbam), annot.ext= GTF,
+                                    isGTFAnnotationFile = TRUE, useMetaFeatures = TRUE, 
+                                    primary = TRUE, isPairedEnd = TRUE, nthreads = 8)
 splitcounts <- as.data.frame(splitfeaturecounts$counts)
 colnames(splitcounts) <- splitbam %>%
     str_replace("B6CastF1_(2-5]).hisat2.genome1.bam", "B6CastF1_\\1_mat") %>%
@@ -48,7 +46,7 @@ write_tsv(splitcounts, '../rna_seq/hisat2_GCRm38V90_featurecounts_split.tsv.gz')
 
 
 ```{r}
-counts <- select(splitcounts, -GeneID)
+counts <- dplyr::select(splitcounts, -GeneID)
 counts <- as.data.frame(counts)
 rownames(counts) <- splitcounts$GeneID
 #filter genes on X and Y chromosomes
@@ -118,7 +116,7 @@ imprint_de_results <- qlf$table %>%
   arrange(padj)
 
 impr10 <- imprint_de_results %>% 
-  filter(padj < 0.1)
+  dplyr::filter(padj < 0.1)
 #135 genes.
 #88 MEGs, 47 PEGs.
 write_tsv(impr10, '../rna_seq/parent_biased_genes_10pctFDR.tsv')
@@ -139,7 +137,7 @@ annotated_imprinted <- impr10 %>%
   mutate(in_Finn = ensembl_gene_id %in% finn$ensembl_gene_id) %>% 
   mutate(in_Calabrese = ensembl_gene_id %in% calabrese$ensembl_gene_id) %>% 
   mutate(in_Inoue = ensembl_gene_id %in% inoue$ensembl_gene_id) %>% 
-  select(-known_ig, -final_conclusion_on_imprinted_status)
+  dplyr::select(-known_ig, -final_conclusion_on_imprinted_status)
 
 write_tsv(annotated_imprinted, '../tables/imprinted_genes_Supp_file_1.tsv')
 ```
@@ -174,7 +172,7 @@ glMDPlot(qlfstrain, status=dt.edger.strain, counts=counts, groups= colData$embry
 
 strain_de_results <- qlfstrain$table %>% rownames_to_column('ensembl_gene_id') %>% as_tibble() %>% mutate(padj = FDRstrain) %>% left_join(gene) %>% arrange(padj)
 
-strain05log2 <- strain_de_results %>% filter(padj < 0.05 & abs(logFC) > 1)
+strain05log2 <- strain_de_results %>% dplyr::filter(padj < 0.05 & abs(logFC) > 1)
 
 write_tsv(strain05log2, '../rna_seq/strain_biased_genes_5pctFDR.tsv')
 write_tsv(strain_de_results, '../rna_seq/strain_DE_results.tsv.gz')
@@ -183,7 +181,7 @@ write_tsv(strain_de_results, '../rna_seq/strain_DE_results.tsv.gz')
 ## Figure 3A
 
 ```{r} 
-newgenes <- filter(annotated_imprinted, in_db + in_andergassen + in_Finn + in_Calabrese + in_Inoue ==0)
+newgenes <- dplyr::filter(annotated_imprinted, in_db + in_andergassen + in_Finn + in_Calabrese + in_Inoue ==0)
 ```
 
 ```{r}

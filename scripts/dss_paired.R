@@ -2,7 +2,7 @@ library(tidyverse)
 library(DSS)
 library(bsseq)
 
-meth_fn <- "../nanopore/albacore_1.2.2.b6xcast.methylation"
+meth_fn <- "../nanopore/b6xcast.minion.methylation"
 
 forward_ref_df <- read.table(paste0(meth_fn, ".ref_summary.tsv"),
                              header=TRUE, sep="\t", stringsAsFactors = FALSE) %>%
@@ -21,7 +21,7 @@ forward_alt_df <- read.table(paste0(meth_fn, ".alt_summary.tsv"),
                 percentMeth=methylated_frequency) %>%
   arrange(chr, start)
 
-meth_fn <- "../nanopore/albacore_2.2.7.castxb6.promethion.methylation"
+meth_fn <- "../nanopore/castxb6.promethion.methylation"
 
 reverse_ref_df <- read.table(paste0(meth_fn, ".ref_summary.tsv"),
                               header=TRUE, sep="\t", stringsAsFactors = FALSE) %>%

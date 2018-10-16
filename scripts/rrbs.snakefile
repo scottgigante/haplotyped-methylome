@@ -2,9 +2,41 @@
 
 fastq from ENA
 """
-rule download_rrbs:
+rule download_bisulfite_B6Cast1:
     output:
-        "../bisulfite/{sample}.fastq.gz"
+        "../bisulfite/B6CastF1_1_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/002/ERR2639372/ERR2639372_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_bisulfite_B6Cast2:
+    output:
+        "../bisulfite/B6CastF1_2_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/003/ERR2639373/ERR2639373_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_bisulfite_B6Cast5:
+    output:
+        "../bisulfite/B6CastF1_5_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/007/ERR2639377/ERR2639377_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_bisulfite_B6Cast6:
+    output:
+        "../bisulfite/B6CastF1_6_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/009/ERR2639379/ERR2639379_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
 
 rule bismark_create_path:
     input:
@@ -33,7 +65,7 @@ rule bismark_align:
         r2 = "../bisulfite/{sample}_R2_val_2.fq.gz",
     output:
         log = "../bisulfite/{sample}.bismark.log",
-        bam = "../bisulfite/{sample}.bismark_bt2_pe.bam",
+        bam = "../bisulfite/{sample}_pe.bam",
     params:
         basename = lambda wildcards, output: "../bisulfite/{}".format(
             wildcards.sample),
@@ -44,16 +76,26 @@ rule bismark_align:
         "bismark --gzip --bam --bowtie2 -p {threads} -B {params.basename} "
         "{params.genome} -1 {input.r1} -2 {input.r2} &> {output.log}"
 
+rule sort_bisulfite:
+    input:
+        "../bisulfite/{sample}_pe.bam",
+    output:
+        "../bisulfite/{sample}_pe.sorted.bam",
+    threads:
+        8
+    shell:
+        "samtools sort -n -@ {threads} -T {input}.samtools.tmp -o {output}"
+
 rule snpsplit_bismark:
     input:
         snp = "../genome_data/all_SNPs_CAST_EiJ_GRCm38.txt.gz",
-        bam = "../bisulfite/{sample}.bismark_bt2_pe.bam",
+        bam = "../bisulfite/{sample}_pe.sorted.bam",
     output:
-        "../bisulfite/{sample}.bismark_bt2_pe.genome1.bam",
-        "../bisulfite/{sample}.bismark_bt2_pe.genome2.bam",
+        "../bisulfite/{sample}_pe.sorted.genome1.bam",
+        "../bisulfite/{sample}_pe.sorted.genome2.bam",
         log = "../bisulfite/{sample}.snpsplit.log",
     shell:
-        "SNPsplit --paired --bisulfite --snp_file {input.snp} {input.bam} &> {output.log}"
+        "SNPsplit --paired --bisulfite --snp_file --no_sort {input.snp} {input.bam} &> {output.log}"
 
 rule bismark_extract:
     input:
@@ -70,10 +112,10 @@ rule bismark_extract:
 
 rule merge_bisulfite_genome1:
     input:
-        "../bisulfite/B6CastF1_1.bismark_bt2_pe.genome1.txt.gz",
-        "../bisulfite/B6CastF1_2.bismark_bt2_pe.genome1.txt.gz",
-        "../bisulfite/B6CastF1_5.bismark_bt2_pe.genome1.txt.gz",
-        "../bisulfite/B6CastF1_6.bismark_bt2_pe.genome1.txt.gz"
+        "../bisulfite/B6CastF1_1_pe.sorted.genome1.txt.gz",
+        "../bisulfite/B6CastF1_2_pe.sorted.genome1.txt.gz",
+        "../bisulfite/B6CastF1_5_pe.sorted.genome1.txt.gz",
+        "../bisulfite/B6CastF1_6_pe.sorted.genome1.txt.gz"
     output:
         "../bisulfite/B6CastF1.combined_replicates.genome1.summary.tsv"
     shell:
@@ -81,10 +123,10 @@ rule merge_bisulfite_genome1:
 
 rule merge_bisulfite_genome2:
     input:
-        "../bisulfite/B6CastF1_1.bismark_bt2_pe.genome2.txt.gz",
-        "../bisulfite/B6CastF1_2.bismark_bt2_pe.genome2.txt.gz",
-        "../bisulfite/B6CastF1_5.bismark_bt2_pe.genome2.txt.gz",
-        "../bisulfite/B6CastF1_6.bismark_bt2_pe.genome2.txt.gz"
+        "../bisulfite/B6CastF1_1_pe.sorted.genome2.txt.gz",
+        "../bisulfite/B6CastF1_2_pe.sorted.genome2.txt.gz",
+        "../bisulfite/B6CastF1_5_pe.sorted.genome2.txt.gz",
+        "../bisulfite/B6CastF1_6_pe.sorted.genome2.txt.gz"
     output:
         "../bisulfite/B6CastF1.combined_replicates.genome2.summary.tsv"
     shell:
@@ -92,8 +134,8 @@ rule merge_bisulfite_genome2:
 
 rule merge_matched_bisulfite:
     input:
-        "../bisulfite/B6CastF1_1.bismark_bt2_pe.txt.gz",
+        "../bisulfite/B6CastF1_1_pe.txt.gz",
     output:
-        "../bisulfite/B6CastF1_1.bismark_bt2_pe.summary.tsv"
+        "../bisulfite/B6CastF1_1_pe.summary.tsv"
     shell:
         "python summarize_bisulfite_methylation.py {output} {input}"

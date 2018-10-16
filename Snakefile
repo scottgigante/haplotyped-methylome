@@ -42,6 +42,13 @@ rule all:
         "../notebooks/nanopolish_methylation_validation.html",
         "../notebooks/rnaseq_analysis.html",
 
+rule intermediate_download:
+    input:
+        "../nanopore/b6xcast.minion.intermediate_download",
+        "../nanopore/b6.minion.intermediate_download",
+        "../nanopore/cast.minion.intermediate_download",
+        "../nanopore/castxb6.promethion.intermediate_download",
+
 rule haplotype_analysis:
     input:
         "../notebooks/b6_haplotype_analysis.html",

@@ -12,6 +12,9 @@ Data avilable at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view/
 
 * R
 * Python>=3.5
+* [Albacore](https://community.nanoporetech.com/downloads) (optional)
+* Lots of RAM (tested on 500GB)
+* Lots of disk space
 
 #### Dependencies
 
@@ -19,6 +22,7 @@ To install with `conda`, run the following command.
 
 ```
 conda env create -f environment.yml
+source active haplotyped_methylome
 ```
 
 To install without conda, see the list of dependencies at the bottom of this README.
@@ -27,26 +31,10 @@ To install without conda, see the list of dependencies at the bottom of this REA
 
 For the standard workflow, `snakemake` will download all the necessary files.
 
-If you wish to avoid running `nanopolish` on the raw read data, you can download these files from our website and store them in the following directory structure.
+If you wish to avoid running `albacore`, `bwa` and `nanopolish` on the raw nanopore data, you can run the following command, which downloads the output of these programs and tricks `snakemake` into thinking you have run the pipeline from the beginning:
 
 ```
-+── README.md
-├── genome_data
-├── notebooks
-├── scripts
-└── nanopore
-    ├──albacore_1.2.2.b6.sorted.bam
-    ├──albacore_1.2.2.b6.phased_sorted.bam
-    ├──albacore_1.2.2.b6.methylation.tsv
-    ├──albacore_1.2.2.cast.sorted.bam
-    ├──albacore_1.2.2.cast.phased_sorted.bam
-    ├──albacore_1.2.2.cast.methylation.tsv
-    ├──albacore_1.2.2.b6xcast.sorted.bam
-    ├──albacore_1.2.2.b6xcast.phased_sorted.bam
-    ├──albacore_1.2.2.b6xcast.methylation.tsv
-    ├──albacore_2.7.7.castxb6.promethion.sorted.bam
-    ├──albacore_2.7.7.castxb6.promethion.phased_sorted.bam
-    └──albacore_2.7.7.castxb6.promethion.methylation.tsv
+snakemake intermediate_download
 ```
 
 ### Running the workflow
@@ -68,14 +56,14 @@ snakemake --cores 16 rnaseq_analysis
 Software dependencies:
 
 * [SAMtools](http://www.htslib.org/download/)
-* [BWA](https://sourceforge.net/projects/bio-bwa/files/)
 * [Hisat2](https://ccb.jhu.edu/software/hisat2/index.shtml)
 * [Trim Galore](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
 * [SNPsplit](https://www.bioinformatics.babraham.ac.uk/projects/SNPsplit/)
 * [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)
 * [Bowtie 2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
-* [Nanopolish](https://nanopolish.readthedocs.io/en/latest/installation.html) (optional)
 * [Pandoc](https://pandoc.org/installing.html)
+* [BWA](https://sourceforge.net/projects/bio-bwa/files/) (optional)
+* [Nanopolish](https://nanopolish.readthedocs.io/en/latest/installation.html) (optional)
 
 Python package dependencies:
 

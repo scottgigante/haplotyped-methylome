@@ -98,10 +98,10 @@ rule calculate_allele_meth_freq:
 
 rule paired_dss:
     input:
-        "../nanopore/albacore_1.2.2.b6xcast.methylation.ref_summary.tsv",
-        "../nanopore/albacore_1.2.2.b6xcast.methylation.alt_summary.tsv",
-        "../nanopore/albacore_2.2.7.castxb6.promethion.methylation.ref_summary.tsv",
-        "../nanopore/albacore_2.2.7.castxb6.promethion.methylation.alt_summary.tsv",
+        "../nanopore/b6xcast.minion.methylation.ref_summary.tsv",
+        "../nanopore/b6xcast.minion.methylation.alt_summary.tsv",
+        "../nanopore/castxb6.promethion.methylation.ref_summary.tsv",
+        "../nanopore/castxb6.promethion.methylation.alt_summary.tsv",
     output:
         "../RData/paired_DSS.RData"
     script:
@@ -128,8 +128,8 @@ rule build_dmrlist:
 
 rule build_methylation_df:
     input:
-        "../bisulfite/B6CastF1_1.bismark_bt2_pe.summary.tsv",
-        "../nanopore/albacore_1.2.2.b6xcast.methylation.summary.tsv",
+        "../bisulfite/B6CastF1_1_pe.summary.tsv",
+        "../nanopore/b6xcast.minion.methylation.summary.tsv",
     output:
         "../RData/nanopolish_df.RData",
         "../RData/bisulfite_df.RData",

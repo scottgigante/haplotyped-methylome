@@ -3,7 +3,7 @@ data.table
 tidyverse
 rmarkdown
 viridis
-gTable
+gtable
 knitr
 gridExtra
 devtools

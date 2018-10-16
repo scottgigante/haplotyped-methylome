@@ -1,8 +1,8 @@
 rule b6_haplotype_analysis:
     input:
-        "../RData/albacore_1.2.2.b6/haplotype_df.RData",
-        "../RData/albacore_1.2.2.b6/summary_df.RData",
-        "../RData/albacore_1.2.2.b6/fit_reads_df.RData",
+        "../RData/b6.minion/haplotype_df.RData",
+        "../RData/b6.minion/summary_df.RData",
+        "../RData/b6.minion/fit_reads_df.RData",
         notebook = "../notebooks/b6_haplotype_analysis.Rmd",
     output:
         "../notebooks/b6_haplotype_analysis.html",
@@ -12,9 +12,9 @@ rule b6_haplotype_analysis:
 
 rule cast_haplotype_analysis:
     input:
-        "../RData/albacore_1.2.2.cast/haplotype_df.RData",
-        "../RData/albacore_1.2.2.cast/summary_df.RData",
-        "../RData/albacore_1.2.2.cast/fit_reads_df.RData",
+        "../RData/cast.minion/haplotype_df.RData",
+        "../RData/cast.minion/summary_df.RData",
+        "../RData/cast.minion/fit_reads_df.RData",
         notebook = "../notebooks/cast_haplotype_analysis.Rmd",
     output:
         "../notebooks/cast_haplotype_analysis.html",
@@ -24,9 +24,9 @@ rule cast_haplotype_analysis:
 
 rule b6xcast_haplotype_analysis:
     input:
-        "../RData/albacore_1.2.2.b6xcast/haplotype_df.RData",
-        "../RData/albacore_1.2.2.b6xcast/summary_df.RData",
-        "../RData/albacore_1.2.2.b6xcast/fit_reads_df.RData",
+        "../RData/b6xcast.minion/haplotype_df.RData",
+        "../RData/b6xcast.minion/summary_df.RData",
+        "../RData/b6xcast.minion/fit_reads_df.RData",
         notebook = "../notebooks/b6xcast_haplotype_analysis.Rmd",
     output:
         "../notebooks/b6xcast_haplotype_analysis.html",
@@ -36,9 +36,9 @@ rule b6xcast_haplotype_analysis:
 
 rule castxb6_haplotype_analysis:
     input:
-        "../RData/albacore_2.2.7.castxb6.promethion/haplotype_df.RData",
-        "../RData/albacore_2.2.7.castxb6.promethion/summary_df.RData",
-        "../RData/albacore_2.2.7.castxb6.promethion/fit_reads_df.RData",
+        "../RData/castxb6.promethion/haplotype_df.RData",
+        "../RData/castxb6.promethion/summary_df.RData",
+        "../RData/castxb6.promethion/fit_reads_df.RData",
         notebook = "../notebooks/castxb6_haplotype_analysis.Rmd",
     output:
         "../notebooks/castxb6_haplotype_analysis.html",
@@ -48,8 +48,8 @@ rule castxb6_haplotype_analysis:
 
 rule haplotype_auc:
     input:
-        "../RData/albacore_1.2.2.b6/haplotype_df.RData",
-        "../RData/albacore_1.2.2.cast/haplotype_df.RData",
+        "../RData/b6.minion/haplotype_df.RData",
+        "../RData/cast.minion/haplotype_df.RData",
         notebook = "../notebooks/single_strain_auc.Rmd",
     output:
         "../notebooks/single_strain_auc.html",
@@ -71,11 +71,11 @@ rule dmr_comparison:
 
 rule visualise_dmrs:
     input:
-        "../RData/albacore_2.2.7.castxb6.promethion/fit_reads.RData",
-        "../RData/albacore_2.2.7.castxb6.promethion/fit_reads_df.RData",
+        "../RData/castxb6.promethion/fit_reads.RData",
+        "../RData/castxb6.promethion/fit_reads_df.RData",
         "../tables/dss_dmrlist.csv",
-        "../RData/albacore_1.2.2.b6xcast/fit_reads.RData",
-        "../RData/albacore_1.2.2.b6xcast/fit_reads_df.RData",
+        "../RData/b6xcast.minion/fit_reads.RData",
+        "../RData/b6xcast.minion/fit_reads_df.RData",
         "../genome_data/GRCm38_90.cpg_coordinates.tsv",
         '../bisulfite/B6CastF1.combined_replicates.genome1.summary.tsv',
         '../bisulfite/B6CastF1.combined_replicates.genome2.summary.tsv',
@@ -93,8 +93,8 @@ rule visualise_dmrs:
 
 rule differential_methylation_heatmaps:
     input:
-        "../nanopore/albacore_1.2.2.b6xcast.compare_haplotype_methylation.tsv",
-        "../nanopore/albacore_2.2.7.castxb6.promethion.compare_haplotype_methylation.tsv",
+        "../nanopore/b6xcast.minion.compare_haplotype_methylation.tsv",
+        "../nanopore/castxb6.promethion.compare_haplotype_methylation.tsv",
         '../genome_data/ICR_plot_regions.tsv',
         notebook = "../notebooks/differential_methylation_heatmaps.Rmd",
     output:

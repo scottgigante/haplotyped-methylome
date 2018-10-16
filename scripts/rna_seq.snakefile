@@ -2,9 +2,78 @@
 
 fastq from ENA
 """
-rule download_rnaseq:
+
+rule download_rnaseq_B6Cast2:
     output:
-        "../rna_seq/{sample}.fastq.gz"
+        "../rna_seq/B6CastF1_2_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/004/ERR2639374/ERR2639374_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_rnaseq_B6Cast3:
+    output:
+        "../rna_seq/B6CastF1_3_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/005/ERR2639375/ERR2639375_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_rnaseq_B6Cast4:
+    output:
+        "../rna_seq/B6CastF1_4_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/006/ERR2639376/ERR2639376_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_rnaseq_B6Cast5:
+    output:
+        "../rna_seq/B6CastF1_5_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/008/ERR2639378/ERR2639378_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_rnaseq_CastB62:
+    output:
+        "../rna_seq/CastB6F1_2_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/000/ERR2639380/ERR2639380_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_rnaseq_CastB63:
+    output:
+        "../rna_seq/CastB6F1_3_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/001/ERR2639381/ERR2639381_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_rnaseq_CastB64:
+    output:
+        "../rna_seq/CastB6F1_4_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/002/ERR2639382/ERR2639382_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
+
+rule download_rnaseq_CastB65:
+    output:
+        "../rna_seq/CastB6F1_5_R{file}.fastq.gz"
+    params:
+        url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/003/ERR2639383/ERR2639383_{}.fastq.gz".format(
+            wildcards.file)
+    shell:
+        "wget -O {output} {params.url}"
 
 rule trim_galore:
     input:
@@ -122,7 +191,7 @@ rule map_hisat2:
         16
     shell:
         "hisat2 -p {threads} --no-softclip -x {params.base} -1 {input.r1} -2 {input.r2} | "
-        "samtools sort -@ {threads} -T {output}.samtools.tmp -o {output}"
+        "samtools sort -n -@ {threads} -T {output}.samtools.tmp -o {output}"
 
 rule snp_split_hisat2:
     input:
@@ -131,45 +200,56 @@ rule snp_split_hisat2:
     output:
         "../rna_seq/{sample}.hisat2.genome1.bam",
         "../rna_seq/{sample}.hisat2.genome2.bam",
+        log = "../rna_seq/{sample}.snpsplit.log",
     shell:
-        "SNPsplit --snp_file {input.snp} --paired {input.bam}"
+        "SNPsplit --snp_file {input.snp} --paired --no_sort {input.bam} &> {output.log}"
+
+rule snp_split_sort:
+    input:
+        "../rna_seq/{sample}.hisat2.genome{allele}.bam",
+    output:
+        "../rna_seq/{sample}.hisat2.genome{allele}.sorted.bam",
+    threads:
+        4
+    shell:
+        "samtools sort -T {input}.samtools.tmp -@ {threads} -o {output} {input}"
 
 strains = ['B6Cast', 'CastB6']
 samples = [2, 3, 4, 5]
 rule samtools_depth:
     input:
-        bam = ("../rna_seq/B6CastF1_2.hisat2.genome1.bam",
-               "../rna_seq/B6CastF1_2.hisat2.genome2.bam",
-               "../rna_seq/B6CastF1_3.hisat2.genome1.bam",
-               "../rna_seq/B6CastF1_3.hisat2.genome2.bam",
-               "../rna_seq/B6CastF1_4.hisat2.genome1.bam",
-               "../rna_seq/B6CastF1_4.hisat2.genome2.bam",
-               "../rna_seq/B6CastF1_5.hisat2.genome1.bam",
-               "../rna_seq/B6CastF1_5.hisat2.genome2.bam",
-               "../rna_seq/CastB6F1_2.hisat2.genome1.bam",
-               "../rna_seq/CastB6F1_2.hisat2.genome2.bam",
-               "../rna_seq/CastB6F1_3.hisat2.genome1.bam",
-               "../rna_seq/CastB6F1_3.hisat2.genome2.bam",
-               "../rna_seq/CastB6F1_4.hisat2.genome1.bam",
-               "../rna_seq/CastB6F1_4.hisat2.genome2.bam",
-               "../rna_seq/CastB6F1_5.hisat2.genome1.bam",
-               "../rna_seq/CastB6F1_5.hisat2.genome2.bam"),
-        index = ("../rna_seq/B6CastF1_2.hisat2.genome1.bam.bai",
-                 "../rna_seq/B6CastF1_2.hisat2.genome2.bam.bai",
-                 "../rna_seq/B6CastF1_3.hisat2.genome1.bam.bai",
-                 "../rna_seq/B6CastF1_3.hisat2.genome2.bam.bai",
-                 "../rna_seq/B6CastF1_4.hisat2.genome1.bam.bai",
-                 "../rna_seq/B6CastF1_4.hisat2.genome2.bam.bai",
-                 "../rna_seq/B6CastF1_5.hisat2.genome1.bam.bai",
-                 "../rna_seq/B6CastF1_5.hisat2.genome2.bam.bai",
-                 "../rna_seq/CastB6F1_2.hisat2.genome1.bam.bai",
-                 "../rna_seq/CastB6F1_2.hisat2.genome2.bam.bai",
-                 "../rna_seq/CastB6F1_3.hisat2.genome1.bam.bai",
-                 "../rna_seq/CastB6F1_3.hisat2.genome2.bam.bai",
-                 "../rna_seq/CastB6F1_4.hisat2.genome1.bam.bai",
-                 "../rna_seq/CastB6F1_4.hisat2.genome2.bam.bai",
-                 "../rna_seq/CastB6F1_5.hisat2.genome1.bam.bai",
-                 "../rna_seq/CastB6F1_5.hisat2.genome2.bam.bai")
+        bam = ("../rna_seq/B6CastF1_2.hisat2.genome1.sorted.bam",
+               "../rna_seq/B6CastF1_2.hisat2.genome2.sorted.bam",
+               "../rna_seq/B6CastF1_3.hisat2.genome1.sorted.bam",
+               "../rna_seq/B6CastF1_3.hisat2.genome2.sorted.bam",
+               "../rna_seq/B6CastF1_4.hisat2.genome1.sorted.bam",
+               "../rna_seq/B6CastF1_4.hisat2.genome2.sorted.bam",
+               "../rna_seq/B6CastF1_5.hisat2.genome1.sorted.bam",
+               "../rna_seq/B6CastF1_5.hisat2.genome2.sorted.bam",
+               "../rna_seq/CastB6F1_2.hisat2.genome1.sorted.bam",
+               "../rna_seq/CastB6F1_2.hisat2.genome2.sorted.bam",
+               "../rna_seq/CastB6F1_3.hisat2.genome1.sorted.bam",
+               "../rna_seq/CastB6F1_3.hisat2.genome2.sorted.bam",
+               "../rna_seq/CastB6F1_4.hisat2.genome1.sorted.bam",
+               "../rna_seq/CastB6F1_4.hisat2.genome2.sorted.bam",
+               "../rna_seq/CastB6F1_5.hisat2.genome1.sorted.bam",
+               "../rna_seq/CastB6F1_5.hisat2.genome2.sorted.bam"),
+        index = ("../rna_seq/B6CastF1_2.hisat2.genome1.sorted.bam.bai",
+                 "../rna_seq/B6CastF1_2.hisat2.genome2.sorted.bam.bai",
+                 "../rna_seq/B6CastF1_3.hisat2.genome1.sorted.bam.bai",
+                 "../rna_seq/B6CastF1_3.hisat2.genome2.sorted.bam.bai",
+                 "../rna_seq/B6CastF1_4.hisat2.genome1.sorted.bam.bai",
+                 "../rna_seq/B6CastF1_4.hisat2.genome2.sorted.bam.bai",
+                 "../rna_seq/B6CastF1_5.hisat2.genome1.sorted.bam.bai",
+                 "../rna_seq/B6CastF1_5.hisat2.genome2.sorted.bam.bai",
+                 "../rna_seq/CastB6F1_2.hisat2.genome1.sorted.bam.bai",
+                 "../rna_seq/CastB6F1_2.hisat2.genome2.sorted.bam.bai",
+                 "../rna_seq/CastB6F1_3.hisat2.genome1.sorted.bam.bai",
+                 "../rna_seq/CastB6F1_3.hisat2.genome2.sorted.bam.bai",
+                 "../rna_seq/CastB6F1_4.hisat2.genome1.sorted.bam.bai",
+                 "../rna_seq/CastB6F1_4.hisat2.genome2.sorted.bam.bai",
+                 "../rna_seq/CastB6F1_5.hisat2.genome1.sorted.bam.bai",
+                 "../rna_seq/CastB6F1_5.hisat2.genome2.sorted.bam.bai")
     output:
         "../rna_seq/all_runs_with_reverse_coverage.tsv"
     shell:

@@ -19,17 +19,17 @@ library(tidyverse)
 ## Load data
 
 ```{r}
-load("../RData/albacore_2.2.7.castxb6.promethion/fit_reads.RData")
+load("../RData/castxb6.promethion/fit_reads.RData")
 castxb6_fit_reads <- fit_reads
-load("../RData/albacore_2.2.7.castxb6.promethion/fit_reads_df.RData")
+load("../RData/castxb6.promethion/fit_reads_df.RData")
 castxb6_fit_reads_df <- fit_reads_df %>%
   mutate(parent=ifelse(genotype=='ref', 'paternal', 'maternal'))
 combined_dmr <- read_csv("../tables/dss_dmrlist.csv")
 ```
 
 ```{r load_presaved_data}
-load("../RData/albacore_1.2.2.b6xcast/fit_reads.RData")
-load("../RData/albacore_1.2.2.b6xcast/fit_reads_df.RData")
+load("../RData/b6xcast.minion/fit_reads.RData")
+load("../RData/b6xcast.minion/fit_reads_df.RData")
 fit_reads_df <- fit_reads_df %>%
   mutate(parent=ifelse(genotype=='ref', 'maternal', 'paternal'))
 cg_df <- read_tsv("../genome_data/GRCm38_90.cpg_coordinates.tsv",

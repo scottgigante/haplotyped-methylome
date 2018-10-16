@@ -15,9 +15,9 @@ library(forcats)
 ## Load data
 
 ```{r}
-load("../RData/albacore_1.2.2.cast/haplotype_df.RData")
-load("../RData/albacore_1.2.2.cast/summary_df.RData")
-load("../RData/albacore_1.2.2.cast/fit_reads_df.RData")
+load("../RData/cast.minion/haplotype_df.RData")
+load("../RData/cast.minion/summary_df.RData")
+load("../RData/cast.minion/fit_reads_df.RData")
 ```
 
 ## Figure S2Aiii
