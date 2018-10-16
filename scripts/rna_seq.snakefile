@@ -173,11 +173,10 @@ rule build_hisat2:
     params:
         base = lambda wildcards, output: "../genome_data/{}".format(
             wildcards.genome)
-    output:
-        index = "../genome_data/{genome}.1.ht2",
-    params:
         log = lambda wildcards, output: "../genome_data/{}.hisat-build.log".format(
             wildcards.genome),
+    output:
+        index = "../genome_data/{genome}.1.ht2",
     shell:
         "hisat2-build {input} {params.base} &> {params.log}"
 
