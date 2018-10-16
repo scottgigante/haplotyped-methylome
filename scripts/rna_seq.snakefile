@@ -82,11 +82,12 @@ rule trim_galore:
     output:
         r1 = "../{outdir}/{sample}_R1_val_1.fq.gz",
         r2 = "../{outdir}/{sample}_R2_val_2.fq.gz",
+    params:
         log = "../{outdir}/{sample}_trim_galore.log",
     params:
         outdir = lambda wildcards, output: "../{}/".format(wildcards.outdir)
     shell:
-        "trim_galore --phred33 --fastqc --gzip --paired -o {params.outdir} {input.r1} {input.r2} &> {output.log}"
+        "trim_galore --phred33 --fastqc --gzip --paired -o {params.outdir} {input.r1} {input.r2} &> {params.log}"
 
 rule snpsplit_create_path:
     input:
@@ -124,10 +125,11 @@ rule snpsplit_prepare_genome:
         "../snpsplit_prepare_genome/CAST_EiJ_N-masked/chrY.N-masked.fa",
         "../snpsplit_prepare_genome/CAST_EiJ_N-masked/chrMT.N-masked.fa",
         "../snpsplit_prepare_genome/all_SNPs_CAST_EiJ_GRCm38.txt.gz",
+    params:
         log = "../snpsplit_prepare_genome/snpsplit.log"
     shell:
         "cd $(dirname {input.genome}) && "
-        "SNPsplit_genome_preparation --vcf_file {input.vcf} --strain CAST_EiJ --reference_genome ./ &> {output.log} && "
+        "SNPsplit_genome_preparation --vcf_file {input.vcf} --strain CAST_EiJ --reference_genome ./ &> {params.log} && "
         "cd ../scripts/"
 
 rule clean_up_snpsplit_genome:
@@ -173,9 +175,10 @@ rule build_hisat2:
             wildcards.genome)
     output:
         index = "../genome_data/{genome}.1.ht2",
+    params:
         log = "../genome_data/{genome}.hisat-build.log",
     shell:
-        "hisat2-build {input} {params.base} &> {output.log}"
+        "hisat2-build {input} {params.base} &> {params.log}"
 
 rule map_hisat2:
     input:
@@ -200,9 +203,10 @@ rule snp_split_hisat2:
     output:
         "../rna_seq/{sample}.hisat2.genome1.bam",
         "../rna_seq/{sample}.hisat2.genome2.bam",
+    params:
         log = "../rna_seq/{sample}.snpsplit.log",
     shell:
-        "SNPsplit --snp_file {input.snp} --paired --no_sort {input.bam} &> {output.log}"
+        "SNPsplit --snp_file {input.snp} --paired --no_sort {input.bam} &> {params.log}"
 
 rule snp_split_sort:
     input:

@@ -6,9 +6,11 @@ rule b6_haplotype_analysis:
         notebook = "../notebooks/b6_haplotype_analysis.Rmd",
     output:
         "../plots/b6.haplotype_score_combination.png",
-        log = "../notebooks/b6_haplotype_analysis.html",
+        "../notebooks/b6_haplotype_analysis.html",
+    params:
+        log = "../notebooks/b6_haplotype_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule cast_haplotype_analysis:
     input:
@@ -18,9 +20,11 @@ rule cast_haplotype_analysis:
         notebook = "../notebooks/cast_haplotype_analysis.Rmd",
     output:
         "../plots/cast.haplotype_score_combination.png",
+        "../notebooks/cast_haplotype_analysis.html",
+    params:
         log = "../notebooks/cast_haplotype_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule b6xcast_haplotype_analysis:
     input:
@@ -31,9 +35,10 @@ rule b6xcast_haplotype_analysis:
     output:
         "../plots/b6xcast.haplotype_score_combination.pdf",
         "../notebooks/b6xcast_haplotype_analysis.html",
+    params:
         log = "../notebooks/b6xcast_haplotype_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule castxb6_haplotype_analysis:
     input:
@@ -44,9 +49,10 @@ rule castxb6_haplotype_analysis:
     output:
         "../plots/castxb6.haplotype_score_combination.png",
         "../notebooks/castxb6_haplotype_analysis.html",
+    params:
         log = "../notebooks/castxb6_haplotype_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule haplotype_auc:
     input:
@@ -55,9 +61,10 @@ rule haplotype_auc:
         notebook = "../notebooks/single_strain_auc.Rmd",
     output:
         "../notebooks/single_strain_auc.html",
+    params:
         log = "../notebooks/single_strain_auc.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule dmr_comparison:
     input:
@@ -69,9 +76,10 @@ rule dmr_comparison:
     output:
         "../plots/dss_distance/strain_linear.png",
         "../notebooks/compare_detected_dmrs.html",
+    params:
         log = "../notebooks/compare_detected_dmrs.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule visualise_dmrs:
     input:
@@ -92,9 +100,10 @@ rule visualise_dmrs:
     output:
         "../plots/dmr_examples/4933421O10Rik.pdf",
         "../notebooks/visualise_dmr.html",
+    params:
         log = "../notebooks/visualise_dmr.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule differential_methylation_heatmaps:
     input:
@@ -105,9 +114,10 @@ rule differential_methylation_heatmaps:
     output:
         "../plots/primary_ICRs_heatmap.png",
         "../notebooks/differential_methylation_heatmaps.html",
+    params:
         log = "../notebooks/differential_methylation_heatmaps.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule genome_level_methylation_summary:
     input:
@@ -119,9 +129,10 @@ rule genome_level_methylation_summary:
     output:
         "../plots/gene_body_metaplot.pdf",
         "../notebooks/genome_level_methylation_summary.html",
+    params:
         log = "../notebooks/genome_level_methylation_summary.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule nanopolish_methylation_validation:
     input:
@@ -131,9 +142,10 @@ rule nanopolish_methylation_validation:
     output:
         "../plots/binned_site_concordance.pdf",
         "../notebooks/nanopolish_methylation_validation.html",
+    params:
         log = "../notebooks/nanopolish_methylation_validation.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule rnaseq_analysis_notebook:
     input:
@@ -162,9 +174,10 @@ rule rnaseq_analysis_notebook:
         '../tables/imprinted_genes_Supp_file_1.tsv',
         '../plots/allelic_bias.pdf',
         "../notebooks/rnaseq_analysis.html",
+    params:
         log = "../notebooks/rnaseq_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook} &> {output.log}"
+        "Rscript render_notebook.R {input.notebook} &> {params.log}"
 
 rule prepare_visualisation:
     input:

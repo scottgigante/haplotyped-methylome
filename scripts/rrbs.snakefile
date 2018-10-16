@@ -64,8 +64,9 @@ rule bismark_align:
         r1 = "../bisulfite/{sample}_R1_val_1.fq.gz",
         r2 = "../bisulfite/{sample}_R2_val_2.fq.gz",
     output:
-        log = "../bisulfite/{sample}.bismark.log",
         bam = "../bisulfite/{sample}_pe.bam",
+    params:
+        log = "../bisulfite/{sample}.bismark.log",
     params:
         basename = lambda wildcards, output: "../bisulfite/{}".format(
             wildcards.sample),
@@ -74,7 +75,7 @@ rule bismark_align:
         16
     shell:
         "bismark --gzip --bam --bowtie2 -p {threads} -B {params.basename} "
-        "{params.genome} -1 {input.r1} -2 {input.r2} &> {output.log}"
+        "{params.genome} -1 {input.r1} -2 {input.r2} &> {params.log}"
 
 rule sort_bisulfite:
     input:
@@ -93,9 +94,10 @@ rule snpsplit_bismark:
     output:
         "../bisulfite/{sample}_pe.sorted.genome1.bam",
         "../bisulfite/{sample}_pe.sorted.genome2.bam",
+    params:
         log = "../bisulfite/{sample}.snpsplit.log",
     shell:
-        "SNPsplit --paired --bisulfite --snp_file --no_sort {input.snp} {input.bam} &> {output.log}"
+        "SNPsplit --paired --bisulfite --snp_file --no_sort {input.snp} {input.bam} &> {params.log}"
 
 rule bismark_extract:
     input:
@@ -104,13 +106,14 @@ rule bismark_extract:
         "../bisulfite/{sample}.bedGraph.gz",
         "../bisulfite/{sample}.bismark.cov.gz",
         txt = "../bisulfite/CpG_context_{sample}.txt.gz",
+    params:
         log = "../bisulfite/{sample}.bismark.log",
     threads:
         4
     shell:
         "bismark_methylation_extractor --ignore 13 --paired-end --multicore {threads} "
         "--comprehensive --merge_non_CpG --report --output $(dirname {output.txt}) --gzip "
-        "--bedGraph {input} &> {output.log}"
+        "--bedGraph {input} &> {params.log}"
 
 rule merge_bisulfite_genome1:
     input:

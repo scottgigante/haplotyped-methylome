@@ -74,7 +74,6 @@ rule albacore_minion:
     output:
         "../nanopore/{sample}.minion.albacore/workspace",
         "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
-        "../nanopore/{sample}.minion.albacore/pipeline.log",
     params:
         outdir = lambda wildcards, output: "../nanopore/{}.minion.albacore".format(
             wildcards.sample)
@@ -89,7 +88,6 @@ rule albacore_promethion:
     output:
         "../nanopore/{sample}.promethion.albacore/workspace",
         "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
-        "../nanopore/{sample}.minion.albacore/pipeline.log",
     params:
         outdir = lambda wildcards, output: "../nanopore/{}.promethion.albacore".format(
             wildcards.sample)
