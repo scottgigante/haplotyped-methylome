@@ -14,8 +14,6 @@ include:
     "scripts/rna_seq.snakefile"
 include:
     "scripts/rrbs.snakefile"
-conda:
-    "environment.yaml"
 
 """Inputs:
         "../genome_data/imprinted_genes.tsv",
