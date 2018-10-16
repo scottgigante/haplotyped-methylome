@@ -5,10 +5,10 @@ rule b6_haplotype_analysis:
         "../RData/b6.minion/fit_reads_df.RData",
         notebook = "../notebooks/b6_haplotype_analysis.Rmd",
     output:
-        "../notebooks/b6_haplotype_analysis.html",
         "../plots/b6.haplotype_score_combination.png",
+        log = "../notebooks/b6_haplotype_analysis.html",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule cast_haplotype_analysis:
     input:
@@ -17,10 +17,10 @@ rule cast_haplotype_analysis:
         "../RData/cast.minion/fit_reads_df.RData",
         notebook = "../notebooks/cast_haplotype_analysis.Rmd",
     output:
-        "../notebooks/cast_haplotype_analysis.html",
         "../plots/cast.haplotype_score_combination.png",
+        log = "../notebooks/cast_haplotype_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule b6xcast_haplotype_analysis:
     input:
@@ -29,10 +29,11 @@ rule b6xcast_haplotype_analysis:
         "../RData/b6xcast.minion/fit_reads_df.RData",
         notebook = "../notebooks/b6xcast_haplotype_analysis.Rmd",
     output:
-        "../notebooks/b6xcast_haplotype_analysis.html",
         "../plots/b6xcast.haplotype_score_combination.pdf",
+        "../notebooks/b6xcast_haplotype_analysis.html",
+        log = "../notebooks/b6xcast_haplotype_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule castxb6_haplotype_analysis:
     input:
@@ -41,10 +42,11 @@ rule castxb6_haplotype_analysis:
         "../RData/castxb6.promethion/fit_reads_df.RData",
         notebook = "../notebooks/castxb6_haplotype_analysis.Rmd",
     output:
-        "../notebooks/castxb6_haplotype_analysis.html",
         "../plots/castxb6.haplotype_score_combination.png",
+        "../notebooks/castxb6_haplotype_analysis.html",
+        log = "../notebooks/castxb6_haplotype_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule haplotype_auc:
     input:
@@ -53,8 +55,9 @@ rule haplotype_auc:
         notebook = "../notebooks/single_strain_auc.Rmd",
     output:
         "../notebooks/single_strain_auc.html",
+        log = "../notebooks/single_strain_auc.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule dmr_comparison:
     input:
@@ -64,10 +67,11 @@ rule dmr_comparison:
         "../rna_seq/strain_biased_genes_5pctFDR.tsv",
         notebook = "../notebooks/compare_detected_dmrs.Rmd",
     output:
+        "../plots/dss_distance/strain_linear.png",
         "../notebooks/compare_detected_dmrs.html",
-        "../plots/dss_distance/strain_linear.png"
+        log = "../notebooks/compare_detected_dmrs.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule visualise_dmrs:
     input:
@@ -86,10 +90,11 @@ rule visualise_dmrs:
         "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
         notebook = "../notebooks/visualise_dmr.Rmd",
     output:
+        "../plots/dmr_examples/4933421O10Rik.pdf",
         "../notebooks/visualise_dmr.html",
-        "../plots/dmr_examples/4933421O10Rik.pdf"
+        log = "../notebooks/visualise_dmr.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule differential_methylation_heatmaps:
     input:
@@ -98,10 +103,11 @@ rule differential_methylation_heatmaps:
         '../genome_data/ICR_plot_regions.tsv',
         notebook = "../notebooks/differential_methylation_heatmaps.Rmd",
     output:
-        "../notebooks/differential_methylation_heatmaps.html",
         "../plots/primary_ICRs_heatmap.png",
+        "../notebooks/differential_methylation_heatmaps.html",
+        log = "../notebooks/differential_methylation_heatmaps.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule genome_level_methylation_summary:
     input:
@@ -111,10 +117,11 @@ rule genome_level_methylation_summary:
         "../RData/bisulfite_df.RData",
         notebook = "../notebooks/genome_level_methylation_summary.Rmd",
     output:
-        "../notebooks/genome_level_methylation_summary.html",
         "../plots/gene_body_metaplot.pdf",
+        "../notebooks/genome_level_methylation_summary.html",
+        log = "../notebooks/genome_level_methylation_summary.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule nanopolish_methylation_validation:
     input:
@@ -122,10 +129,11 @@ rule nanopolish_methylation_validation:
         "../RData/bisulfite_df.RData",
         notebook = "../notebooks/nanopolish_methylation_validation.Rmd",
     output:
+        "../plots/binned_site_concordance.pdf",
         "../notebooks/nanopolish_methylation_validation.html",
-        "../plots/binned_site_concordance.pdf"
+        log = "../notebooks/nanopolish_methylation_validation.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule rnaseq_analysis_notebook:
     input:
@@ -152,10 +160,11 @@ rule rnaseq_analysis_notebook:
         '../rna_seq/strain_biased_genes_5pctFDR.tsv',
         '../rna_seq/parent_biased_genes_10pctFDR.tsv',
         '../tables/imprinted_genes_Supp_file_1.tsv',
-        "../notebooks/rnaseq_analysis.html",
         '../plots/allelic_bias.pdf',
+        "../notebooks/rnaseq_analysis.html",
+        log = "../notebooks/rnaseq_analysis.log",
     shell:
-        "Rscript render_notebook.R {input.notebook}"
+        "Rscript render_notebook.R {input.notebook} &> {output.log}"
 
 rule prepare_visualisation:
     input:
