@@ -66,34 +66,50 @@ rule merge_b6xcast:
         "../nanopore/b6xcast.minion.fast5/",
     shell:
         "mkdir -p {output} && "
-        "for i in {input}; do mv $i/* {output}; done && "
-        "rmdir {input}"
+        "for i in {input}; do mv $i {output}; done"
 
 rule albacore_minion:
     input:
         "../nanopore/{sample}.minion.fast5/",
     output:
-        "../nanopore/{sample}.minion.fq.gz",
+        "../nanopore/{sample}.minion.albacore/workspace",
+        "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
+        "../nanopore/{sample}.minion.albacore/pipeline.log",
+    params:
+        outdir = "../nanopore/{sample}.minion.albacore"
     threads:
         16
     shell:
-        "read_fast5_basecaller.py -c r94_450bps_linear.cfg -o fastq -i {input} -r -s ../nanopore/ -t {threads} -q 0"
+        "read_fast5_basecaller.py -c r94_450bps_linear.cfg -o fastq -i {input} -r -s {params.outdir} -t {threads} -q 0"
 
 rule albacore_promethion:
     input:
         "../nanopore/{sample}.promethion.fast5/",
     output:
-        "../nanopore/{sample}.promethion.fq.gz",
+        "../nanopore/{sample}.promethion.albacore/workspace",
+        "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
+        "../nanopore/{sample}.minion.albacore/pipeline.log",
+    params:
+        outdir = "../nanopore/{sample}.promethion.albacore"
     threads:
         16
     shell:
-        "read_fast5_basecaller.py -c r941_450bps_linear_prom.cfg -o fastq -i {input} -r -s ../nanopore/ -t {threads} -q 0"
+        "read_fast5_basecaller.py -c r941_450bps_linear_prom.cfg -o fastq -i {input} -r -s {params.outdir} -t {threads} -q 0"
+
+rule albacore_merge_output:
+    input:
+        "../nanopore/{sample}.albacore/workspace",
+    output:
+        "../nanopore/{sample}.fastq",
+    shell:
+        "cat {input}/pass/*.fastq > {output} && "
+        "cat {input}/fail/*.fastq > {output}"
 
 rule bwa_mem_align:
     input:
         genome = "../genome_data/GRCm38_90.CAST_masked.fa",
         index = "../genome_data/GRCm38_90.CAST_masked.fa.bwt",
-        reads = "../nanopore/{sample}.fq.gz"
+        reads = "../nanopore/{sample}.fastq"
     output:
         "../nanopore/{sample}.sorted.bam",
     threads:
@@ -104,10 +120,10 @@ rule bwa_mem_align:
 
 rule nanopolish_index:
     input:
-        reads = "../nanopore/{sample}.fq.gz",
+        reads = "../nanopore/{sample}.fastq",
         fast5 = "../nanopore/{sample}.fast5/"
     output:
-        "../nanopore/{sample}.fq.gz.readdb"
+        "../nanopore/{sample}.fastq.index.readdb"
     shell:
         "nanopolish index -d {input.fast5} {input.reads}"
 
@@ -116,8 +132,8 @@ rule nanopolish_methylation:
         genome = "../genome_data/GRCm38_90.CAST_masked.fa",
         bam = "../nanopore/{sample}.sorted.bam",
         index = "../nanopore/{sample}.sorted.bam.bai",
-        reads = "../nanopore/{sample}.fq.gz",
-        readdb = "../nanopore/{sample}.fq.gz.readdb"
+        reads = "../nanopore/{sample}.fastq",
+        readdb = "../nanopore/{sample}.fastq.index.readdb"
     output:
         "../nanopore/{sample}.methylation.tsv"
     threads:
@@ -130,9 +146,9 @@ rule nanopolish_phase:
         genome = "../genome_data/GRCm38_90.fa",
         bam = "../nanopore/{sample}.sorted.bam",
         index = "../nanopore/{sample}.sorted.bam.bai",
-        reads = "../nanopore/{sample}.fq.gz",
+        reads = "../nanopore/{sample}.fastq",
         vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
-        readdb = "../nanopore/{sample}.fq.gz.readdb"
+        readdb = "../nanopore/{sample}.fastq.index.readdb"
     output:
         "../nanopore/{sample}.phased_sorted.bam"
     threads:
@@ -161,8 +177,8 @@ rule intermediate_download_bam:
         sample = lambda wildcards, output: wildcards.sample
     shell:
         "mkdir -p ../nanopore/{params.sample}.fast5/ && "
-        "touch ../nanopore/{params.sample}.fq.gz && "
-        "touch ../nanopore/{params.sample}.fq.gz.readdb && "
+        "touch ../nanopore/{params.sample}.fastq && "
+        "touch ../nanopore/{params.sample}.fastq.index.readdb && "
         "touch ../nanopore/{params.sample}.intermediate_bam && "
         "touch ../nanopore/{params.sample}.sorted.bam && "  # actually download
         "touch ../nanopore/{params.sample}.sorted.bam.bai"  # actually index
