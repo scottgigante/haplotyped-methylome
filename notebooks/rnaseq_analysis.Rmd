@@ -13,7 +13,6 @@ library(tidyverse)
 library(Rsubread)
 library(limma)
 library(edgeR)
-library(Glimma)
 library(biomaRt)
 ```
 
@@ -31,10 +30,10 @@ splitfeaturecounts <- featureCounts(file.path("..", "rna_seq", splitbam), annot.
                                     primary = TRUE, isPairedEnd = TRUE, nthreads = 8)
 splitcounts <- as.data.frame(splitfeaturecounts$counts)
 colnames(splitcounts) <- splitbam %>%
-    str_replace("B6CastF1_(2-5]).hisat2.genome1.bam", "B6CastF1_\\1_mat") %>%
-    str_replace("B6CastF1_(2-5]).hisat2.genome2.bam", "B6CastF1_\\1_pat") %>%
-    str_replace("CastB6F1_(2-5]).hisat2.genome1.bam", "CastB6F1_\\1_pat") %>%
-    str_replace("CastB6F1_(2-5]).hisat2.genome2.bam", "CastB6F1_\\1_mat")
+    str_replace("B6CastF1_([2-5]).hisat2.genome1.bam", "B6CastF1_\\1_mat") %>%
+    str_replace("B6CastF1_([2-5]).hisat2.genome2.bam", "B6CastF1_\\1_pat") %>%
+    str_replace("CastB6F1_([2-5]).hisat2.genome1.bam", "CastB6F1_\\1_pat") %>%
+    str_replace("CastB6F1_([2-5]).hisat2.genome2.bam", "CastB6F1_\\1_mat")
 splitcounts$GeneID <- rownames(splitcounts)
 write_tsv(splitcounts, '../rna_seq/hisat2_GCRm38V90_featurecounts_split.tsv.gz')
 ```
@@ -69,24 +68,22 @@ splitDE <- DGEList(counts = counts)
 #TMM norm
 splitDE <- calcNormFactors(splitDE)
 
-embryo <- colnames(splitcounts) %>%
+embryo <- colnames(counts) %>%
   str_replace("_(mat|pat)", "") %>%
   factor()
-strain <- ifelse((startsWith(colnames(splitcounts), "B6") & endsWith(colnames(splitcounts), "mat")) | 
-                   (startsWith(colnames(splitcounts), "Cast") & endsWith(colnames(splitcounts), "pat")), 
+strain <- ifelse((startsWith(colnames(counts), "B6") & endsWith(colnames(counts), "mat")) | 
+                   (startsWith(colnames(counts), "Cast") & endsWith(colnames(counts), "pat")), 
                  "Black6", "Cast") %>%
   factor()
-litter <- case_when(str_detect(colnames(splitcounts), "^B6CastF1_(2|3)") ~ "A",
-                    str_detect(colnames(splitcounts), "^B6CastF1_(4|5)") ~ "B",
-                    str_detect(colnames(splitcounts), "^CastB6F1_(2|3)") ~ "C",
-                    str_detect(colnames(splitcounts), "^CastB6F1_(4|5)") ~ "D") %>%
+litter <- case_when(str_detect(colnames(counts), "^B6CastF1_(2|3)") ~ "A",
+                    str_detect(colnames(counts), "^B6CastF1_(4|5)") ~ "B",
+                    str_detect(colnames(counts), "^CastB6F1_(2|3)") ~ "C",
+                    str_detect(colnames(counts), "^CastB6F1_(4|5)") ~ "D") %>%
   factor()
-parent <- ifelse(endsWith(colnames(splitcounts), "mat"), "maternal", "paternal") %>%
+parent <- ifelse(endsWith(colnames(counts), "mat"), "maternal", "paternal") %>%
   factor(levels = c('paternal','maternal')) #change that so that higher expr will mean maternal and will be red.
 
 colData <- data.frame(parent = parent, strain = strain, litter = litter, embryo = embryo)
-
-glMDSPlot(splitDE, labels = rownames(splitDE$samples), groups = colData)
 
 design <- model.matrix(~embryo+parent)  #account for paired data
 
@@ -167,8 +164,6 @@ FDRstrain <- p.adjust(qlfstrain$table$PValue, method="BH")
 dt.edger.strain <- decideTestsDGE(qlfstrain, p.value = 0.05, lfc =1) #5% FDR and log2FC of 1
 #make annotation dataframe
 annot <- counts %>% rownames_to_column('ensembl_gene_id') %>% as_tibble() %>% left_join(gene) %>% rename(ID = ensembl_gene_id) %>% as.data.frame()
-
-glMDPlot(qlfstrain, status=dt.edger.strain, counts=counts, groups= colData$embryo, transform=TRUE, html = 'MDPlot_strain', anno = annot, display.columns=c("ID", "mgi_symbol"), sample.cols = rep(cbbPalette[1:2], 8), side.xlab = 'sample', side.ylab = 'Expression')
 
 strain_de_results <- qlfstrain$table %>% rownames_to_column('ensembl_gene_id') %>% as_tibble() %>% mutate(padj = FDRstrain) %>% left_join(gene) %>% arrange(padj)
 
