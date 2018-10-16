@@ -172,7 +172,7 @@ rule build_hisat2:
         "../genome_data/{genome}.fa"
     params:
         base = lambda wildcards, output: "../genome_data/{}".format(
-            wildcards.genome)
+            wildcards.genome),
         log = lambda wildcards, output: "../genome_data/{}.hisat-build.log".format(
             wildcards.genome),
     output:
