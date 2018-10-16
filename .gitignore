@@ -3,3 +3,11 @@ __pycache__
 *.pyc
 desktop.ini
 .DS_Store
+.Rhistory
+nanopore
+bisulfite
+rna_seq
+RData
+plots
+tables
+
