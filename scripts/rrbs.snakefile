@@ -101,21 +101,23 @@ rule bismark_extract:
     input:
         "../bisulfite/{sample}.bam",
     output:
-        "../bisulfite/{sample}.txt.gz",
+        "../bisulfite/{sample}.bedGraph.gz",
+        "../bisulfite/{sample}.bismark.cov.gz",
+        txt = "../bisulfite/CpG_context_{sample}.txt.gz",
         log = "../bisulfite/{sample}.bismark.log",
     threads:
         4
     shell:
         "bismark_methylation_extractor --ignore 13 --paired-end --multicore {threads} "
-        "--comprehensive --merge_non_CpG --report --output methylation_extractor --gzip "
+        "--comprehensive --merge_non_CpG --report --output $(dirname {output.txt}) --gzip "
         "--bedGraph {input} &> {output.log}"
 
 rule merge_bisulfite_genome1:
     input:
-        "../bisulfite/B6CastF1_1_pe.sorted.genome1.txt.gz",
-        "../bisulfite/B6CastF1_2_pe.sorted.genome1.txt.gz",
-        "../bisulfite/B6CastF1_5_pe.sorted.genome1.txt.gz",
-        "../bisulfite/B6CastF1_6_pe.sorted.genome1.txt.gz"
+        "../bisulfite/CpG_context_B6CastF1_1_pe.sorted.genome1.txt.gz",
+        "../bisulfite/CpG_context_B6CastF1_2_pe.sorted.genome1.txt.gz",
+        "../bisulfite/CpG_context_B6CastF1_5_pe.sorted.genome1.txt.gz",
+        "../bisulfite/CpG_context_B6CastF1_6_pe.sorted.genome1.txt.gz"
     output:
         "../bisulfite/B6CastF1.combined_replicates.genome1.summary.tsv"
     shell:
@@ -123,10 +125,10 @@ rule merge_bisulfite_genome1:
 
 rule merge_bisulfite_genome2:
     input:
-        "../bisulfite/B6CastF1_1_pe.sorted.genome2.txt.gz",
-        "../bisulfite/B6CastF1_2_pe.sorted.genome2.txt.gz",
-        "../bisulfite/B6CastF1_5_pe.sorted.genome2.txt.gz",
-        "../bisulfite/B6CastF1_6_pe.sorted.genome2.txt.gz"
+        "../bisulfite/CpG_context_B6CastF1_1_pe.sorted.genome2.txt.gz",
+        "../bisulfite/CpG_context_B6CastF1_2_pe.sorted.genome2.txt.gz",
+        "../bisulfite/CpG_context_B6CastF1_5_pe.sorted.genome2.txt.gz",
+        "../bisulfite/CpG_context_B6CastF1_6_pe.sorted.genome2.txt.gz"
     output:
         "../bisulfite/B6CastF1.combined_replicates.genome2.summary.tsv"
     shell:
@@ -134,7 +136,7 @@ rule merge_bisulfite_genome2:
 
 rule merge_matched_bisulfite:
     input:
-        "../bisulfite/B6CastF1_1_pe.txt.gz",
+        "../bisulfite/CpG_context_B6CastF1_1_pe.txt.gz",
     output:
         "../bisulfite/B6CastF1_1_pe.summary.tsv"
     shell:
