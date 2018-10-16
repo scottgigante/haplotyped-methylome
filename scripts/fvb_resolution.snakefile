@@ -20,8 +20,10 @@ rule fvb_resolution:
         "../genome_data/fvb_regions.txt",
         "../plots/rpart_fvb_resolution.png",
         "../notebooks/nanopolish_fvb_resolution.html",
+    params:
+        log = "../notebooks/nanopolish_fvb_resolution.log",
     shell:
-        "Rscript render_notebook.R ../notebooks/nanopolish_fvb_resolution.Rmd"
+        "Rscript render_notebook.R ../notebooks/nanopolish_fvb_resolution.Rmd &> {params.log}"
 
 rule merge_threeway_variants:
     input:
