@@ -63,10 +63,8 @@ process_file <- function(filepath) {
       if (length(start) > n_min){
         len <- max(start) - min(start)
         span <- 0.1 + 8e-11*((max(-len + 1e5, 0)))^2
-        try({
-          reads[[i]] = fit_loess(chr, read_name, start, percentMeth, span=span)
-          i <- i + 1
-        })
+        reads[[i]] = fit_loess(chr, read_name, start, percentMeth, span=span)
+        i <- i + 1
       }
       chr=line[1]
       read_name = name
