@@ -66,7 +66,7 @@ rule untar:
     shell:
         "mkdir -p {output} && "
         "tar xzf {input} -C {output} && "
-        "find {output} -type d -links 2 -exec mv -t {output} {{}} \\+ && "
+        "find {output} -mindepth 2 -type d -links 2  -exec mv -t {output} {{}} \\+ && "
         "for i in $(find {output} -name '*.tar.gz'); do "
         "  tar -xzf $i -C {output}; "
         "done"
