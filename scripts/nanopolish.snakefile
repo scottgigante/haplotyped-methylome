@@ -2,49 +2,61 @@ rule download_fast5_b6xcast_0503:
     output:
         "../nanopore/2017_05_03.b6xcast.minion.fast5.tar.gz"
     params:
-        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_03_MOUSE_WGS_ONT.fast5.tar.gz"
+        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_03_MOUSE_WGS_ONT.fast5.tar.gz",
+        md5 = "../md5/nanopore/2017_05_03.b6xcast.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url}"
+        "wget -q -O {output} {params.url} && "
+        "md5sum -c {params.md5}"
 
 rule download_fast5_b6xcast_0512:
     output:
         "../nanopore/2017_05_12.b6xcast.minion.fast5.tar.gz"
     params:
-        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_12_MOUSE_WGS_ONT.fast5.tar.gz"
+        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_12_MOUSE_WGS_ONT.fast5.tar.gz",
+        md5 = "../md5/nanopore/2017_05_12.b6xcast.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url}"
+        "wget -q -O {output} {params.url} && "
+        "md5sum -c {params.md5}"
 
 rule download_fast5_b6xcast_0525:
     output:
         "../nanopore/2017_05_25.b6xcast.minion.fast5.tar.gz"
     params:
-        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_25_MOUSE_WGS_ONT.fast5.tar.gz"
+        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_25_MOUSE_WGS_ONT.fast5.tar.gz",
+        md5 = "../md5/nanopore/2017_05_25.b6xcast.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url}"
+        "wget -q -O {output} {params.url} && "
+        "md5sum -c {params.md5}"
 
 rule download_fast5_castxb6:
     output:
         "../nanopore/castxb6.promethion.fast5.tar.gz"
     params:
-        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/20180410_0355_BLEWITT_CASTB6_LSK109.fast5.tar.gz"
+        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/20180410_0355_BLEWITT_CASTB6_LSK109.fast5.tar.gz",
+        md5 = "../md5/nanopore/castxb6.promethion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url}"
+        "wget -q -O {output} {params.url} && "
+        "md5sum -c {params.md5}"
 
 rule download_fast5_b6:
     output:
         "../nanopore/b6.minion.fast5.tar.gz"
     params:
-        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/Black6_WGS_ONT.fast5.tar.gz"
+        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/Black6_WGS_ONT.fast5.tar.gz",
+        md5 = "../md5/nanopore/b6.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url}"
+        "wget -q -O {output} {params.url} && "
+        "md5sum -c {params.md5}"
 
 rule download_fast5_cast:
     output:
         "../nanopore/cast.minion.fast5.tar.gz"
     params:
-        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/Cast_WGS_ONT.fast5.tar.gz"
+        url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/Cast_WGS_ONT.fast5.tar.gz",
+        md5 = "../md5/nanopore/cast.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url}"
+        "wget -q -O {output} {params.url} && "
+        "md5sum -c {params.md5}"
 
 rule untar:
     input:
@@ -54,8 +66,20 @@ rule untar:
     shell:
         "mkdir -p {output} && "
         "tar xzf {input} -C {output} && "
-        "find {output} -type d -links 2 -exec mv -t {output} {{}} \\+ && "
-        "rm -rf {output}/home"
+        "find {output} -type d -links 2 -exec mv -t {output} {{}} \\+"
+
+rule untar_0525:
+    input:
+        "../nanopore/2017_05_25.b6xcast.minion.fast5.tar.gz",
+    output:
+        directory("../nanopore/2017_05_25.b6xcast.minion.fast5/")
+    shell:
+        "mkdir -p {output} && "
+        "tar xzf {input} -C {output} && "
+        "for i in {output}/fast5/*.tar.gz; do "
+        "  tar -xzf $i -C {output}; "
+        "done"
+
 
 rule merge_b6xcast:
     input:
@@ -114,9 +138,11 @@ rule bwa_mem_align:
         "../nanopore/{sample}.sorted.bam",
     threads:
         16
+    log:
+        "../nanopore/{sample}.sorted.bam.log"
     shell:
         "bwa mem -t {threads} {input.genome} {input.reads} | "
-        "samtools sort -T {output}.samtools.tmp -@ {threads} -o {output}"
+        "samtools sort -T {output}.samtools.tmp -@ {threads} -o {output} &> {log}"
 
 rule nanopolish_index:
     input:
