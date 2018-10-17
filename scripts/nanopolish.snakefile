@@ -50,7 +50,7 @@ rule untar:
     input:
         "../nanopore/{archive}.tar.gz",
     output:
-        "../nanopore/{archive}/"
+        directory("../nanopore/{archive}/")
     shell:
         "mkdir -p {output} && "
         "tar xzf {input} -C {output} && "
@@ -63,7 +63,7 @@ rule merge_b6xcast:
         "../nanopore/2017_05_12.b6xcast.minion.fast5/",
         "../nanopore/2017_05_25.b6xcast.minion.fast5/",
     output:
-        "../nanopore/b6xcast.minion.fast5/",
+        directory("../nanopore/b6xcast.minion.fast5/"),
     shell:
         "mkdir -p {output} && "
         "for i in {input}; do mv $i {output}; done"
@@ -72,7 +72,7 @@ rule albacore_minion:
     input:
         "../nanopore/{sample}.minion.fast5/",
     output:
-        "../nanopore/{sample}.minion.albacore/workspace",
+        directory("../nanopore/{sample}.minion.albacore/workspace"),
         "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
     params:
         outdir = lambda wildcards, output: "../nanopore/{}.minion.albacore".format(
@@ -86,7 +86,7 @@ rule albacore_promethion:
     input:
         "../nanopore/{sample}.promethion.fast5/",
     output:
-        "../nanopore/{sample}.promethion.albacore/workspace",
+        directory("../nanopore/{sample}.promethion.albacore/workspace"),
         "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
     params:
         outdir = lambda wildcards, output: "../nanopore/{}.promethion.albacore".format(
