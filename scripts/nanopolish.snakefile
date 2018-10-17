@@ -54,7 +54,7 @@ rule untar:
     shell:
         "mkdir -p {output} && "
         "tar xzf {input} -C {output} && "
-        "find {output} -type d -links 2 -exec mv -t {output} {} \\+ && "
+        "find {output} -type d -links 2 -exec mv -t {output} {{}} \\+ && "
         "rm -rf {output}/home"
 
 rule merge_b6xcast:
