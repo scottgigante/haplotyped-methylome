@@ -6,6 +6,7 @@ from __future__ import print_function
 import csv
 import sys
 import pickle
+import copy
 
 
 def get_read_id(read, contig, position, suppdb):
@@ -31,12 +32,21 @@ with open("{}.suppdb".format(bam_fn), 'rb') as db_handle:
     suppdb = pickle.load(db_handle)
 
 reader = csv.DictReader(handle, delimiter="\t")
+fieldnames = reader.fieldnames
+if "strand" in reader.fieldnames:
+    fieldnames = copy.copy(fieldnames)
+    del fieldnames[fieldnames.index("strand")]
+    del_strand = True
+else:
+    del_strand = False
 writer = csv.DictWriter(sys.stdout, delimiter="\t",
-                        fieldnames=reader.fieldnames)
+                        fieldnames=fieldnames)
 writer.writeheader()
 for row in reader:
     row["read_name"] = get_read_id(
         row["read_name"], row["chromosome"], int(row["start"]), suppdb)
+    if del_strand:
+        del row["strand"]
     try:
         writer.writerow(row)
     except Exception:
