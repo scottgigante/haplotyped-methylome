@@ -13,7 +13,7 @@ Data avilable at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view/
 * R
 * Python>=3.5
 * Lots of RAM (tested on 500GB)
-* Lots of disk space
+* Lots of disk space (estimate: 2TB)
 
 #### Dependencies
 
@@ -54,6 +54,8 @@ If you don't wish to run the full analysis, you can run specific rules from the 
 
 ```
 snakemake --cores 16 rnaseq_analysis
+snakemake --cores 16 haplotype_analysis
+snakemake --cores 16 methylation_analysis
 ```
 
 ### Installation without `conda`
