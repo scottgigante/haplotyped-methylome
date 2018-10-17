@@ -16,34 +16,8 @@ infile <- args[1]
 outdir <- args[2]
 dir.create(outdir, showWarnings = FALSE)
 
-summary_df <- read_tsv(paste0(infile, ".sorted.bam.summary.tsv"), 
-                       col_names=c("read_name", "chr", "start", "end", "qual"), 
-                       col_types='cciid',
-                       skip=1) %>% 
-  unique()
-save(summary_df, file=file.path(outdir, "summary_df.RData"))
-
-min_coverage=5
-haplotype_df <- read_tsv(paste0(infile, ".phased.tsv"), col_types='ccddiddi') %>%
-  mutate(signal_coverage = signal_ref + signal_alt,
-         signal_ratio = signal_ref / signal_coverage,
-         base_coverage = base_ref + base_alt,
-         base_ratio=base_ref / base_coverage) %>% 
-  mutate(info=case_when(.$signal_coverage < min_coverage & .$base_coverage < min_coverage ~ "low_coverage",
-                        .$signal_ratio < 0.5 & .$base_ratio < 0.5 ~ "pass",
-                        .$signal_ratio > 0.5 & .$base_ratio > 0.5 ~ "pass",
-                        .$base_coverage > 3*.$signal_coverage ~ "signal_low_coverage",
-                        .$signal_coverage > 3*.$base_coverage ~ "base_low_coverage",
-                        abs(0.5-.$signal_ratio)*3 < abs(0.5-.$base_ratio) ~ "signal_uncertain",
-                        abs(0.5-.$base_ratio)*3 < abs(0.5-.$signal_ratio) ~ "base_uncertain",
-                        TRUE ~ "fail"),
-         base_genotype=ifelse(base_ratio>0.5, "ref", "alt"),
-         signal_genotype=ifelse(signal_ratio>0.5, "ref", "alt"),
-         genotype="fail",
-         genotype=ifelse(startsWith(info, "signal") | info == "pass", base_genotype, genotype),
-         genotype=ifelse(startsWith(info, "base"), signal_genotype, genotype)) %>%
-  rename(read_name=read)
-save(haplotype_df, file=file.path(outdir, "haplotype_df.RData"))
+load(file.path(outdir, "summary_df.RData"))
+load(file.path(outdir, "haplotype_df.RData"))
 
 fit_loess <- function(chr, read_name, start, percentMeth, ...) {
   x = data.frame(start=start, percentMeth=percentMeth)
@@ -90,8 +64,10 @@ process_file <- function(filepath) {
       if (length(start) > n_min){
         len <- max(start) - min(start)
         span <- 0.1 + 8e-11*((max(-len + 1e5, 0)))^2
-        reads[[i]] = fit_loess(chr, read_name, start, percentMeth, span=span)
-        i <- i + 1
+        try({
+          reads[[i]] = fit_loess(chr, read_name, start, percentMeth, span=span)
+          i <- i + 1
+        })
       }
       chr=line[1]
       read_name = name
@@ -108,7 +84,7 @@ process_file <- function(filepath) {
 
 fit_reads <- process_file(paste0(infile, ".methylation.sorted.by_read.tsv"))
 save(fit_reads, file=file.path(outdir, "fit_reads.RData"))
-#load(file.path(outdir, "fit_reads.RData"))
+# load(file.path(outdir, "fit_reads.RData"))
 
 fit_reads_df <- data_frame(read_name=sapply(fit_reads, function(x) { x$read_name })) %>% 
   mutate(id=row_number()) %>%

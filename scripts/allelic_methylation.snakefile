@@ -63,14 +63,28 @@ rule sort_by_site:
         "cat <(head -n 1 {input.meth}) - > {output} && "
         "rm -rf {output}.tmp"
 
-rule fit_reads:
+rule read_summary:
     input:
         "../nanopore/{sample}.sorted.bam.summary.tsv",
-        "../nanopore/{sample}.phased.tsv",
-        "../nanopore/{sample}.methylation.sorted.by_read.tsv"
     output:
         "../RData/{sample}/summary_df.RData",
+    shell:
+        "Rscript read_summary.R {input} {output}"
+
+rule read_haplotype:
+    input:
+        "../nanopore/{sample}.phased.tsv",
+    output:
         "../RData/{sample}/haplotype_df.RData",
+    shell:
+        "Rscript haplotype_summary.R {input} {output}"
+
+rule fit_reads:
+    input:
+        "../nanopore/{sample}.methylation.sorted.by_read.tsv"
+        "../RData/{sample}/haplotype_df.RData",
+        "../RData/{sample}/summary_df.RData",
+    output:
         "../RData/{sample}/fit_reads.RData",
         "../RData/{sample}/fit_reads_df.RData",
     params:
