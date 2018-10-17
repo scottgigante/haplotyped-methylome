@@ -8,80 +8,96 @@ rule download_rnaseq_B6Cast2:
         "../rna_seq/B6CastF1_2_R{file}.fastq.gz"
     params:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/004/ERR2639374/ERR2639374_{}.fastq.gz".format(
-            wildcards.file)
+            wildcards.file),
+        md5 = lambda wildcards, output: "../md5/rna_seq/B6CastF1_2_R{}.fastq.gz".format(
+            wildcards.file),
     shell:
         "wget -q -O {output} {params.url} && "
-        "md5sum -c {output}.md5"
+        "md5sum -c {params.md5}"
 
 rule download_rnaseq_B6Cast3:
     output:
         "../rna_seq/B6CastF1_3_R{file}.fastq.gz"
     params:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/005/ERR2639375/ERR2639375_{}.fastq.gz".format(
-            wildcards.file)
+            wildcards.file),
+        md5 = lambda wildcards, output: "../md5/rna_seq/B6CastF1_3_R{}.fastq.gz".format(
+            wildcards.file),
     shell:
         "wget -q -O {output} {params.url} && "
-        "md5sum -c {output}.md5"
+        "md5sum -c {params.md5}"
 
 rule download_rnaseq_B6Cast4:
     output:
         "../rna_seq/B6CastF1_4_R{file}.fastq.gz"
     params:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/006/ERR2639376/ERR2639376_{}.fastq.gz".format(
-            wildcards.file)
+            wildcards.file),
+        md5 = lambda wildcards, output: "../md5/rna_seq/B6CastF1_4_R{}.fastq.gz".format(
+            wildcards.file),
     shell:
         "wget -q -O {output} {params.url} && "
-        "md5sum -c {output}.md5"
+        "md5sum -c {params.md5}"
 
 rule download_rnaseq_B6Cast5:
     output:
         "../rna_seq/B6CastF1_5_R{file}.fastq.gz"
     params:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/008/ERR2639378/ERR2639378_{}.fastq.gz".format(
-            wildcards.file)
+            wildcards.file),
+        md5 = lambda wildcards, output: "../md5/rna_seq/B6CastF1_5_R{}.fastq.gz".format(
+            wildcards.file),
     shell:
         "wget -q -O {output} {params.url} && "
-        "md5sum -c {output}.md5"
+        "md5sum -c {params.md5}"
 
 rule download_rnaseq_CastB62:
     output:
         "../rna_seq/CastB6F1_2_R{file}.fastq.gz"
     params:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/000/ERR2639380/ERR2639380_{}.fastq.gz".format(
-            wildcards.file)
+            wildcards.file),
+        md5 = lambda wildcards, output: "../md5/rna_seq/CastB6F1_2_R{}.fastq.gz".format(
+            wildcards.file),
     shell:
         "wget -q -O {output} {params.url} && "
-        "md5sum -c {output}.md5"
+        "md5sum -c {params.md5}"
 
 rule download_rnaseq_CastB63:
     output:
         "../rna_seq/CastB6F1_3_R{file}.fastq.gz"
     params:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/001/ERR2639381/ERR2639381_{}.fastq.gz".format(
-            wildcards.file)
+            wildcards.file),
+        md5 = lambda wildcards, output: "../md5/rna_seq/CastB6F1_3_R{}.fastq.gz".format(
+            wildcards.file),
     shell:
         "wget -q -O {output} {params.url} && "
-        "md5sum -c {output}.md5"
+        "md5sum -c {params.md5}"
 
 rule download_rnaseq_CastB64:
     output:
         "../rna_seq/CastB6F1_4_R{file}.fastq.gz"
     params:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/002/ERR2639382/ERR2639382_{}.fastq.gz".format(
-            wildcards.file)
+            wildcards.file),
+        md5 = lambda wildcards, output: "../md5/rna_seq/CastB6F1_4_R{}.fastq.gz".format(
+            wildcards.file),
     shell:
         "wget -q -O {output} {params.url} && "
-        "md5sum -c {output}.md5"
+        "md5sum -c {params.md5}"
 
 rule download_rnaseq_CastB65:
     output:
         "../rna_seq/CastB6F1_5_R{file}.fastq.gz"
     params:
         url = lambda wildcards, output: "ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR263/003/ERR2639383/ERR2639383_{}.fastq.gz".format(
-            wildcards.file)
+            wildcards.file),
+        md5 = lambda wildcards, output: "../md5/rna_seq/CastB6F1_5_R{}.fastq.gz".format(
+            wildcards.file),
     shell:
         "wget -q -O {output} {params.url} && "
-        "md5sum -c {output}.md5"
+        "md5sum -c {params.md5}"
 
 rule trim_galore:
     input:

@@ -4,9 +4,9 @@ __pycache__
 desktop.ini
 .DS_Store
 .Rhistory
-nanopore
-bisulfite
-rna_seq
+./nanopore
+./bisulfite
+./rna_seq
 RData
 plots
 tables
