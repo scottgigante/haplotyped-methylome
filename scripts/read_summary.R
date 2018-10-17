@@ -8,7 +8,6 @@ suppressMessages(library(tidyverse))
 args = commandArgs(trailingOnly=TRUE)
 infile <- args[1]
 outfile <- args[2]
-dir.create(outdir, showWarnings = FALSE)
 
 summary_df <- read_tsv(infile,
                        col_names=c("read_name", "chr", "start", "end", "qual"), 

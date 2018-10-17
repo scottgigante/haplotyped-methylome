@@ -7,7 +7,6 @@ min_coverage <- 5
 args = commandArgs(trailingOnly=TRUE)
 infile <- args[1]
 outfile <- args[2]
-dir.create(outdir, showWarnings = FALSE)
 
 haplotype_df <- read_tsv(infile, col_types='ccddiddi') %>%
   mutate(signal_coverage = signal_ref + signal_alt,

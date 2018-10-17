@@ -14,7 +14,6 @@ n_min <- 7
 args = commandArgs(trailingOnly=TRUE)
 infile <- args[1]
 outdir <- args[2]
-dir.create(outdir, showWarnings = FALSE)
 
 load(file.path(outdir, "summary_df.RData"))
 load(file.path(outdir, "haplotype_df.RData"))

@@ -77,7 +77,7 @@ rule read_haplotype:
     output:
         "../RData/{sample}/haplotype_df.RData",
     shell:
-        "Rscript haplotype_summary.R {input} {output}"
+        "Rscript read_haplotypes.R {input} {output}"
 
 rule fit_reads:
     input:
