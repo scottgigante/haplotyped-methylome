@@ -216,22 +216,24 @@ rule map_hisat2:
         "../rna_seq/{sample}.hisat2.bam"
     threads:
         16
+    log:
+        "../rna_seq/{sample}.hisat2.log"
     shell:
         "hisat2 -p {threads} --no-softclip -x {params.base} -1 {input.r1} -2 {input.r2} | "
-        "samtools sort -n -@ {threads} -T {output}.samtools.tmp -o {output}"
+        "samtools sort -n -@ {threads} -T {output}.samtools.tmp -o {output} &> {log}"
 
 rule snp_split_hisat2:
     input:
         snp = "../genome_data/all_SNPs_CAST_EiJ_GRCm38.txt.gz",
         bam = "../rna_seq/{sample}.hisat2.bam"
     output:
-        "../rna_seq/{sample}.hisat2.genome1.bam",
-        "../rna_seq/{sample}.hisat2.genome2.bam",
+        genome1 = "../rna_seq/{sample}.hisat2.genome1.bam",
+        genome2 = "../rna_seq/{sample}.hisat2.genome2.bam",
     params:
         log = lambda wildcards, output: "../rna_seq/{}.snpsplit.log".format(
             wildcards.sample),
     shell:
-        "SNPsplit --snp_file {input.snp} --paired --no_sort {input.bam} &> {params.log}"
+        "SNPsplit --snp_file {input.snp} --paired --no_sort {input.bam} -o ../rna_seq/ &> {params.log}"
 
 rule snp_split_sort:
     input:

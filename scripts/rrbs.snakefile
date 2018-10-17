@@ -82,14 +82,14 @@ rule bismark_align:
     params:
         log = lambda wildcards, output: "../bisulfite/{}.bismark.log".format(
             wildcards.sample),
-        basename = lambda wildcards, output: "../bisulfite/{}".format(
+        basename = lambda wildcards, output: "{}".format(
             wildcards.sample),
         genome = "../bismark_genome/",
     threads:
         16
     shell:
         "bismark --gzip --bam --bowtie2 -p {threads} -B {params.basename} "
-        "{params.genome} -1 {input.r1} -2 {input.r2} &> {params.log}"
+        "-o ../bisulfite/ {params.genome} -1 {input.r1} -2 {input.r2} &> {params.log}"
 
 rule sort_bisulfite:
     input:
@@ -106,13 +106,13 @@ rule snpsplit_bismark:
         snp = "../genome_data/all_SNPs_CAST_EiJ_GRCm38.txt.gz",
         bam = "../bisulfite/{sample}_pe.sorted.bam",
     output:
-        "../bisulfite/{sample}_pe.sorted.genome1.bam",
-        "../bisulfite/{sample}_pe.sorted.genome2.bam",
+        genome1 = "../bisulfite/{sample}_pe.sorted.genome1.bam",
+        genome2 = "../bisulfite/{sample}_pe.sorted.genome2.bam",
     params:
         log = lambda wildcards, output: "../bisulfite/{}.snpsplit.log".format(
             wildcards.sample),
     shell:
-        "SNPsplit --paired --bisulfite --snp_file {input.snp} --no_sort {input.bam} &> {params.log}"
+        "SNPsplit --paired --bisulfite --snp_file {input.snp} --no_sort {input.bam} -o ../bisulfite/ &> {params.log}"
 
 rule bismark_extract:
     input:
