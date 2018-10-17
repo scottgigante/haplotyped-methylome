@@ -116,8 +116,7 @@ rule albacore_merge_output:
     output:
         "../nanopore/{sample}.fastq",
     shell:
-        "cat {input}/pass/*.fastq > {output} && "
-        "cat {input}/fail/*.fastq > {output}"
+        "find {input} -name '*.fastq' -exec cat {{}} \\+ > {output}"
 
 rule bwa_mem_align:
     input:
