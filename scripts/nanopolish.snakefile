@@ -66,20 +66,10 @@ rule untar:
     shell:
         "mkdir -p {output} && "
         "tar xzf {input} -C {output} && "
-        "find {output} -type d -links 2 -exec mv -t {output} {{}} \\+"
-
-rule untar_0525:
-    input:
-        "../nanopore/2017_05_25.b6xcast.minion.fast5.tar.gz",
-    output:
-        directory("../nanopore/2017_05_25.b6xcast.minion.fast5/")
-    shell:
-        "mkdir -p {output} && "
-        "tar xzf {input} -C {output} && "
-        "for i in {output}/fast5/*.tar.gz; do "
+        "find {output} -type d -links 2 -exec mv -t {output} {{}} \\+ && "
+        "for i in $(find {output} -name '*.tar.gz'); do "
         "  tar -xzf $i -C {output}; "
         "done"
-
 
 rule merge_b6xcast:
     input:
