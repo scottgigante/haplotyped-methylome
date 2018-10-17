@@ -81,7 +81,7 @@ rule read_haplotype:
 
 rule fit_reads:
     input:
-        "../nanopore/{sample}.methylation.sorted.by_read.tsv"
+        "../nanopore/{sample}.methylation.sorted.by_read.tsv",
         "../RData/{sample}/haplotype_df.RData",
         "../RData/{sample}/summary_df.RData",
     output:
@@ -95,7 +95,7 @@ rule fit_reads:
 rule split_methylation_by_haplotype:
     input:
         meth = "../nanopore/{sample}.methylation.sorted.by_site.tsv",
-        phase = "../nanopore/{sample}.phased.tsv"
+        phase = "../nanopore/{sample}.phased.tsv",
     output:
         "../nanopore/{sample}.methylation.sorted.by_site.tsv.ref.tsv",
         "../nanopore/{sample}.methylation.sorted.by_site.tsv.alt.tsv"
@@ -106,7 +106,7 @@ rule calculate_allele_meth_freq:
     input:
         "../nanopore/{sample}.methylation.sorted.by_site.tsv.{allele}.tsv",
     output:
-        "../nanopore/{sample}.methylation.{allele}_summary.tsv"
+        "../nanopore/{sample}.methylation.{allele}_summary.tsv",
     shell:
         "python calculate_methylation_frequency.py -i {input} -p > {output}"
 
@@ -125,9 +125,9 @@ rule compare_haplotype_methylation:
     input:
         meth = "../nanopore/{sample}.methylation.sorted.by_site.tsv",
         phase = "../nanopore/{sample}.phased.tsv",
-        region = "../genome_data/ICR_plot_regions_string.txt"
+        region = "../genome_data/ICR_plot_regions_string.txt",
     output:
-        "../nanopore/{sample}.compare_haplotype_methylation.tsv"
+        "../nanopore/{sample}.compare_haplotype_methylation.tsv",
     shell:
         "python compare_haplotype_methylation.py -m {input.meth} -p {input.phase} -b 11 -o 5 -r $(cat {input.region}) > {output}"
 
