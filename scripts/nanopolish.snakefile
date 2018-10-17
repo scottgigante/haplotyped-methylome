@@ -54,7 +54,7 @@ rule untar:
     shell:
         "mkdir -p {output} && "
         "tar xzf {input} -C {output} && "
-        "mv {output}/home/users/gouil.q/grpu_mritchie_0/AGRF_Data/*/fast5/raw/* {output} && "
+        "find {output} -type d -links 2 -exec mv -t {output} {} \\+ && "
         "rm -rf {output}/home"
 
 rule merge_b6xcast:
