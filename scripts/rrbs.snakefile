@@ -104,7 +104,7 @@ rule snpsplit_bismark:
         log = lambda wildcards, output: "../bisulfite/{}.snpsplit.log".format(
             wildcards.sample),
     shell:
-        "SNPsplit --paired --bisulfite --snp_file --no_sort {input.snp} {input.bam} &> {params.log}"
+        "SNPsplit --paired --bisulfite --snp_file {input.snp} --no_sort {input.bam} &> {params.log}"
 
 rule bismark_extract:
     input:
