@@ -57,13 +57,13 @@ rule fast5_md5:
 
 rule untar:
     input:
-        "../nanopore/{archive}.tar.gz",
+        tar = "../nanopore/{archive}.tar.gz",
         md5 = "../nanopore/{archive}.tar.gz.md5_ok",
     output:
         directory("../nanopore/{archive}/")
     shell:
         "mkdir -p {output} && "
-        "tar xzf {input} -C {output} && "
+        "tar xzf {input.tar} -C {output} && "
         "find {output} -mindepth 2 -type d -links 2  -exec mv -t {output} {{}} \\+ && "
         "for i in $(find {output} -name '*.tar.gz'); do "
         "  tar -xzf $i -C {output}; "
