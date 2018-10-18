@@ -3,64 +3,62 @@ rule download_fast5_b6xcast_0503:
         "../nanopore/2017_05_03.b6xcast.minion.fast5.tar.gz"
     params:
         url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_03_MOUSE_WGS_ONT.fast5.tar.gz",
-        md5 = "../md5/nanopore/2017_05_03.b6xcast.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url} && "
-        "md5sum -c {params.md5}"
+        "wget -q -O {output} {params.url}"
 
 rule download_fast5_b6xcast_0512:
     output:
         "../nanopore/2017_05_12.b6xcast.minion.fast5.tar.gz"
     params:
         url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_12_MOUSE_WGS_ONT.fast5.tar.gz",
-        md5 = "../md5/nanopore/2017_05_12.b6xcast.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url} && "
-        "md5sum -c {params.md5}"
+        "wget -q -O {output} {params.url}"
 
 rule download_fast5_b6xcast_0525:
     output:
         "../nanopore/2017_05_25.b6xcast.minion.fast5.tar.gz"
     params:
         url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/2017_05_25_MOUSE_WGS_ONT.fast5.tar.gz",
-        md5 = "../md5/nanopore/2017_05_25.b6xcast.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url} && "
-        "md5sum -c {params.md5}"
+        "wget -q -O {output} {params.url}"
 
 rule download_fast5_castxb6:
     output:
         "../nanopore/castxb6.promethion.fast5.tar.gz"
     params:
         url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/20180410_0355_BLEWITT_CASTB6_LSK109.fast5.tar.gz",
-        md5 = "../md5/nanopore/castxb6.promethion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url} && "
-        "md5sum -c {params.md5}"
+        "wget -q -O {output} {params.url}"
 
 rule download_fast5_b6:
     output:
         "../nanopore/b6.minion.fast5.tar.gz"
     params:
         url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/Black6_WGS_ONT.fast5.tar.gz",
-        md5 = "../md5/nanopore/b6.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url} && "
-        "md5sum -c {params.md5}"
+        "wget -q -O {output} {params.url}"
 
 rule download_fast5_cast:
     output:
         "../nanopore/cast.minion.fast5.tar.gz"
     params:
         url = "ftp://ftp.sra.ebi.ac.uk/vol1/ERA153/ERA1533189/oxfordnanopore_native/Cast_WGS_ONT.fast5.tar.gz",
-        md5 = "../md5/nanopore/cast.minion.fast5.tar.gz.md5"
     shell:
-        "wget -q -O {output} {params.url} && "
-        "md5sum -c {params.md5}"
+        "wget -q -O {output} {params.url}"
+
+rule fast5_md5:
+    input:
+        "../nanopore/{archive}.tar.gz",
+        md5 = "../md5/nanopore/{archive}.tar.gz.md5"
+    output:
+        temp("../nanopore/{archive}.tar.gz.md5_ok")
+    shell:
+        "md5sum -c {input.md5} && touch {output}"
 
 rule untar:
     input:
         "../nanopore/{archive}.tar.gz",
+        "../nanopore/{archive}.tar.gz.md5_ok",
     output:
         directory("../nanopore/{archive}/")
     shell:
