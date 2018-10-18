@@ -86,7 +86,8 @@ rule fastq_md5:
 
 rule trim_galore:
     input:
-        "../rna_seq/{archive}.fastq.gz.md5_ok",
+        "../{outdir}/{sample}_R1.fastq.gz.md5_ok",
+        "../{outdir}/{sample}_R2.fastq.gz.md5_ok",
         r1 = "../{outdir}/{sample}_R1.fastq.gz",
         r2 = "../{outdir}/{sample}_R2.fastq.gz",
     output:
