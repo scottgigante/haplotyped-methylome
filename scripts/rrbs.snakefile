@@ -74,7 +74,7 @@ rule bismark_align:
             wildcards.sample),
         genome = "../bismark_genome/",
     threads:
-        16
+        8
     shell:
         "bismark --gzip --bam --bowtie2 -p {threads} -B {params.basename} "
         "-o ../bisulfite/ {params.genome} -1 {input.r1} -2 {input.r2} &> {params.log}"
