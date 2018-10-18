@@ -1,5 +1,7 @@
 ## Haplotyped Methylome
 
+[![bioRxiv Preprint](https://zenodo.org/badge/doi/10.1101/445924.svg)](https://doi.org/10.1101/445924)
+
 Reproducibility instructions for Gigante et al., 2018.
 
 _Note: this repository is still being tested! If you find a bug, please file an issue._
