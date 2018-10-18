@@ -182,10 +182,6 @@ rule intermediate_download_bam:
     params:
         sample = lambda wildcards, output: wildcards.sample
     shell:
-        "mkdir -p ../nanopore/{params.sample}.fast5/ && "
-        "mkdir -p ../nanopore/{params.sample}.albacore/workspace && "
-        "touch ../nanopore/{params.sample}.fastq && "
-        "touch ../nanopore/{params.sample}.fastq.index.readdb && "
         "touch ../nanopore/{params.sample}.intermediate_bam && "
         "touch ../nanopore/{params.sample}.sorted.bam && "  # actually download
         "touch ../nanopore/{params.sample}.sorted.bam.bai"  # actually index
