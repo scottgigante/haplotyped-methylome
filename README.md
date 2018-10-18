@@ -2,7 +2,7 @@
 
 Reproducibility instructions for Gigante et al., 2018.
 
-_Note: this repository is under construction! If you find a bug, please file an issue._
+_Note: this repository is still being tested! If you find a bug, please file an issue._
 
 Data available at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view/PRJEB27157).
 
@@ -38,7 +38,7 @@ If you wish to avoid running `albacore`, `bwa` and `nanopolish` on the raw nanop
 snakemake intermediate_download
 ```
 
-_Note: the download link for these files is not yet available._
+_Note: the download link for these files is not yet available, but will be posted to ENA shortly._
 
 If you wish to rerun from the beginning after running this command, you can revert to the original download with `snakemake --forceall`.
 
