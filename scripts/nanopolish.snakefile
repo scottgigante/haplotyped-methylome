@@ -58,7 +58,7 @@ rule fast5_md5:
 rule untar:
     input:
         "../nanopore/{archive}.tar.gz",
-        "../nanopore/{archive}.tar.gz.md5_ok",
+        md5 = "../nanopore/{archive}.tar.gz.md5_ok",
     output:
         directory("../nanopore/{archive}/")
     shell:
@@ -172,20 +172,11 @@ rule nanopolish_phase:
         "nanopolish phase-reads -t 16 -r {input.reads} -b {input.bam} -g {input.genome} {input.vcf} | "
         "samtools sort -T {output}.samtools.tmp -@ {threads} -o {output}"
 
-rule fake_genome_download:
-    input:
-        "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
-    output:
-        temp("../nanopore/fake_genome.intermediate_download"),
-    shell:
-        "touch ../genome_data/GRCm38_90.fa && "
-        "touch ../genome_data/GRCm38_90.CAST_masked.fa && "
-        "touch ../genome_data/GRCm38_90.CAST_masked.fa.bwt && "
-        "touch ../nanopore/fake_genome.intermediate_download"
-
 rule intermediate_download_bam:
     input:
-        "../nanopore/fake_genome.intermediate_download",
+        "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
+        "../genome_data/GRCm38_90.fa",
+        "../genome_data/GRCm38_90.CAST_masked.fa",
     output:
         temp("../nanopore/{sample}.intermediate_bam"),
     params:
