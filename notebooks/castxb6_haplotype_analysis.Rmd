@@ -17,7 +17,6 @@ library(forcats)
 ```{r}
 load("../RData/castxb6.promethion/haplotype_df.RData")
 load("../RData/castxb6.promethion/summary_df.RData")
-load("../RData/castxb6.promethion/fit_reads_df.RData")
 ```
 
 ## Figure S2Ai
