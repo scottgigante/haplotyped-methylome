@@ -78,7 +78,7 @@ rule download_rnaseq_CastB65:
 rule fastq_md5:
     input:
         "../{outdir}/{archive}.fastq.gz",
-        md5 = "../md5/{outdir}/{archive}.fastq.gz.md5"
+        md5 = ancient("../md5/{outdir}/{archive}.fastq.gz.md5"),
     output:
         temp("../{outdir}/{archive}.fastq.gz.md5_ok")
     shell:
@@ -102,7 +102,7 @@ rule trim_galore:
 
 rule snpsplit_create_path:
     input:
-        "../genome_data/GRCm38_90.fa",
+        ancient("../genome_data/GRCm38_90.fa"),
     output:
         "../snpsplit_prepare_genome/GRCm38_90.fa"
     shell:
@@ -110,8 +110,8 @@ rule snpsplit_create_path:
 
 rule snpsplit_prepare_genome:
     input:
-        genome = "../snpsplit_prepare_genome/GRCm38_90.fa",
-        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"
+        genome = ancient("../snpsplit_prepare_genome/GRCm38_90.fa"),
+        vcf = ancient("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"),
     output:
         "../snpsplit_prepare_genome/CAST_EiJ_N-masked/chr1.N-masked.fa",
         "../snpsplit_prepare_genome/CAST_EiJ_N-masked/chr2.N-masked.fa",

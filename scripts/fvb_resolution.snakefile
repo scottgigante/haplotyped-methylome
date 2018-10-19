@@ -5,8 +5,8 @@ rule call_variant_proportion_threeway:
         suppdb = "../nanopore/b6xcast.minion.sorted.bam.suppdb",
         phased_bam = "../nanopore/b6xcast.minion.phased_sorted.bam",
         phased_bam_index = "../nanopore/b6xcast.minion.phased_sorted.bam.bai",
-        cast_vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
-        fvb_vcf = "../genome_data/FVB_NJ.mgp.v5.snps.dbSNP142.vcf",
+        cast_vcf = ancient("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"),
+        fvb_vcf = ancient("../genome_data/FVB_NJ.mgp.v5.snps.dbSNP142.vcf"),
     output:
         "../nanopore/b6xcast.minion.threeway_phased.tsv"
     shell:

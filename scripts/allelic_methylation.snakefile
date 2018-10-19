@@ -33,7 +33,7 @@ rule call_variant_proportion:
         suppdb = "../nanopore/{sample}.sorted.bam.suppdb",
         phased_bam = "../nanopore/{sample}.phased_sorted.bam",
         phased_bam_index = "../nanopore/{sample}.phased_sorted.bam.bai",
-        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
+        vcf = ancient("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"),
     output:
         "../nanopore/{sample}.phased.tsv"
     shell:

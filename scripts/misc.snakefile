@@ -72,8 +72,8 @@ rule download_vcf:
 
 rule mask_with_cast_genome:
     input:
-        fasta = "../genome_data/{genome}.fa",
-        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"
+        fasta = ancient("../genome_data/{genome}.fa"),
+        vcf = ancient("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"),
     output:
         "../genome_data/{genome}.CAST_masked.fa"
     shell:
@@ -81,7 +81,7 @@ rule mask_with_cast_genome:
 
 rule ensembl_gtf_to_tsv:
     input:
-        "../genome_data/Mus_musculus.GRCm38_90.chr.gtf",
+        ancient("../genome_data/Mus_musculus.GRCm38_90.chr.gtf"),
     output:
         "../genome_data/Mus_musculus.GRCm38_90.chr.genes.tsv",
     shell:
@@ -97,7 +97,7 @@ rule icr_plot_region_string:
 
 rule genome_cpg_coordinates:
     input:
-        "../genome_data/GRCm38_90.fa"
+        ancient("../genome_data/GRCm38_90.fa")
     output:
         "../genome_data/GRCm38_90.cpg_coordinates.tsv"
     shell:

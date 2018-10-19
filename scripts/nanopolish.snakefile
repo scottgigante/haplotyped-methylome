@@ -49,7 +49,7 @@ rule download_fast5_cast:
 rule fast5_md5:
     input:
         "../nanopore/{archive}.tar.gz",
-        md5 = "../md5/nanopore/{archive}.tar.gz.md5"
+        md5 = ancient("../md5/nanopore/{archive}.tar.gz.md5")
     output:
         temp("../nanopore/{archive}.tar.gz.md5_ok")
     shell:
@@ -158,11 +158,11 @@ rule nanopolish_methylation:
 
 rule nanopolish_phase:
     input:
-        genome = "../genome_data/GRCm38_90.fa",
+        genome = ancient("../genome_data/GRCm38_90.fa"),
         bam = "../nanopore/{sample}.sorted.bam",
         index = "../nanopore/{sample}.sorted.bam.bai",
         reads = "../nanopore/{sample}.fastq",
-        vcf = "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
+        vcf = ancient("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"),
         readdb = "../nanopore/{sample}.fastq.index.readdb"
     output:
         "../nanopore/{sample}.phased_sorted.bam"
@@ -174,8 +174,8 @@ rule nanopolish_phase:
 
 rule intermediate_download_bam:
     input:
-        "../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf",
-        "../genome_data/GRCm38_90.fa",
+        ancient("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"),
+        ancient("../genome_data/GRCm38_90.fa"),
         "../genome_data/GRCm38_90.CAST_masked.fa",
     output:
         temp("../nanopore/{sample}.intermediate_bam"),
