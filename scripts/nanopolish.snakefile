@@ -152,9 +152,9 @@ rule nanopolish_methylation:
     output:
         "../nanopore/{sample}.methylation.tsv"
     threads:
-        1
+        16
     shell:
-        "nanopolish call-methylation -t 16 -r {input.reads} -b {input.bam} -g {input.genome} > {output}"
+        "nanopolish call-methylation -t {threads} -r {input.reads} -b {input.bam} -g {input.genome} > {output}"
 
 rule nanopolish_phase:
     input:
@@ -167,9 +167,9 @@ rule nanopolish_phase:
     output:
         "../nanopore/{sample}.phased_sorted.bam"
     threads:
-        1
+        16
     shell:
-        "nanopolish phase-reads -t 16 -r {input.reads} -b {input.bam} -g {input.genome} {input.vcf} | "
+        "nanopolish phase-reads -t {threads} -r {input.reads} -b {input.bam} -g {input.genome} {input.vcf} | "
         "samtools sort -T {output}.samtools.tmp -@ {threads} -o {output}"
 
 rule intermediate_download_bam:
