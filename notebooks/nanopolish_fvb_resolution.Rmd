@@ -16,12 +16,12 @@ library(gridExtra)
 
 ```{r}
 min_coverage=5
+load("../RData/b6xcast.minion/summary_df.RData")
 base_fn <- "../nanopore/b6xcast.minion"
 haplotype_df <- read_tsv(paste0(base_fn, ".threeway_phased.tsv"),
                          col_types='ccdddidddi') %>%
   rename(read_name=read) %>%
-  inner_join(read_tsv(paste0(base_fn, ".summary.tsv"), 
-                      col_names=c("read_name", "chr", "start", "end", "qual"), skip=1, col_types='cciid'))
+  inner_join(summary_df)
 ```
 
 ## Define functions

@@ -2,7 +2,6 @@ rule b6_haplotype_analysis:
     input:
         "../RData/b6.minion/haplotype_df.RData",
         "../RData/b6.minion/summary_df.RData",
-        "../RData/b6.minion/fit_reads_df.RData",
         notebook = "../notebooks/b6_haplotype_analysis.Rmd",
     output:
         "../plots/b6.haplotype_score_combination.png",
@@ -16,7 +15,6 @@ rule cast_haplotype_analysis:
     input:
         "../RData/cast.minion/haplotype_df.RData",
         "../RData/cast.minion/summary_df.RData",
-        "../RData/cast.minion/fit_reads_df.RData",
         notebook = "../notebooks/cast_haplotype_analysis.Rmd",
     output:
         "../plots/cast.haplotype_score_combination.png",
@@ -30,7 +28,6 @@ rule b6xcast_haplotype_analysis:
     input:
         "../RData/b6xcast.minion/haplotype_df.RData",
         "../RData/b6xcast.minion/summary_df.RData",
-        "../RData/b6xcast.minion/fit_reads_df.RData",
         notebook = "../notebooks/b6xcast_haplotype_analysis.Rmd",
     output:
         "../plots/b6xcast.haplotype_score_combination.pdf",
@@ -44,7 +41,6 @@ rule castxb6_haplotype_analysis:
     input:
         "../RData/castxb6.promethion/haplotype_df.RData",
         "../RData/castxb6.promethion/summary_df.RData",
-        "../RData/castxb6.promethion/fit_reads_df.RData",
         notebook = "../notebooks/castxb6_haplotype_analysis.Rmd",
     output:
         "../plots/castxb6.haplotype_score_combination.png",

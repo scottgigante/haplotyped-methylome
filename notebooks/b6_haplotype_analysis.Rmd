@@ -17,7 +17,6 @@ library(forcats)
 ```{r}
 load("../RData/b6.minion/haplotype_df.RData")
 load("../RData/b6.minion/summary_df.RData")
-load("../RData/b6.minion/fit_reads_df.RData")
 ```
 
 ## Figure S2Aii

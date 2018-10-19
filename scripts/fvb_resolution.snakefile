@@ -14,7 +14,7 @@ rule call_variant_proportion_threeway:
 
 rule fvb_resolution:
     input:
-        "../nanopore/b6xcast.minion.sorted.bam.summary.tsv",
+        "../RData/b6xcast.minion/summary_df.RData",
         "../nanopore/b6xcast.minion.threeway_phased.tsv",
     output:
         "../genome_data/fvb_regions.txt",
@@ -31,6 +31,6 @@ rule merge_threeway_variants:
         summary = "../nanopore/b6xcast.minion.sorted.bam.summary.tsv",
         regions = "../genome_data/fvb_regions.txt",
     output:
-        "../nanopore/b6xcast.minion.phased.tsv"
+        "../nanopore/b6xcast.minion.phased.tsv",
     shell:
         "python merge_recombined_haplotypes.py -i {input.phase} -s {input.summary} -a alt2 -r $(cat {input.regions}) -o {output}"

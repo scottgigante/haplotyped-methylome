@@ -14,7 +14,7 @@ rule split_methylation_by_alignment:
         meth = "../nanopore/{sample}.methylation.tsv",
         suppdb = "../nanopore/{sample}.sorted.bam.suppdb",
     output:
-        "../nanopore/{sample}.methylation.split_supplementary.tsv"
+        temp("../nanopore/{sample}.methylation.split_supplementary.tsv"),
     shell:
         "python split_methylation_by_alignment.py {input.bam} {input.meth} > {output}"
 
@@ -98,7 +98,7 @@ rule split_methylation_by_haplotype:
         phase = "../nanopore/{sample}.phased.tsv",
     output:
         "../nanopore/{sample}.methylation.sorted.by_site.tsv.ref.tsv",
-        "../nanopore/{sample}.methylation.sorted.by_site.tsv.alt.tsv"
+        "../nanopore/{sample}.methylation.sorted.by_site.tsv.alt.tsv",
     shell:
         "python split_methylation_by_haplotype.py -m {input.meth} -p {input.phase}"
 
@@ -117,7 +117,7 @@ rule paired_dss:
         "../nanopore/castxb6.promethion.methylation.ref_summary.tsv",
         "../nanopore/castxb6.promethion.methylation.alt_summary.tsv",
     output:
-        "../RData/paired_DSS.RData"
+        "../RData/paired_DSS.RData",
     script:
         "dss_paired.R"
 
