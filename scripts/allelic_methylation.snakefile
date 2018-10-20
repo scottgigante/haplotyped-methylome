@@ -118,8 +118,10 @@ rule paired_dss:
         "../nanopore/castxb6.promethion.methylation.alt_summary.tsv",
     output:
         "../RData/paired_DSS.RData",
-    script:
-        "dss_paired.R"
+    log:
+        "../nanopore/dss.log",
+    shell:
+        "Rscript dss_paired.R &> {log}"
 
 rule compare_haplotype_methylation:
     input:
