@@ -36,8 +36,10 @@ rule call_variant_proportion:
         vcf = ancient("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"),
     output:
         "../nanopore/{sample}.phased.tsv"
+    threads:
+        2
     shell:
-        "python call_variant_proportion.py -b {input.bam} -p {input.phased_bam} -v {input.vcf} -o {output}"
+        "python call_variant_proportion.py -b {input.bam} -t {threads} -p {input.phased_bam} -v {input.vcf} -o {output}"
 
 rule sort_by_read:
     input:
