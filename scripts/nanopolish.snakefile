@@ -63,26 +63,41 @@ rule untar:
         directory("../nanopore/{archive}/")
     shell:
         "mkdir -p {output} && "
-        "tar xzf {input.tar} -C {output} && "
-        "find {output} -mindepth 2 -type d -links 2  -exec mv -t {output} {{}} \\+ && "
-        "for i in $(find {output} -name '*.tar.gz'); do "
-        "  tar -xzf $i -C {output} && rm $i; "
-        "done"
+        "tar xzf {input.tar} -C {output}"
+
+rule untar_cleanup:
+    input:
+        directory("../nanopore/{archive}/")
+    output:
+        temp("../nanopore/{archive}.tar_clean")
+    shell:
+        "find {input} -mindepth 2 -type d -links 2  -exec mv -t {input} {{}} \\+ && "
+        "find {input} -name '*.basecalled.*.tar.gz'  -exec rm {{}} \\+ && "
+        "for i in $(find {input} -name '*.tar.gz'); do "
+        "  tar -xzf $i -C {input} && rm $i; "
+        "done && "
+        "touch {output}"
 
 rule merge_b6xcast:
     input:
-        "../nanopore/2017_05_03.b6xcast.minion.fast5/",
-        "../nanopore/2017_05_12.b6xcast.minion.fast5/",
-        "../nanopore/2017_05_25.b6xcast.minion.fast5/",
+        indir = ("../nanopore/2017_05_03.b6xcast.minion.fast5/",
+                 "../nanopore/2017_05_12.b6xcast.minion.fast5/",
+                 "../nanopore/2017_05_25.b6xcast.minion.fast5/"),
+        indir_clean = ("../nanopore/2017_05_03.b6xcast.minion.fast5.tar_clean",
+                       "../nanopore/2017_05_12.b6xcast.minion.fast5.tar_clean",
+                       "../nanopore/2017_05_25.b6xcast.minion.fast5.tar_clean"),
     output:
-        directory("../nanopore/b6xcast.minion.fast5/"),
+        outdir = directory("../nanopore/b6xcast.minion.fast5/"),
+        outdir_clean = temp("../nanopore/b6xcast.minion.fast5.tar_clean"),
     shell:
-        "mkdir -p {output} && "
-        "for i in {input}; do mv $i {output}; done"
+        "mkdir -p {output.outdir} && "
+        "for i in {input.indir}; do mv $i {output.outdir}; done && "
+        "touch {output.outdir_clean}"
 
 rule albacore_minion:
     input:
-        "../nanopore/{sample}.minion.fast5/",
+        indir = "../nanopore/{sample}.minion.fast5/",
+        indir_clean = "../nanopore/{sample}.minion.fast5.tar_clean",
     output:
         directory("../nanopore/{sample}.minion.albacore/workspace"),
         "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
@@ -92,11 +107,12 @@ rule albacore_minion:
     threads:
         16
     shell:
-        "read_fast5_basecaller.py -c r94_450bps_linear.cfg -o fastq -i {input} -r -s {params.outdir} -t {threads} -q 0"
+        "read_fast5_basecaller.py -c r94_450bps_linear.cfg -o fastq -i {input.indir} -r -s {params.outdir} -t {threads} -q 0"
 
 rule albacore_promethion:
     input:
-        "../nanopore/{sample}.promethion.fast5/",
+        indir = "../nanopore/{sample}.promethion.fast5/",
+        indir_clean = "../nanopore/{sample}.promethion.fast5.tar_clean",
     output:
         directory("../nanopore/{sample}.promethion.albacore/workspace"),
         "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
@@ -106,7 +122,7 @@ rule albacore_promethion:
     threads:
         16
     shell:
-        "read_fast5_basecaller.py -c r941_450bps_linear_prom.cfg -o fastq -i {input} -r -s {params.outdir} -t {threads} -q 0"
+        "read_fast5_basecaller.py -c r941_450bps_linear_prom.cfg -o fastq -i {input.indir} -r -s {params.outdir} -t {threads} -q 0"
 
 rule albacore_merge_output:
     input:
