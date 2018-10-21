@@ -87,6 +87,18 @@ R package dependencies:
 Rscript install_R_deps.R
 ```
 
+### Known Issues
+
+* `rnaseq_analys.Rmd` failed: `there is no package called 'ggrastr'`
+
+If `devtools` doesn't play nicely with `conda`, sometimes the automatic GitHub installation of `ggrastr` fails. You can resolve if as follows:
+
+```
+git clone --depth 1 https://github.com/VPetukhov/ggrastr.git
+cd ggrastr
+R -e 'devtools::install()'
+```
+
 [![Directed Acyclic Dependency Graph: Methylation](methylation_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/methylation_dependency_graph.svg)
 
 [![Directed Acyclic Dependency Graph: Haplotyping](haplotype_dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/haplotype_dependency_graph.svg)

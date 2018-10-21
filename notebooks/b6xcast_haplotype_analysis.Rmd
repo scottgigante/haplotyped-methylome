@@ -16,7 +16,6 @@ library(forcats)
 
 ```{r}
 load("../RData/b6xcast.minion/haplotype_df.RData")
-load("../RData/b6xcast.minion/fit_reads_df.RData")
 load("../RData/b6xcast.minion/summary_df.RData")
 ```
 
@@ -50,15 +49,6 @@ ggsave("../plots/b6xcast.haplotype_decision_frequency.pdf", width=4, height=4)
 ```
 
 ## Figure 2B
-
-```{r}
-fit_reads_df %>%
-  filter(chr=="X",
-         genotype%in% c("ref", "alt")) %>%
-  group_by(genotype) %>%
-  summarise(count=n()) %>%
-  mutate(percentage=count/sum(count))
-```
 
 ```{r}
 p <- summary_df %>%
