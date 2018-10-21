@@ -14,7 +14,7 @@ Data available at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view
 
 * R
 * Python>=3.5
-* Lots of RAM (tested on 500GB)
+* Lots of RAM (min 256GB)
 * Lots of disk space (estimate: 2TB)
 
 #### Dependencies
