@@ -5,10 +5,10 @@
 # - file_prefix.phased.tsv
 # - file_prefix.methylation.sorted.by_read.tsv
 
-suppressMessages(library(tidyverse))
-suppressMessages(library(ggExtra))
-suppressMessages(library(broom))
-suppressMessages(library(data.table))
+suppressMessages(suppressPackageStartupMessages(library(tidyverse)))
+suppressMessages(suppressPackageStartupMessages(library(ggExtra)))
+suppressMessages(suppressPackageStartupMessages(library(broom)))
+suppressMessages(suppressPackageStartupMessages(library(data.table)))
 
 n_min <- 7
 args = commandArgs(trailingOnly=TRUE)

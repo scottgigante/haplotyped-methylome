@@ -1,6 +1,6 @@
-library(tidyverse)
-library(DSS)
-library(bsseq)
+suppressMessages(suppressPackageStartupMessages(library(tidyverse)))
+suppressMessages(suppressPackageStartupMessages(library(DSS)))
+suppressMessages(suppressPackageStartupMessages(library(bsseq)))
 
 meth_fn <- "../nanopore/b6xcast.minion.methylation"
 

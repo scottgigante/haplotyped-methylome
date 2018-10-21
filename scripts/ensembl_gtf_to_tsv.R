@@ -1,6 +1,6 @@
-library(magrittr)
-library(dplyr)
-library(readr)
+suppressMessages(suppressPackageStartupMessages(library(magrittr)))
+suppressMessages(suppressPackageStartupMessages(library(dplyr)))
+suppressMessages(suppressPackageStartupMessages(library(readr)))
 
 args <- commandArgs(trailingOnly = TRUE)
 gtf <- rtracklayer::import(args[1])

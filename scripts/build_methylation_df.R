@@ -1,5 +1,5 @@
-library(tidyverse)
-library(data.table)
+suppressMessages(suppressPackageStartupMessages(library(tidyverse)))
+suppressMessages(suppressPackageStartupMessages(library(data.table)))
 
 bisulfite_df <- read_tsv("../bisulfite/B6CastF1_1_pe.summary.tsv", col_names=c("chr","pos","percentMeth", "meth", "coverage"), col_types='ciddd') %>%
   arrange(chr, pos) %>%

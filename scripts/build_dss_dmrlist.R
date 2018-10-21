@@ -1,4 +1,4 @@
-library(tidyverse)
+suppressMessages(suppressPackageStartupMessages(library(tidyverse)))
 
 load("../RData/paired_DSS.RData")
 combined_dmr <- dmr_parent %>%

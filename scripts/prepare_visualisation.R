@@ -1,6 +1,6 @@
-library(GenomicRanges)
-library(tidyverse)
-library(data.table)
+suppressMessages(suppressPackageStartupMessages(library(GenomicRanges)))
+suppressMessages(suppressPackageStartupMessages(library(tidyverse)))
+suppressMessages(suppressPackageStartupMessages(library(data.table)))
 
 gtf <- rtracklayer::import("../genome_data/Mus_musculus.GRCm38_90.chr.gtf")
 knownGene <- gtf %>%
