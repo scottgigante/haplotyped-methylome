@@ -229,8 +229,10 @@ rule snp_split_sort:
         "../rna_seq/{sample}.hisat2.genome{allele}.sorted.bam",
     threads:
         4
+    log:
+        "../rna_seq/{sample}.hisat2.genome{allele}.sorted.log",
     shell:
-        "samtools sort -T {input}.samtools.tmp -@ {threads} -o {output} {input}"
+        "samtools sort -T {input}.samtools.tmp -@ {threads} -o {output} {input} &> {log}"
 
 strains = ['B6Cast', 'CastB6']
 samples = [2, 3, 4, 5]
