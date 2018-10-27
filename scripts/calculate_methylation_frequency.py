@@ -58,7 +58,11 @@ csv_reader = csv.DictReader(in_fh, delimiter='\t')
 
 for record in csv_reader:
 
-    num_sites = int(record['num_cpgs'])
+    try:
+        num_sites = int(record['num_motifs'])
+    except KeyError:
+        # backwards compatible
+        num_sites = int(record['num_cpgs'])
     llr = float(record['log_lik_ratio'])
 
     # Skip ambiguous call
