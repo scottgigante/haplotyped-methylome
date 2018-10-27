@@ -86,8 +86,10 @@ rule sort_bisulfite:
         "../bisulfite/{sample}_pe.sorted.bam",
     threads:
         8
+    log:
+        "../bisulfite/{sample}_pe.sorted.log",
     shell:
-        "samtools sort -n -@ {threads} -T {input}.samtools.tmp -o {output} {input}"
+        "samtools sort -n -@ {threads} -T {input}.samtools.tmp -o {output} {input} &> {log}"
 
 rule snpsplit_bismark:
     input:
