@@ -115,7 +115,7 @@ rule albacore_promethion:
         indir_clean = "../nanopore/{sample}.promethion.fast5.tar_clean",
     output:
         directory("../nanopore/{sample}.promethion.albacore/workspace"),
-        "../nanopore/{sample}.minion.albacore/sequencing_summary.txt",
+        "../nanopore/{sample}.promethion.albacore/sequencing_summary.txt",
     params:
         outdir = lambda wildcards, output: "../nanopore/{}.promethion.albacore".format(
             wildcards.sample)
