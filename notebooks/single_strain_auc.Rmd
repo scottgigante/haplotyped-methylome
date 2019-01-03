@@ -21,6 +21,7 @@ load("../RData/cast.minion/haplotype_df.RData")
 cast_haplotype_df <- haplotype_df
 rm(haplotype_df)
 
+set.seed(42)
 n <- min(nrow(cast_haplotype_df), nrow(b6_haplotype_df))
 cast_haplotype_df <- cast_haplotype_df[sample(n),]
 b6_haplotype_df <- b6_haplotype_df[sample(n),]

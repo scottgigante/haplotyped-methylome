@@ -10,6 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(viridis)
 library(forcats)
+library(ggrastr)
 library(gridExtra)
 
 ```
@@ -54,11 +55,14 @@ plot_rpart <- function(partitions) {
                            "chr1", "chr2", "chr3", "chr4", 
                            "chr5", "chr6", "chr7", "chr8", "chr9")) %>%
     ggplot(aes(x=pos)) +
-    geom_point(aes(y=prop), alpha=0.05, na.rm=TRUE) +
+    geom_point_rast(aes(y=prop), alpha=0.05, na.rm=TRUE) +
     geom_line(aes(y=tree), color='red') +
     facet_wrap(~ chr, ncol = 4, scales="free_x") +
     labs(x="Genomic Position (Mb)",
-         y="FVB Proportion of Maternal Reads")
+         y="FVB Proportion of Maternal Reads") +
+    theme(strip.text = element_text(size=16),
+          axis.title = element_text(size=16),
+          axis.text = element_text(size=14))
 }
 
 rpart_to_region <- function(result) {

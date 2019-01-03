@@ -9,6 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(viridis)
+library(ggrastr)
 library(forcats)
 ```
 
@@ -40,6 +41,9 @@ p <- summary_df %>%
   ggplot(aes(x=platform, y=count, fill=genotype)) +
   geom_bar(stat='identity', position='dodge', show.legend=FALSE) +
   theme_grey() +
+  theme(strip.text = element_text(size=16),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14)) +
   labs(x="Platform",
        y="Read Assignment (%)",
        fill="Genotype") +
@@ -65,10 +69,16 @@ p <- summary_df %>%
   geom_histogram(stat='count', position='dodge') +
   labs(fill="Haplotype", 
        x="Chromosome",
-       y="Count") +
+       y="Count (x1000)") +
   scale_fill_manual(limits=c("Maternal", "Paternal", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black")) +
+  scale_y_continuous(labels = scales::number_format(scale=1e-3)) +
   theme_grey() +
-  theme(legend.position = c(0.88, 0.80))
+  theme(strip.text = element_text(size=16),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14),
+        legend.position = c(0.865, 0.80))
 p
 ggsave("../plots/b6xcast.haplotype_by_chr.pdf", width=8, height=4)
 ```
@@ -83,12 +93,15 @@ p <- haplotype_df[sample(1:nrow(haplotype_df), 10000),] %>%
   ggplot(aes(x=signal_ratio, y=base_ratio, 
              colour=genotype, 
              pch=genotype)) +
-  geom_point(alpha=0.2, show.legend=FALSE) +
+  geom_point_rast(alpha=0.2, show.legend=FALSE) +
   labs(x="Signal-level score",
        y="Base-level score",
        colour="Haplotype",
        shape="Haplotype") +
-  theme_grey() + 
+  theme_grey() +
+  theme(strip.text = element_text(size=16),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14)) + 
   scale_colour_manual(limits=c("Maternal", "Paternal", "Filtered"), values=c("#F8766D", "#00BFC4", "grey50")) +
   scale_shape_discrete(limits=c("Maternal", "Paternal", "Filtered")) +
   guides(colour = guide_legend(override.aes = list(alpha = 1)))

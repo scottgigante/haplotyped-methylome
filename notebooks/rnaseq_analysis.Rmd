@@ -200,6 +200,12 @@ p <- imprint_de_results  %>%
        title = 'Imprinted Expression',
        shape = 'Novel imprinted gene') + 
   theme_gray() + 
+  theme(strip.text = element_text(size=16),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14),
+        plot.title = element_text(size=16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)) +
   scale_color_manual(values=c('Maternal dominant' = "#F8766D", 
                               'Paternal dominant' = "#00BFC4", 
                               'Not significant' = 'darkgrey')) + 
@@ -230,6 +236,12 @@ p2 <- strain_de_results  %>%
        colour = 'Differential Expression', 
        title = 'Strain-biased Expression') + 
   theme_gray() + 
+  theme(strip.text = element_text(size=16),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14),
+        plot.title = element_text(size=16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14)) +
   scale_color_manual(values=c('Cast dominant' = "#E69F00", 
                               'B6 dominant' = "#000000", 
                               'Not significant' = 'darkgrey'))
@@ -259,7 +271,13 @@ p <- ggplot(bias, aes(x = embryo, y = libsizes/1e6, fill = allele)) +
   facet_wrap(~ cross,scales = "free_x" ) + 
   ylim(c(0,NA)) + 
   labs(x = 'Sample', y = 'Counts (millions)', fill = 'Allele') + 
-  theme_gray()
+  theme_gray() +
+  theme(strip.text = element_text(size=16),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14),
+        plot.title = element_text(size=16),
+        legend.title = element_text(size=16),
+        legend.text = element_text(size=14))
 p
 save_plot('../plots/allelic_bias.pdf', p, base_aspect_ratio = 2)
 ```

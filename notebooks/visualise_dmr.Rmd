@@ -146,7 +146,7 @@ plot_fitted_region <- function(.chr, .start, .end, .highlight_start=NULL, .highl
     labs(colour="Genotype",
          x="", y="") +
     ggplot2::ylim(0,1) + 
-    geom_line(aes(x=start, y=percentMeth, colour=parent, group=id), size=0.5, show.legend=FALSE) +
+    geom_line(aes(x=start, y=percentMeth, colour=parent, group=id), size=1.5, show.legend=FALSE) +
     scale_color_manual(values=c('maternal' = "#F8766D", 
                               'paternal' = "#00BFC4"))
   if (site_track == "cpg") {

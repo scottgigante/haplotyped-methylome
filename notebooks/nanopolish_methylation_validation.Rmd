@@ -54,6 +54,9 @@ meth_df %>%
   geom_density() +
   labs(x=expression(paste("Methylation (", beta, ")")),
        y="Density") +
+  theme(strip.text = element_text(size=16),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14)) +
   scale_x_continuous(expand=c(0,0)) +
   scale_y_continuous(expand=c(0,0))
 ggsave("../plots/methylation_density.pdf")
@@ -62,11 +65,7 @@ ggsave("../plots/methylation_density.pdf")
 ## Figure 1D
 
 ```{r lm}
-lm_fit <- lm(percentMeth.bisulfite ~ percentMeth.nanopolish, data=meth_df)
-R2 <- 1 - (sum((lm_fit$residuals )^2) /
-             sum((meth_df$percentMeth.bisulfite-mean(meth_df$percentMeth.bisulfite))^2))
-R2
-cor(meth_df$percentMeth.bisulfite, meth_df$percentMeth.nanopolish)**2
+mad(meth_df$percentMeth.bisulfite - meth_df$percentMeth.nanopolish)
 ```
 
 ```{r}
@@ -122,7 +121,10 @@ p <- error_labels %>% ggplot(aes(x=x, y=y)) +
   labs(x="Nanopore Methylation",
        y="Bisulfite Methylation") +
   scale_x_continuous(expand = c(0,0)) +
-  scale_y_continuous(expand = c(0,0))
+  scale_y_continuous(expand = c(0,0)) +
+  theme(strip.text = element_text(size=16),
+        axis.title = element_text(size=16),
+        axis.text = element_text(size=14))
 p
 ggsave("../plots/binned_site_concordance.pdf")
 ```

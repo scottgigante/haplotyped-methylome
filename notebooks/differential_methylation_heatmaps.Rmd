@@ -11,6 +11,7 @@ library(tidyverse)
 library(forcats)
 library(data.table)
 library(viridis)
+library(ggrastr)
 library(cowplot)
 library(gtable)
 library(grid)
@@ -116,14 +117,19 @@ plot_ICR_heatmap2 <- function(genes, rolling_t_df, surrounding = 2000, tx_width=
            }))
   
   ggplot(overlap, aes(x=pos, y=gene, fill=diff)) +
-    geom_tile() + 
+    geom_tile_rast() + 
     labs(x="Genomic Position", y="Imprinting Control Region", fill="Methylation\nDifference", title=title) +
     scale_x_continuous(breaks=c(-1, 0, tx_width, tx_width+1), labels=c(paste0("-", surrounding/1000, " kb"), "ICR start", "ICR end", paste0("+", surrounding/1000, " kb")), expand = c(0, 0)) +
     geom_vline(xintercept=0, linetype=2) +
     geom_vline(xintercept=tx_width, linetype=2) +
     facet_grid(allele~., scales="free", space="free", switch = "both") +
     scale_fill_distiller(palette=palette, limits = c(-0.75,0.75), na.value = 'grey70') +
-    theme_grey() + 
+    theme_grey() +
+    theme(strip.text = element_text(size=16),
+          axis.title = element_text(size=16),
+          axis.text = element_text(size=14, color='black'),
+          legend.title = element_text(size=16),
+          legend.text = element_text(size=14)) + 
     scale_y_discrete(expand=c(0,0))
 }
 ```
@@ -170,5 +176,5 @@ recolor_facet_strips <- function(p) {
 ```{r} 
 p <- plot_ICR_heatmap2(ICRs, rolling_t_df, surrounding = 5000) %>%
   recolor_facet_strips()
-ggsave("../plots/primary_ICRs_heatmap.png", width=8, height=10, plot=p)
+ggsave("../plots/primary_ICRs_heatmap.pdf", width=8, height=10, plot=p)
 ```

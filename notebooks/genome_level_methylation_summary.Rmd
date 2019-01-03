@@ -99,7 +99,12 @@ metaplot <- function(gr, df, overhang=2000, feature_width=2, feature_breaks=c(0,
     labs(x="Relative Genomic Position",
          y="Methylation (%)") +
     coord_cartesian(ylim=c(0,1)) +
-    theme_grey()
+    theme_grey() +
+    theme(strip.text = element_text(size=16),
+          axis.title = element_text(size=16),
+          axis.text = element_text(size=14),
+          legend.title = element_text(size=16),
+          legend.text = element_text(size=14))
   if (!is.null(filename)) {
     ggsave(filename, plot=p, ...)
   }
@@ -138,14 +143,13 @@ split_by_cluster <- function(overlap, feature_width) {
 
 ```{r}
 metaplot(cpg_islands, nanopolish_df, label_fun=split_by_cluster, label_name="Cluster", feature_labels=c("CGI start", "CGI end"), overhang=20000) +
-  theme(legend.position = c(0.88, 0.85))
+  theme(legend.position = c(0.865, 0.85))
 ggsave("../plots/clustered_cgi_metaplot.pdf")
 ```
 
 ## Figure 1B 
 
 ```{r}
-metaplot(promoters, nanopolish_df, feature_breaks=c(0, 0.5, 1), feature_labels=c("5'", "TSS", "3'"), filename="../plots/promoter_metaplot.pdf")
 metaplot(protein_coding_genes, nanopolish_df, feature_breaks=c(0, 1), feature_labels=c("TSS", "TTS"), filename="../plots/gene_body_metaplot.pdf", overhang = 10000, span=0.03)
 ```
 
