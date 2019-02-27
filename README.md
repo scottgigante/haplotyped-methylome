@@ -1,12 +1,14 @@
 ## Haplotyped Methylome
 
-[![bioRxiv Preprint](https://zenodo.org/badge/doi/10.1101/445924.svg)](https://doi.org/10.1101/445924)
+[![Nucleic Acids Research Publication](https://zenodo.org/badge/doi/10.1093/nar/gkz107.svg)](https://doi.org/10.1101/445924)
 
 Reproducibility instructions for Gigante et al., 2018.
 
 _Note: this repository is still being tested! If you find a bug, please file an issue._
 
 Data available at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view/PRJEB27157).
+
+Author's note: there is an error in Figure S2 of the paper, in which the figure legend was marked Maternal/Patenral where it should have been Black6/Cast. A corrected version is available [here](https://raw.githubusercontent.com/scottgigante/haplotyped-methylome/master/Figure_S2.pdf).
 
 [![Directed Acyclic Dependency Graph](dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/dependency_graph.svg)
 

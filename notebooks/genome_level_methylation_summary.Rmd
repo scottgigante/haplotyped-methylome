@@ -97,7 +97,7 @@ metaplot <- function(gr, df, overhang=2000, feature_width=2, feature_breaks=c(0,
     scale_x_continuous(breaks=c(-1, feature_breaks*feature_width, feature_width + 1),
                        labels=c(paste0("-", overhang/1000, "Kb"), feature_labels, paste0("+", overhang/1000, "Kb"))) +
     labs(x="Relative Genomic Position",
-         y="Methylation (%)") +
+         y="Methylation") +
     coord_cartesian(ylim=c(0,1)) +
     theme_grey() +
     theme(strip.text = element_text(size=16),

@@ -31,7 +31,7 @@ p <- summary_df %>%
   mutate(platform="Nanopore") %>%
   mutate(genotype=factor(genotype, 
                          levels=c("ref", "alt", "fail", "no_snps"), 
-                         labels=c("Maternal", "Paternal", "Filtered", "Unassignable")),
+                         labels=c("Black6", "Cast", "Filtered", "Unassignable")),
          count=count/sum(count) * 100) %>%
   ggplot(aes(x=genotype, y=count, fill=genotype)) +
   geom_bar(stat='identity', position='dodge', show.legend=FALSE) +
@@ -42,7 +42,7 @@ p <- summary_df %>%
   labs(x="Haplotype",
        y="Read Assignment (%)",
        fill="Genotype") +
-  scale_fill_manual(limits=c("Maternal", "Paternal", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black")) +
+  scale_fill_manual(limits=c("Black6", "Cast", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black")) +
   theme(axis.text.x = element_blank())
 p
 ggsave("../plots/cast.haplotype_decision_frequency.pdf", width=2, height=4)
@@ -56,7 +56,7 @@ p <- summary_df %>%
   mutate(genotype=ifelse(is.na(genotype), "no_snp", genotype),
          genotype=factor(genotype,
                          levels=c("ref", "alt", "fail", "no_snp"),
-                         labels=c("Maternal", "Paternal", "Filtered", "Unassignable")),
+                         labels=c("Black6", "Cast", "Filtered", "Unassignable")),
          length=end-start) %>%
   filter(chr %in% c(as.character(1:20), 'X', 'Y')) %>%
   mutate(chr = factor(chr),
@@ -66,7 +66,7 @@ p <- summary_df %>%
   labs(fill="Haplotype", 
        x="Chromosome",
        y="Count") +
-  scale_fill_manual(limits=c("Maternal", "Paternal", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black")) +
+  scale_fill_manual(limits=c("Black6", "Cast", "Filtered", "Unassignable"), values=c("#F8766D", "#00BFC4", "grey50", "black")) +
   theme_grey() +
   theme(strip.text = element_text(size=16),
         axis.title = element_text(size=16),
@@ -84,7 +84,7 @@ ggsave("../plots/cast.haplotype_by_chr.pdf", width=8, height=4)
 p <- haplotype_df[sample(1:nrow(haplotype_df), 10000),] %>%
   mutate(genotype=factor(genotype,
                         levels=c("alt", "fail", "ref"),
-                        labels=c("Paternal", "Filtered", "Maternal"))) %>%
+                        labels=c("Cast", "Filtered", "Black6"))) %>%
   ggplot(aes(x=signal_ratio, y=base_ratio, 
              colour=genotype, 
              pch=genotype)) +
@@ -97,8 +97,8 @@ p <- haplotype_df[sample(1:nrow(haplotype_df), 10000),] %>%
   theme(strip.text = element_text(size=16),
         axis.title = element_text(size=16),
         axis.text = element_text(size=14)) + 
-  scale_colour_manual(limits=c("Maternal", "Paternal", "Filtered"), values=c("#F8766D", "#00BFC4", "grey50")) +
-  scale_shape_discrete(limits=c("Maternal", "Paternal", "Filtered")) +
+  scale_colour_manual(limits=c("Black6", "Cast", "Filtered"), values=c("#F8766D", "#00BFC4", "grey50")) +
+  scale_shape_discrete(limits=c("Black6", "Cast", "Filtered")) +
   guides(colour = guide_legend(override.aes = list(alpha = 1)))
 p
 ggsave("../plots/cast.haplotype_score_combination.pdf", height=4, width=4)
