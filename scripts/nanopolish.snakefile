@@ -187,32 +187,3 @@ rule nanopolish_phase:
     shell:
         "nanopolish phase-reads -t {threads} -r {input.reads} -b {input.bam} -g {input.genome} {input.vcf} | "
         "samtools sort -T {output}.samtools.tmp -@ {threads} -o {output}"
-
-rule intermediate_download_bam:
-    input:
-        ancient("../genome_data/CAST_EiJ.mgp.v5.snps.dbSNP142.vcf"),
-        ancient("../genome_data/GRCm38_90.fa"),
-        "../genome_data/GRCm38_90.CAST_masked.fa",
-    output:
-        temp("../nanopore/{sample}.intermediate_bam"),
-    params:
-        sample = lambda wildcards, output: wildcards.sample
-    shell:
-        "touch ../nanopore/{params.sample}.intermediate_bam && "
-        "touch ../nanopore/{params.sample}.sorted.bam && "  # actually download
-        "touch ../nanopore/{params.sample}.sorted.bam.bai"  # actually index
-
-
-rule intermediate_download_nanopolish:
-    input:
-        "../nanopore/{sample}.intermediate_bam",
-    params:
-        sample = lambda wildcards, output: wildcards.sample
-    output:
-        temp("../nanopore/{sample}.intermediate_download"),
-    shell:
-        # actually download
-        "touch ../nanopore/{params.sample}.phased_sorted.bam && "
-        # actually download
-        "touch ../nanopore/{params.sample}.methylation.tsv && "
-        "touch ../nanopore/{params.sample}.intermediate_download"
