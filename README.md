@@ -42,7 +42,7 @@ If you wish to avoid running `albacore`, `bwa` and `nanopolish` on the raw nanop
 snakemake intermediate_download
 ```
 
-_Note: the download link for these files is not yet available, but will be posted to ENA shortly._
+_Note: currently this only downloads the methylation files We hope to provide the alignment and phasing data in the future._
 
 If you wish to rerun from the beginning after running this command, you can revert to the original download with `snakemake --forceall`.
 
