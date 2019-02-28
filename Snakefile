@@ -14,6 +14,8 @@ include:
     "scripts/rna_seq.snakefile"
 include:
     "scripts/rrbs.snakefile"
+include:
+    "scripts/intermediate.snakefile"
 
 """Inputs:
         "../genome_data/imprinted_genes.tsv",
