@@ -8,7 +8,7 @@ _Note: this repository is still being tested! If you find a bug, please file an 
 
 Data available at [ENA Accession PRJEB27157](https://www.ebi.ac.uk/ena/data/view/PRJEB27157).
 
-Author's note: there is an error in Figure S2 of the paper, in which the figure legend was marked Maternal/Patenral where it should have been Black6/Cast. A corrected version is available [here](https://github.com/scottgigante/haplotyped-methylome/blob/master/Figure_S2.pdf).
+Author's note: there is an error in Figure S2 of the paper, in which the figure legend was marked Maternal/Paternal where it should have been Black6/Cast. A corrected version is available [here](https://github.com/scottgigante/haplotyped-methylome/blob/master/Figure_S2.pdf).
 
 [![Directed Acyclic Dependency Graph](dependency_graph.svg)](http://htmlpreview.github.io/?https://github.com/scottgigante/haplotyped-methylome/blob/master/dependency_graph.svg)
 
