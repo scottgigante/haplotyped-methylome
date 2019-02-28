@@ -2,7 +2,7 @@
 
 [![Nucleic Acids Research Publication](https://zenodo.org/badge/doi/10.1093/nar/gkz107.svg)](https://doi.org/10.1101/445924)
 
-Reproducibility instructions for Gigante et al., 2018.
+Reproducibility instructions for Gigante et al., 2019.
 
 _Note: this repository is still being tested! If you find a bug, please file an issue._
 
