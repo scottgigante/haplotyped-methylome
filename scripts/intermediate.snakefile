@@ -44,7 +44,6 @@ rule intermediate_gunzip:
         tsv = "../nanopore/{archive}.methylation.tsv.gz",
         md5_ok = "../nanopore/{archive}.methylation.tsv.gz.md5_ok"
     output:
-        "../nanopore/{archive}.methylation.tsv",
         signpost = "../nanopore/{archive}.intermediate_download"
     shell:
         "gunzip {input.tsv} && touch {output.signpost}"
